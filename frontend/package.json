@@ -1,0 +1,39 @@
+{
+  "name": "cv-offer-compare",
+  "version": "1.0.0",
+  "description": "Comparateur CV ↔ Offre d'emploi avec IA",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5",
+    "pinia": "^2.1.7",
+    "@vueuse/core": "^10.7.0",
+    "axios": "^1.6.2",
+    "@supabase/supabase-js": "^2.38.5",
+    "lucide-vue-next": "^0.294.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.2.0",
+    "radix-vue": "^1.4.0",
+    "@vueuse/head": "^2.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "vite": "^5.0.8",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "vue-tsc": "^1.8.25",
+    "eslint": "^8.56.0",
+    "@vue/eslint-config-typescript": "^12.0.0",
+    "eslint-plugin-vue": "^9.19.2"
+  }
+} 
