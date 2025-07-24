@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000", 
         "http://localhost:5173",
-        "https://cv-offer-comparer-mike-dreeman.vercel.app",  # Votre domaine Vercel
+        "https://cv-offer-comparer-mike-dreeman.vercel.app",  # Frontend Vercel
+        "https://cv-offer-comparer.onrender.com", # Backend Render
     ]
     
     # Upload
