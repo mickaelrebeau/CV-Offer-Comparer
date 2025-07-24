@@ -84,16 +84,9 @@ export const useCompareStore = defineStore('compare', () => {
     status.value = 'Début de l\'analyse...'
 
     try {
-      const response = await fetch('/api/compare-stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await getAuthToken()}`
-        },
-        body: JSON.stringify({
-          offer_text: offer,
-          cv_text: cv,
-        })
+      const response = await api.post('/compare-stream', {
+        offer_text: offer,
+        cv_text: cv,
       })
 
       if (!response.ok) {
