@@ -6,7 +6,7 @@
         Comparateur CV ↔ Offre d'emploi
       </h1>
       <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-        Analysez intelligemment la correspondance entre votre CV et les offres d'emploi 
+        Analysez intelligemment la correspondance entre votre CV et les offres d'emploi
         grâce à l'intelligence artificielle
       </p>
       <div class="flex justify-center space-x-4">
@@ -30,7 +30,7 @@
         </CardHeader>
         <CardContent>
           <p class="text-muted-foreground">
-            Notre IA analyse automatiquement les compétences, expériences et exigences 
+            Notre IA analyse automatiquement les compétences, expériences et exigences
             pour identifier les correspondances et les lacunes.
           </p>
         </CardContent>
@@ -45,7 +45,7 @@
         </CardHeader>
         <CardContent>
           <p class="text-muted-foreground">
-            Code couleur intuitif : vert pour les correspondances, rouge pour les 
+            Code couleur intuitif : vert pour les correspondances, rouge pour les
             éléments manquants, jaune pour les points confus.
           </p>
         </CardContent>
@@ -60,7 +60,7 @@
         </CardHeader>
         <CardContent>
           <p class="text-muted-foreground">
-            Recevez des suggestions pour améliorer votre CV et maximiser vos chances 
+            Recevez des suggestions pour améliorer votre CV et maximiser vos chances
             de décrocher l'emploi de vos rêves.
           </p>
         </CardContent>
@@ -73,7 +73,7 @@
         <CardTitle>Comment ça marche ?</CardTitle>
       </CardHeader>
       <CardContent>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="py-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">
             <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <span class="text-2xl font-bold text-primary">1</span>
@@ -104,6 +104,58 @@
         </div>
       </CardContent>
     </Card>
+
+    <!-- Confidentialité -->
+    <Card class="mt-12">
+      <CardHeader>
+        <div class="flex items-center gap-4">
+          <Shield class="h-6 w-6 text-primary" />
+          <CardTitle>
+            Confidentialité et sécurité
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div class="p-8 space-y-4 flex flex-col items-center gap-8">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
+              <CheckCircle class="h-4 w-4 text-green-600" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-green-700">Vos données ne sont pas sauvegardées</h4>
+              <p class="text-sm text-muted-foreground mt-1">
+                Vos CV et offres d'emploi sont analysés en temps réel et ne sont jamais stockés sur nos serveurs.
+                Une fois l'analyse terminée, toutes les données sont automatiquement supprimées.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+              <Lock class="h-4 w-4 text-blue-600" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-blue-700">Analyse sécurisée</h4>
+              <p class="text-sm text-muted-foreground mt-1">
+                L'analyse est effectuée via des connexions sécurisées et vos données ne sont utilisées
+                que pour générer les résultats de comparaison.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
+              <EyeOff class="h-4 w-4 text-purple-600" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-purple-700">Aucun accès humain</h4>
+              <p class="text-sm text-muted-foreground mt-1">
+                Seule notre IA accède à vos données pour l'analyse. Aucun être humain ne peut voir
+                le contenu de vos CV ou offres d'emploi.
+              </p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 </template>
 
@@ -113,7 +165,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, CheckCircle, Lightbulb } from 'lucide-vue-next'
+import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
