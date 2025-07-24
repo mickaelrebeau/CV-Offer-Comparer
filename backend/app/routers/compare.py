@@ -12,6 +12,34 @@ security = HTTPBearer()
 auth_service = AuthService()
 comparison_service = ComparisonService()
 
+@router.get("/test-stream")
+async def test_stream():
+    """Route de test pour vérifier que les SSE fonctionnent"""
+    
+    async def generate_test():
+        try:
+            for i in range(10):
+                yield f"data: {json.dumps({'type': 'status', 'message': f'Test message {i + 1}/10'})}\n\n"
+                yield f"data: {json.dumps({'type': 'progress', 'value': (i + 1) * 10, 'current': i + 1, 'total': 10})}\n\n"
+                await asyncio.sleep(0.5)
+            
+            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+            
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        generate_test(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*"
+        }
+    )
+
 @router.post("/compare-stream")
 async def compare_cv_offer_stream(
     request: ComparisonRequest, 
@@ -42,57 +70,64 @@ async def compare_cv_offer_stream(
             
             yield f"data: {json.dumps({'type': 'status', 'message': f'Début de la comparaison de {total_items} éléments...'})}\n\n"
             
-            for i, skill in enumerate(offer_skills):
-                # Envoyer le progrès
-                progress = (i / total_items) * 100 if total_items > 0 else 0
-                yield f"data: {json.dumps({'type': 'progress', 'value': progress, 'current': i + 1, 'total': total_items})}\n\n"
+            # Traitement par batch pour optimiser les performances
+            batch_size = 5
+            for i in range(0, total_items, batch_size):
+                batch = offer_skills[i:i + batch_size]
                 
-                # Trouver la meilleure correspondance
-                best_match = None
-                best_similarity = 0.0
+                for j, skill in enumerate(batch):
+                    current_index = i + j
+                    
+                    # Envoyer le progrès
+                    progress = (current_index / total_items) * 100 if total_items > 0 else 0
+                    yield f"data: {json.dumps({'type': 'progress', 'value': progress, 'current': current_index + 1, 'total': total_items})}\n\n"
+                    
+                    # Trouver la meilleure correspondance
+                    best_match = None
+                    best_similarity = 0.0
+                    
+                    for cv_skill in cv_skills:
+                        similarity = comparison_service.ai_service.compare_semantic(skill, cv_skill)
+                        if similarity > best_similarity:
+                            best_similarity = similarity
+                            best_match = cv_skill
+                    
+                    # Déterminer le statut
+                    if best_similarity > 0.6:
+                        status = "match"
+                        matches += 1
+                        cv_text = best_match
+                    elif best_similarity > 0.3:
+                        status = "unclear"
+                        unclear += 1
+                        cv_text = best_match if best_match else None
+                    else:
+                        status = "missing"
+                        missing += 1
+                        cv_text = None
+                    
+                    # Générer des suggestions si nécessaire
+                    suggestions = []
+                    if status in ["missing", "unclear"]:
+                        suggestions = comparison_service.ai_service.generate_suggestions(skill, status)
+                    
+                    from app.models.comparison import ComparisonItem
+                    item = ComparisonItem(
+                        id=str(current_index),
+                        category="compétences techniques",  # Simplifié pour l'exemple
+                        offerText=skill,
+                        cvText=cv_text,
+                        status=status,
+                        confidence=best_similarity,
+                        suggestions=suggestions if suggestions else None
+                    )
+                    comparison_items.append(item)
+                    
+                    # Envoyer l'élément immédiatement
+                    yield f"data: {json.dumps({'type': 'item', 'item': item.dict()})}\n\n"
                 
-                for cv_skill in cv_skills:
-                    similarity = comparison_service.ai_service.compare_semantic(skill, cv_skill)
-                    if similarity > best_similarity:
-                        best_similarity = similarity
-                        best_match = cv_skill
-                
-                # Déterminer le statut
-                if best_similarity > 0.6:
-                    status = "match"
-                    matches += 1
-                    cv_text = best_match
-                elif best_similarity > 0.3:
-                    status = "unclear"
-                    unclear += 1
-                    cv_text = best_match if best_match else None
-                else:
-                    status = "missing"
-                    missing += 1
-                    cv_text = None
-                
-                # Générer des suggestions si nécessaire
-                suggestions = []
-                if status in ["missing", "unclear"]:
-                    suggestions = comparison_service.ai_service.generate_suggestions(skill, status)
-                
-                from app.models.comparison import ComparisonItem
-                item = ComparisonItem(
-                    id=str(i),
-                    category="compétences techniques",  # Simplifié pour l'exemple
-                    offerText=skill,
-                    cvText=cv_text,
-                    status=status,
-                    confidence=best_similarity,
-                    suggestions=suggestions if suggestions else None
-                )
-                comparison_items.append(item)
-                
-                # Envoyer l'élément immédiatement
-                yield f"data: {json.dumps({'type': 'item', 'item': item.dict()})}\n\n"
-                
-                # Petite pause pour éviter de surcharger
-                await asyncio.sleep(0.1)
+                # Pause plus courte entre les batches
+                await asyncio.sleep(0.05)
             
             # Calculer le pourcentage de correspondance
             match_percentage = (matches / total_items) if total_items > 0 else 0.0
@@ -115,10 +150,12 @@ async def compare_cv_offer_stream(
     
     return StreamingResponse(
         generate_comparison(),
-        media_type="text/plain",
+        media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "Content-Type": "text/event-stream"
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*"
         }
     ) 

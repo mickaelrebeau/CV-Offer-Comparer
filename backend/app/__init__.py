@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from app.config import settings
 from app.routers import compare, upload, health
 
@@ -17,6 +18,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Middleware de compression pour optimiser les performances
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Inclure les routers
 app.include_router(health.router, prefix="/api", tags=["health"])
