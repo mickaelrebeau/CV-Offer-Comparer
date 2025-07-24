@@ -7,10 +7,7 @@ const getBaseURL = () => {
     return 'http://localhost:8000/api'
   }
   // En production, utilisez l'URL de votre backend déployé
-  return (
-    import.meta.env.VITE_API_URL ||
-    "https://cv-offer-comparer.onrender.com/api"
-  );
+  return ("https://cv-offer-comparer.onrender.com/api");
 }
 
 const api = axios.create({
