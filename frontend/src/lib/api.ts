@@ -189,4 +189,185 @@ export async function streamCompare(
   }
 }
 
+// Fonction pour l'analyse gratuite (sans authentification)
+export async function streamFreeCompare(
+  offerText: string,
+  cvText: string,
+  onStatus: (message: string) => void,
+  onProgress: (progress: number, current: number, total: number) => void,
+  onItem: (item: any) => void,
+  onSummary: (summary: any) => void,
+  onComplete: () => void,
+  onError: (error: string) => void
+) {
+  try {
+    const response = await fetch(`${getBaseURL()}/free-compare-stream`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+      },
+      body: JSON.stringify({
+        offer_text: offerText,
+        cv_text: cvText,
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("Vous avez déjà utilisé votre analyse gratuite. Veuillez créer un compte pour continuer.");
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("Impossible de lire la réponse");
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || ""; // Garder la dernière ligne incomplète
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          try {
+            const data = JSON.parse(line.slice(6));
+
+            switch (data.type) {
+              case "status":
+                onStatus(data.message);
+                break;
+              case "progress":
+                onProgress(data.value, data.current, data.total);
+                break;
+              case "item":
+                onItem(data.item);
+                break;
+              case "summary":
+                onSummary(data.summary);
+                break;
+              case "complete":
+                onComplete();
+                break;
+              case "error":
+                onError(data.message);
+                break;
+            }
+          } catch (e) {
+            console.error("Erreur parsing SSE:", e);
+          }
+        }
+      }
+    }
+  } catch (error: any) {
+    onError(error.message || "Erreur lors de la comparaison gratuite");
+  }
+}
+
+// Fonction pour vérifier le statut de l'analyse gratuite
+export async function checkFreeAnalysisStatus() {
+  try {
+    const response = await fetch(`${getBaseURL()}/free-analysis-status`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erreur lors de la vérification du statut:", error);
+    return { 
+      can_use_free_analysis: false, 
+      message: "Erreur de vérification - Utilisation du mode fallback",
+      error: error.message 
+    };
+  }
+}
+
+// Fonction pour réinitialiser l'analyse gratuite (pour les tests)
+export async function resetFreeAnalysis() {
+  try {
+    const response = await fetch(`${getBaseURL()}/reset-free-analysis`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erreur lors de la réinitialisation:", error);
+    throw error;
+  }
+}
+
+// Fonction pour récupérer les statistiques des analyses gratuites
+export async function getFreeAnalysisStats() {
+  try {
+    const response = await fetch(`${getBaseURL()}/free-analysis-stats`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erreur lors de la récupération des statistiques:", error);
+    return {
+      stats: { total_free_analyses: 0, today_free_analyses: 0, date: new Date().toISOString().split('T')[0] },
+      redis_health: false,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+// Fonction pour uploader un CV PDF pour l'essai gratuit
+export async function uploadFreeCV(file: File): Promise<{ success: boolean; text: string; message: string }> {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${getBaseURL()}/free-upload-cv`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erreur lors de l'upload du CV gratuit:", error);
+    return {
+      success: false,
+      text: "",
+      message: error.message || "Erreur lors de l'upload du CV"
+    };
+  }
+}
+
 export { api } 
