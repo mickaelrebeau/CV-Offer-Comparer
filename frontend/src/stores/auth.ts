@@ -75,10 +75,26 @@ export const useAuthStore = defineStore('auth', () => {
     return currentUser
   }
 
+  async function deleteAccount() {
+    loading.value = true;
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(
+        user.value?.id || ""
+      );
+      if (error) throw error;
+      user.value = null;
+      return { error: null };
+    } catch (error) {
+      return { error };
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // Écouter les changements d'authentification
   supabase.auth.onAuthStateChange((event, session) => {
-    user.value = session?.user ?? null
-  })
+    user.value = session?.user ?? null;
+  });
 
   return {
     user,
@@ -87,7 +103,8 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signIn,
     signOut,
+    deleteAccount,
     getCurrentUser,
     initializeAuth,
-  }
+  };
 }) 
