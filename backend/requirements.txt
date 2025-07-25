@@ -22,6 +22,9 @@ pandas>=2.1.0,<3.0.0
 # Validation and HTTP
 httpx>=0.25.0
 
+# Redis
+redis>=5.0.0
+
 # PDF processing
 PyPDF2>=3.0.1
 pdfplumber>=0.10.3
