@@ -14,7 +14,7 @@
         <div class="container mx-auto px-4 py-4">
           <nav class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <h1 class="text-2xl font-bold text-primary">
+              <h1 class="text-2xl font-bold text-primary cursor-pointer" @click="router.push('/')">
                 Comparateur CV ↔ Offre
               </h1>
             </div>
@@ -44,9 +44,11 @@ import { Sun, Moon } from 'lucide-vue-next'
 import UserMenu from '@/components/UserMenu.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const { isDark, toggleTheme } = useTheme()
 const authStore = useAuthStore()
+const router = useRouter()
 
 // Initialiser l'authentification au démarrage
 onMounted(async () => {
