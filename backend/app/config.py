@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # Production settings
     ENVIRONMENT: str = "development"
     
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_PASSWORD: str = ""
+    REDIS_DB: int = 0
+    
     class Config:
         env_file = ".env"
         # Permettre les champs supplémentaires dans le fichier .env
