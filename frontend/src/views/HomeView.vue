@@ -14,10 +14,7 @@
           🎁 Essai gratuit
         </Button>
         <Button variant="outline" size="lg" @click="startComparison">
-          Comparateur complet
-        </Button>
-        <Button variant="outline" size="lg" @click="$router.push('/login')">
-          Se connecter
+          S'incrire
         </Button>
       </div>
     </div>
@@ -197,7 +194,7 @@ const startFreeTrial = () => {
 
 // Fonction pour commencer la comparaison (analyse gratuite ou connectée)
 const startComparison = () => {
-  router.push('/compare')
+  router.push('/register')
 }
 
 // Rediriger automatiquement les utilisateurs connectés vers la page de comparaison
