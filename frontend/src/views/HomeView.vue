@@ -11,7 +11,7 @@
       </p>
       <div class="flex justify-center space-x-4">
         <Button size="lg" @click="startFreeTrial">
-          🎁 Essai gratuit
+          🎁 Essai offert
         </Button>
         <Button variant="outline" size="lg" @click="startComparison">
           S'incrire
@@ -107,10 +107,10 @@
         <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
             <Gift class="h-5 w-5 text-blue-600" />
-            <h4 class="font-semibold text-blue-800">Essai gratuit disponible</h4>
+            <h4 class="font-semibold text-blue-800">Essai offert disponible</h4>
           </div>
           <p class="text-sm text-blue-700">
-            Testez notre outil gratuitement avec une première analyse. Une seule analyse gratuite par utilisateur. 
+            Testez notre outil gratuitement avec une première analyse. Une seule analyse offerte par utilisateur. 
             Créez un compte pour des analyses illimitées !
           </p>
           <div class="mt-3">
