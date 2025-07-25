@@ -10,8 +10,11 @@
         grâce à l'intelligence artificielle
       </p>
       <div class="flex justify-center space-x-4">
-        <Button size="lg" @click="$router.push('/compare')">
-          Commencer la comparaison
+        <Button size="lg" @click="startFreeTrial">
+          🎁 Essai gratuit
+        </Button>
+        <Button variant="outline" size="lg" @click="startComparison">
+          Comparateur complet
         </Button>
         <Button variant="outline" size="lg" @click="$router.push('/login')">
           Se connecter
@@ -75,8 +78,8 @@
       <CardContent>
         <div class="py-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl font-bold text-primary">1</span>
+            <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-green-500">1</span>
             </div>
             <h3 class="font-semibold mb-2">Collez vos textes</h3>
             <p class="text-sm text-muted-foreground">
@@ -84,8 +87,8 @@
             </p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl font-bold text-primary">2</span>
+            <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-blue-500">2</span>
             </div>
             <h3 class="font-semibold mb-2">Lancez l'analyse</h3>
             <p class="text-sm text-muted-foreground">
@@ -93,13 +96,30 @@
             </p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span class="text-2xl font-bold text-primary">3</span>
+            <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-purple-500">3</span>
             </div>
             <h3 class="font-semibold mb-2">Consultez les résultats</h3>
             <p class="text-sm text-muted-foreground">
               Visualisez les résultats avec notre interface intuitive et colorée.
             </p>
+          </div>
+        </div>
+
+        <!-- Information sur l'analyse gratuite -->
+        <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <Gift class="h-5 w-5 text-blue-600" />
+            <h4 class="font-semibold text-blue-800">Essai gratuit disponible</h4>
+          </div>
+          <p class="text-sm text-blue-700">
+            Testez notre outil gratuitement avec une première analyse. Une seule analyse gratuite par utilisateur. 
+            Créez un compte pour des analyses illimitées !
+          </p>
+          <div class="mt-3">
+            <Button size="sm" @click="startFreeTrial" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+              Commencer l'essai gratuit
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -165,10 +185,20 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff } from 'lucide-vue-next'
+import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff, Gift } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+// Fonction pour commencer l'essai gratuit
+const startFreeTrial = () => {
+  router.push('/free-trial')
+}
+
+// Fonction pour commencer la comparaison (analyse gratuite ou connectée)
+const startComparison = () => {
+  router.push('/compare')
+}
 
 // Rediriger automatiquement les utilisateurs connectés vers la page de comparaison
 onMounted(() => {
