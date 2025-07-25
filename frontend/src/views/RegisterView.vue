@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-md mx-auto">
+  <div class="max-w-md mx-auto mt-12">
     <Card>
       <CardHeader>
         <CardTitle>Créer un compte</CardTitle>
@@ -13,43 +13,23 @@
             <label for="email" class="block text-sm font-medium mb-2">
               Email
             </label>
-            <input
-              id="email"
-              v-model="email"
-              type="email"
-              required
-              class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
-              placeholder="votre@email.com"
-            />
+            <Input id="email" v-model="email" type="email" required placeholder="votre@email.com" />
           </div>
-          
+
           <div>
             <label for="password" class="block text-sm font-medium mb-2">
               Mot de passe
             </label>
-            <input
-              id="password"
-              v-model="password"
-              type="password"
-              required
-              minlength="6"
-              class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
-              placeholder="Au moins 6 caractères"
-            />
+            <Input id="password" v-model="password" type="password" required minlength="6"
+              placeholder="Au moins 6 caractères" :show-password-toggle="true" />
           </div>
 
           <div>
             <label for="confirmPassword" class="block text-sm font-medium mb-2">
               Confirmer le mot de passe
             </label>
-            <input
-              id="confirmPassword"
-              v-model="confirmPassword"
-              type="password"
-              required
-              class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
-              placeholder="Confirmez votre mot de passe"
-            />
+            <Input id="confirmPassword" v-model="confirmPassword" type="password" required
+              placeholder="Confirmez votre mot de passe" :show-password-toggle="true" />
           </div>
 
           <div v-if="error" class="text-destructive text-sm">
@@ -60,7 +40,10 @@
             {{ success }}
           </div>
 
-          <Button type="submit" :disabled="loading" class="w-full">
+          <div class="mt-10"/>
+
+          <Button type="submit" variant="default" size="lg" :disabled="loading"
+            class="py-2 px-4 w-full bg-primary hover:bg-primary/90 text-white rounded-md">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
             Créer un compte
           </Button>
@@ -84,6 +67,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
