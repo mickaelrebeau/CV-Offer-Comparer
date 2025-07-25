@@ -1,7 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api, streamCompare } from "@/lib/api";
+import {
+  api,
+  streamCompare,
+  streamFreeCompare,
+  checkFreeAnalysisStatus,
+} from "@/lib/api";
 import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "./auth";
 
 export interface ComparisonItem {
   id: string;
@@ -32,11 +38,54 @@ export const useCompareStore = defineStore("compare", () => {
   const error = ref<string | null>(null);
   const progress = ref(0);
   const status = ref("");
+  const hasUsedFreeAnalysis = ref(false);
+
+  // Vérifier si l'utilisateur a déjà utilisé son analyse gratuite
+  const checkFreeAnalysisUsage = async () => {
+    try {
+      const { isAuthenticated } = useAuthStore();
+
+      // Si l'utilisateur est connecté, il peut toujours analyser
+      if (isAuthenticated) {
+        hasUsedFreeAnalysis.value = false;
+        return false;
+      }
+
+      // Vérifier le statut côté serveur
+      const status = await checkFreeAnalysisStatus();
+      hasUsedFreeAnalysis.value = !status.can_use_free_analysis;
+      return hasUsedFreeAnalysis.value;
+    } catch (error) {
+      console.error("Erreur lors de la vérification du statut:", error);
+      // En cas d'erreur, utiliser le localStorage comme fallback
+      const used = localStorage.getItem("cv-offer-compare-free-analysis-used");
+      hasUsedFreeAnalysis.value = used === "true";
+      return hasUsedFreeAnalysis.value;
+    }
+  };
+
+  // Marquer l'analyse gratuite comme utilisée
+  const markFreeAnalysisAsUsed = () => {
+    localStorage.setItem("cv-offer-compare-free-analysis-used", "true");
+    hasUsedFreeAnalysis.value = true;
+  };
+
+  // Réinitialiser l'analyse gratuite (pour les tests ou si nécessaire)
+  const resetFreeAnalysis = () => {
+    localStorage.removeItem("cv-offer-compare-free-analysis-used");
+    hasUsedFreeAnalysis.value = false;
+  };
 
   const hasData = computed(() => {
     const offer = String(offerText.value || "");
     const cv = String(cvText.value || "");
     return offer.trim() && cv.trim();
+  });
+
+  // Vérifier si l'utilisateur peut faire une analyse
+  const canAnalyze = computed(() => {
+    const { isAuthenticated } = useAuthStore();
+    return !hasUsedFreeAnalysis.value || isAuthenticated;
   });
 
   async function compareCVWithOffer() {
@@ -59,6 +108,12 @@ export const useCompareStore = defineStore("compare", () => {
       });
 
       comparisonResult.value = response.data;
+
+      // Marquer l'analyse gratuite comme utilisée si l'utilisateur n'est pas connecté
+      const { isAuthenticated } = useAuthStore();
+      if (!isAuthenticated) {
+        markFreeAnalysisAsUsed();
+      }
     } catch (err: any) {
       error.value =
         err.response?.data?.detail || "Erreur lors de la comparaison";
@@ -88,7 +143,14 @@ export const useCompareStore = defineStore("compare", () => {
     let summary: any = null;
 
     try {
-      await streamCompare(
+      const { isAuthenticated } = useAuthStore();
+
+      // Utiliser la route appropriée selon l'état d'authentification
+      const streamFunction = isAuthenticated
+        ? streamCompare
+        : streamFreeCompare;
+
+      await streamFunction(
         offer,
         cv,
         // onStatus
@@ -128,6 +190,11 @@ export const useCompareStore = defineStore("compare", () => {
         () => {
           status.value = "Comparaison terminée";
           console.log("Comparaison terminée");
+
+          // Marquer l'analyse gratuite comme utilisée si l'utilisateur n'est pas connecté
+          if (!isAuthenticated) {
+            markFreeAnalysisAsUsed();
+          }
         },
         // onError
         (errorMessage: string) => {
@@ -187,10 +254,15 @@ export const useCompareStore = defineStore("compare", () => {
     progress,
     status,
     hasData,
+    hasUsedFreeAnalysis,
+    canAnalyze,
     compareCVWithOffer,
     compareCVWithOfferStream,
     clearData,
     updateOfferText,
     updateCVText,
+    checkFreeAnalysisUsage,
+    markFreeAnalysisAsUsed,
+    resetFreeAnalysis,
   };
 }); 
