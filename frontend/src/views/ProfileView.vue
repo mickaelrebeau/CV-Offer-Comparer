@@ -9,7 +9,7 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <!-- Informations utilisateur -->
       <Card>
         <CardHeader>
@@ -22,10 +22,6 @@
               <p class="text-muted-foreground">{{ user?.email }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-2">ID utilisateur</label>
-              <p class="text-muted-foreground text-sm">{{ user?.id }}</p>
-            </div>
-            <div>
               <label class="block text-sm font-medium mb-2">Date d'inscription</label>
               <p class="text-muted-foreground">
                 {{ user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : 'N/A' }}
@@ -35,62 +31,87 @@
         </CardContent>
       </Card>
 
-      <!-- Statistiques -->
-      <Card>
+      <!-- Actions -->
+      <Card class="mt-6">
         <CardHeader>
-          <CardTitle>Statistiques</CardTitle>
+          <CardTitle>Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium">Comparaisons effectuées</span>
-              <span class="text-2xl font-bold text-primary">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium">Score moyen</span>
-              <span class="text-2xl font-bold text-match">0%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium">Dernière activité</span>
-              <span class="text-sm text-muted-foreground">Aujourd'hui</span>
-            </div>
+          <div class="mb-10 border-b border-gray-800" />
+          <div class="space-y-4 flex flex-col">
+            <Button variant="destructive" @click="handleSignOut">
+              Se déconnecter
+            </Button>
+            <Button variant="outline" @click="showDeleteModal = true">
+              Supprimer mon compte
+            </Button>
           </div>
         </CardContent>
       </Card>
     </div>
 
-    <!-- Actions -->
-    <Card class="mt-6">
-      <CardHeader>
-        <CardTitle>Actions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div class="space-y-4">
-          <Button variant="outline" @click="$router.push('/compare')">
-            Nouvelle comparaison
-          </Button>
-          <Button variant="destructive" @click="handleSignOut">
-            Se déconnecter
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <!-- Modal de confirmation de suppression -->
+    <Modal :is-open="showDeleteModal" title="Confirmer la suppression"
+      message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible, vous ne pourrez plus accéder à votre compte."
+      confirm-text="Supprimer le compte" cancel-text="Annuler" type="error" @confirm="handleDeleteAccount"
+      @cancel="showDeleteModal = false" @close="showDeleteModal = false" />
+
+    <!-- Notification -->
+    <Notification :is-open="showNotification" :message="notificationMessage" :type="notificationType"
+      @close="showNotification = false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/stores/auth'
+import { ref } from 'vue'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card/index'
+import { Button } from '../components/ui/button/index'
+import { Modal } from '../components/ui/modal/index'
+import { Notification } from '../components/ui/notification/index'
+import { useAuthStore } from '../stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
-const { user, signOut } = authStore
+const { user, signOut, deleteAccount } = authStore
+
+// État des modals et notifications
+const showDeleteModal = ref(false)
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref<'info' | 'warning' | 'error' | 'success'>('info')
 
 async function handleSignOut() {
   await signOut()
   router.push('/')
+}
+
+async function handleDeleteAccount() {
+  showDeleteModal.value = false
+
+  try {
+    const { error } = await deleteAccount()
+    if (error) {
+      notificationMessage.value = `Erreur lors de la suppression du compte : ${error.message}`
+      notificationType.value = 'error'
+      showNotification.value = true
+      return
+    }
+
+    notificationMessage.value = 'Votre compte a été supprimé avec succès.'
+    notificationType.value = 'success'
+    showNotification.value = true
+
+    // Redirection après un délai pour permettre à l'utilisateur de voir le message
+    setTimeout(() => {
+      router.push('/')
+    }, 2000)
+  } catch (error) {
+    console.error('Erreur lors de la suppression du compte:', error)
+    notificationMessage.value = 'Une erreur inattendue s\'est produite lors de la suppression du compte.'
+    notificationType.value = 'error'
+    showNotification.value = true
+  }
 }
 </script> 
