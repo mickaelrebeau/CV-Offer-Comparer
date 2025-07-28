@@ -2,10 +2,10 @@
   <div class="max-w-7xl mx-auto">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-primary mb-2">
-        🎁 Essai Gratuit - Comparateur CV ↔ Offre d'emploi
+        🎁 Essai Offert - Comparateur CV ↔ Offre d'emploi
       </h1>
       <p class="text-muted-foreground">
-        Testez notre outil gratuitement ! Une seule analyse gratuite par utilisateur.
+        Testez notre outil gratuitement ! Une seule analyse offerte par utilisateur.
       </p>
       
       <!-- Statut de l'essai gratuit -->
