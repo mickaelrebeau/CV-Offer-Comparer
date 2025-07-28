@@ -135,7 +135,7 @@
       <CardContent>
         <div class="p-8 space-y-4 flex flex-col items-center gap-8">
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
+            <div class="p-1 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
               <CheckCircle class="h-4 w-4 text-green-600" />
             </div>
             <div>
@@ -147,7 +147,7 @@
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
+            <div class="p-1 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
               <Lock class="h-4 w-4 text-blue-600" />
             </div>
             <div>
@@ -159,7 +159,7 @@
             </div>
           </div>
           <div class="flex items-start gap-3">
-            <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
+            <div class="p-1 w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-0.5">
               <EyeOff class="h-4 w-4 text-purple-600" />
             </div>
             <div>
