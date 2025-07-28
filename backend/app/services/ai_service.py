@@ -1,12 +1,316 @@
 import google.generativeai as genai
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from app.config import settings
+import torch
+from transformers import AutoTokenizer, AutoModel
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import hashlib
+import pickle
+import os
 
 class AIService:
     def __init__(self):
+        # Configuration pour l'API Google (gardé pour l'extraction des compétences)
         genai.configure(api_key=settings.GOOGLE_API_KEY)
         self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        
+        # Configuration pour les modèles locaux
+        self._init_local_models()
+        
+        # Cache pour les embeddings
+        self.embedding_cache = {}
+        self.cache_file = "embedding_cache.pkl"
+        self._load_cache()
+    
+    def _init_local_models(self):
+        """Initialise les modèles locaux pour la comparaison sémantique"""
+        try:
+            # CamemBERT pour le français (modèle plus spécialisé)
+            self.camembert_tokenizer = AutoTokenizer.from_pretrained('camembert-base')
+            self.camembert_model = AutoModel.from_pretrained('camembert-base')
+            
+            # Sentence Transformers spécialisé pour les compétences techniques
+            self.sentence_transformer = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
+            
+            # TF-IDF pour la comparaison lexicale
+            self.tfidf_vectorizer = TfidfVectorizer(
+                ngram_range=(1, 3),
+                max_features=10000,
+                stop_words='english'
+            )
+            
+            # Mode évaluation pour les modèles
+            self.camembert_model.eval()
+            
+            print("Modèles locaux chargés avec succès")
+            
+        except Exception as e:
+            print(f"Erreur lors du chargement des modèles locaux: {e}")
+            self.camembert_tokenizer = None
+            self.camembert_model = None
+            self.sentence_transformer = None
+            self.tfidf_vectorizer = None
+    
+    def _load_cache(self):
+        """Charge le cache d'embeddings depuis le fichier"""
+        try:
+            if os.path.exists(self.cache_file):
+                with open(self.cache_file, 'rb') as f:
+                    self.embedding_cache = pickle.load(f)
+                print(f"Cache chargé: {len(self.embedding_cache)} embeddings")
+        except Exception as e:
+            print(f"Erreur lors du chargement du cache: {e}")
+            self.embedding_cache = {}
+    
+    def _save_cache(self):
+        """Sauvegarde le cache d'embeddings"""
+        try:
+            with open(self.cache_file, 'wb') as f:
+                pickle.dump(self.embedding_cache, f)
+        except Exception as e:
+            print(f"Erreur lors de la sauvegarde du cache: {e}")
+    
+    def _get_cache_key(self, text: str, model_type: str) -> str:
+        """Génère une clé de cache pour un texte et un type de modèle"""
+        text_hash = hashlib.md5(text.encode()).hexdigest()
+        return f"{model_type}_{text_hash}"
+    
+    def _normalize_text(self, text: str) -> str:
+        """Normalise le texte pour améliorer la comparaison"""
+        # Nettoyage basique
+        text = text.lower().strip()
+        
+        # Remplacement des caractères spéciaux
+        text = re.sub(r'[^\w\s\-\.]', ' ', text)
+        
+        # Normalisation des espaces
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Normalisation des versions de technologies
+        replacements = {
+            'js': 'javascript',
+            'reactjs': 'react',
+            'vuejs': 'vue',
+            'nodejs': 'node.js',
+            'python3': 'python',
+            'py': 'python',
+            'aws lambda': 'aws',
+            'amazon web services': 'aws',
+            'docker container': 'docker',
+            'kubernetes k8s': 'kubernetes',
+            'git version control': 'git',
+            'html5': 'html',
+            'css3': 'css',
+            'javascript es6': 'javascript',
+            'javascript es7': 'javascript',
+            'javascript es8': 'javascript',
+            'javascript es9': 'javascript',
+            'javascript es10': 'javascript',
+            'javascript es11': 'javascript',
+            'javascript es12': 'javascript',
+            'javascript es13': 'javascript',
+            'javascript es14': 'javascript',
+            'javascript es15': 'javascript',
+            'javascript es16': 'javascript',
+            'javascript es17': 'javascript',
+            'javascript es18': 'javascript',
+            'javascript es19': 'javascript',
+            'javascript es20': 'javascript',
+        }
+        
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        
+        return text.strip()
+    
+    def _get_embeddings_camembert(self, text: str) -> np.ndarray:
+        """Génère les embeddings avec CamemBERT avec cache"""
+        if not self.camembert_tokenizer or not self.camembert_model:
+            return None
+        
+        # Normaliser le texte
+        normalized_text = self._normalize_text(text)
+        cache_key = self._get_cache_key(normalized_text, "camembert")
+        
+        # Vérifier le cache
+        if cache_key in self.embedding_cache:
+            return self.embedding_cache[cache_key]
+        
+        try:
+            # Tokenisation avec padding et truncation
+            inputs = self.camembert_tokenizer(
+                normalized_text, 
+                return_tensors="pt", 
+                padding=True, 
+                truncation=True, 
+                max_length=512
+            )
+            
+            # Génération des embeddings
+            with torch.no_grad():
+                outputs = self.camembert_model(**inputs)
+                # Utiliser le dernier hidden state et faire une moyenne pondérée
+                attention_mask = inputs['attention_mask']
+                embeddings = (outputs.last_hidden_state * attention_mask.unsqueeze(-1)).sum(dim=1) / attention_mask.sum(dim=1, keepdim=True)
+                result = embeddings.numpy()
+                
+                # Mettre en cache
+                self.embedding_cache[cache_key] = result
+                return result
+                
+        except Exception as e:
+            print(f"Erreur lors de la génération d'embeddings CamemBERT: {e}")
+            return None
+    
+    def _get_embeddings_sentence_transformer(self, text: str) -> np.ndarray:
+        """Génère les embeddings avec Sentence Transformers avec cache"""
+        if not self.sentence_transformer:
+            return None
+        
+        # Normaliser le texte
+        normalized_text = self._normalize_text(text)
+        cache_key = self._get_cache_key(normalized_text, "sentence_transformer")
+        
+        # Vérifier le cache
+        if cache_key in self.embedding_cache:
+            return self.embedding_cache[cache_key]
+        
+        try:
+            embeddings = self.sentence_transformer.encode([normalized_text])
+            result = embeddings
+            
+            # Mettre en cache
+            self.embedding_cache[cache_key] = result
+            return result
+            
+        except Exception as e:
+            print(f"Erreur lors de la génération d'embeddings Sentence Transformer: {e}")
+            return None
+    
+    def _calculate_tfidf_similarity(self, text1: str, text2: str) -> float:
+        """Calcule la similarité TF-IDF entre deux textes"""
+        try:
+            # Normaliser les textes
+            norm_text1 = self._normalize_text(text1)
+            norm_text2 = self._normalize_text(text2)
+            
+            # Créer la matrice TF-IDF
+            tfidf_matrix = self.tfidf_vectorizer.fit_transform([norm_text1, norm_text2])
+            
+            # Calculer la similarité cosinus
+            similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+            return float(similarity)
+            
+        except Exception as e:
+            print(f"Erreur lors du calcul TF-IDF: {e}")
+            return 0.0
+    
+    def _calculate_semantic_similarity(self, text1: str, text2: str) -> float:
+        """Calcule la similarité sémantique entre deux textes avec pondération"""
+        
+        similarities = []
+        weights = []
+        
+        # 1. Similarité CamemBERT (poids: 0.4)
+        emb1_camembert = self._get_embeddings_camembert(text1)
+        emb2_camembert = self._get_embeddings_camembert(text2)
+        
+        if emb1_camembert is not None and emb2_camembert is not None:
+            similarity = cosine_similarity(emb1_camembert, emb2_camembert)[0][0]
+            similarities.append(float(similarity))
+            weights.append(0.4)
+        
+        # 2. Similarité Sentence Transformer (poids: 0.3)
+        emb1_st = self._get_embeddings_sentence_transformer(text1)
+        emb2_st = self._get_embeddings_sentence_transformer(text2)
+        
+        if emb1_st is not None and emb2_st is not None:
+            similarity = cosine_similarity(emb1_st, emb2_st)[0][0]
+            similarities.append(float(similarity))
+            weights.append(0.3)
+        
+        # 3. Similarité TF-IDF (poids: 0.2)
+        tfidf_similarity = self._calculate_tfidf_similarity(text1, text2)
+        similarities.append(tfidf_similarity)
+        weights.append(0.2)
+        
+        # 4. Similarité basique (poids: 0.1)
+        basic_similarity = self._basic_similarity(text1, text2)
+        similarities.append(basic_similarity)
+        weights.append(0.1)
+        
+        # Calculer la moyenne pondérée
+        if similarities and weights:
+            weighted_similarity = sum(s * w for s, w in zip(similarities, weights)) / sum(weights)
+            return weighted_similarity
+        
+        # Fallback sur la comparaison basique
+        return self._basic_similarity(text1, text2)
+    
+    def _enhance_similarity_with_context(self, similarity: float, text1: str, text2: str) -> float:
+        """Améliore la similarité en tenant compte du contexte"""
+        
+        # Boost pour les correspondances exactes partielles
+        norm_text1 = self._normalize_text(text1)
+        norm_text2 = self._normalize_text(text2)
+        
+        # Vérifier les mots-clés communs
+        words1 = set(norm_text1.split())
+        words2 = set(norm_text2.split())
+        common_words = words1.intersection(words2)
+        
+        if len(common_words) > 0:
+            # Boost basé sur le nombre de mots communs
+            word_overlap = len(common_words) / max(len(words1), len(words2))
+            if word_overlap > 0.5:
+                similarity = min(similarity * 1.2, 1.0)
+            elif word_overlap > 0.3:
+                similarity = min(similarity * 1.1, 1.0)
+        
+        # Boost pour les synonymes
+        synonyms = self._get_synonyms()
+        for key, syn_list in synonyms.items():
+            if (key in norm_text1 or any(syn in norm_text1 for syn in syn_list)) and \
+               (key in norm_text2 or any(syn in norm_text2 for syn in syn_list)):
+                similarity = min(similarity * 1.15, 1.0)
+                break
+        
+        # Boost pour les technologies liées
+        tech_relations = self._get_tech_relations()
+        for tech_group in tech_relations:
+            if any(tech in norm_text1 for tech in tech_group) and \
+               any(tech in norm_text2 for tech in tech_group):
+                similarity = min(similarity * 1.1, 1.0)
+                break
+        
+        return similarity
+    
+    def _get_tech_relations(self) -> List[List[str]]:
+        """Retourne les relations entre technologies"""
+        return [
+            # Frontend
+            ['react', 'vue', 'angular', 'svelte', 'frontend', 'javascript'],
+            # Backend
+            ['node.js', 'python', 'java', 'php', 'backend', 'api'],
+            # Database
+            ['sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'database'],
+            # Cloud
+            ['aws', 'azure', 'gcp', 'docker', 'kubernetes', 'cloud'],
+            # DevOps
+            ['git', 'ci/cd', 'jenkins', 'github', 'gitlab', 'devops'],
+            # Mobile
+            ['react native', 'flutter', 'ios', 'android', 'mobile'],
+            # Design
+            ['photoshop', 'illustrator', 'figma', 'sketch', 'design', 'ui', 'ux'],
+            # Analytics
+            ['google analytics', 'mixpanel', 'amplitude', 'analytics'],
+            # Marketing
+            ['seo', 'sem', 'google ads', 'facebook ads', 'marketing'],
+        ]
     
     def extract_skills(self, text: str, job_category: str = None) -> List[str]:
         """Extrait les compétences d'un texte en utilisant l'IA"""
@@ -147,7 +451,7 @@ class AIService:
         return found_skills
     
     def compare_semantic(self, offer_skill: str, cv_skill: str) -> float:
-        """Compare deux compétences sémantiquement"""
+        """Compare deux compétences sémantiquement avec les modèles locaux améliorés"""
         
         # Nettoyer et normaliser les textes
         offer_clean = offer_skill.lower().strip()
@@ -158,7 +462,7 @@ class AIService:
             return 1.0
         
         if offer_clean in cv_clean or cv_clean in offer_clean:
-            return 0.9
+            return 0.95
         
         # Vérifier les mots-clés communs
         offer_words = set(offer_clean.split())
@@ -169,41 +473,30 @@ class AIService:
             total_words = len(offer_words.union(cv_words))
             similarity = len(common_words) / total_words
             if similarity > 0.3:
-                return max(similarity, 0.6)
+                return max(similarity, 0.7)
         
         # Vérifier les synonymes
         synonyms = self._get_synonyms()
         for key, syn_list in synonyms.items():
             if key in offer_clean or any(syn in offer_clean for syn in syn_list):
                 if key in cv_clean or any(syn in cv_clean for syn in syn_list):
-                    return 0.8
+                    return 0.85
         
-        # Utiliser l'IA pour une comparaison plus fine
-        prompt = f"""
-        Compare ces deux compétences et donne un score de similarité entre 0 et 1.
-        Réponds uniquement avec le nombre (ex: 0.85).
+        # Utiliser les modèles locaux pour une comparaison sémantique
+        semantic_similarity = self._calculate_semantic_similarity(offer_skill, cv_skill)
         
-        Compétence de l'offre: "{offer_skill}"
-        Compétence du CV: "{cv_skill}"
+        # Améliorer avec le contexte
+        enhanced_similarity = self._enhance_similarity_with_context(semantic_similarity, offer_skill, cv_skill)
         
-        Considère:
-        - Les synonymes et variations
-        - Les niveaux de compétence (débutant/expert)
-        - Les technologies similaires
-        - Les domaines connexes
-        """
-        
-        try:
-            response = self.model.generate_content(prompt)
-            score_text = response.text.strip()
-            score_match = re.search(r'0\.\d+', score_text)
-            if score_match:
-                score = float(score_match.group())
-                return min(score * 1.2, 1.0)
-            else:
-                return self._basic_similarity(offer_skill, cv_skill)
-        except Exception:
-            return self._basic_similarity(offer_skill, cv_skill)
+        # Ajuster le score en fonction du contexte
+        if enhanced_similarity > 0.8:
+            return min(enhanced_similarity * 1.05, 1.0)
+        elif enhanced_similarity > 0.6:
+            return enhanced_similarity
+        elif enhanced_similarity > 0.4:
+            return enhanced_similarity * 0.9
+        else:
+            return enhanced_similarity * 0.8
     
     def _get_synonyms(self) -> Dict[str, List[str]]:
         """Retourne le dictionnaire de synonymes"""
@@ -280,15 +573,120 @@ class AIService:
         if status not in ["missing", "unclear"]:
             return []
         
+        # Suggestions par défaut basées sur le type de compétence
+        default_suggestions = self._get_default_suggestions(skill, status)
+        
         prompt = f"""
-        Pour cette exigence: "{skill}"
-        Donne 2-3 suggestions concrètes pour l'améliorer dans un CV.
-        Réponses courtes et pratiques.
+        Pour cette exigence de l'offre d'emploi: "{skill}"
+        
+        Statut: {status}
+        
+        Génère 2-3 suggestions concrètes et pratiques pour améliorer cette compétence dans un CV.
+        
+        Format de réponse attendu:
+        - Suggestion 1
+        - Suggestion 2  
+        - Suggestion 3
+        
+        Exemples de suggestions:
+        - Ajouter des projets concrets utilisant cette compétence
+        - Mentionner des certifications pertinentes
+        - Décrire des expériences spécifiques
+        - Inclure des outils ou technologies associés
+
+        Exemple de réponse:
+        - Ajouter des projets concrets utilisant cette compétence
+        - Mentionner des certifications pertinentes
+        - Décrire des expériences spécifiques
+        - Inclure des outils ou technologies associés
+
+        Réponds uniquement avec les suggestions, sans autre texte.
+        Ne réponds pas avec des explications, des commentaires ou des phrases.
+        Ne réponds pas avec des exemples de code ou des exemples de projets.
+        Ne réponds pas avec des suggestions qui ne sont pas pertinentes pour améliorer la compétence.
+        Ne réponds pas avec des suggestions qui ne sont pas concrètes et pratiques.
         """
         
         try:
             response = self.model.generate_content(prompt)
-            suggestions = [s.strip() for s in response.text.split('\n') if s.strip()]
-            return suggestions
+            
+            # Nettoyer et parser la réponse
+            suggestions = []
+            lines = response.text.strip().split('\n')
+            
+            for line in lines:
+                line = line.strip()
+                if line and (line.startswith('-') or line.startswith('•') or line.startswith('*')):
+                    # Enlever le préfixe et nettoyer
+                    suggestion = line.lstrip('-•* ').strip()
+                    if suggestion:
+                        suggestions.append(suggestion)
+                elif line and not line.startswith('Format') and not line.startswith('Exemples'):
+                    # Si pas de préfixe mais ligne non vide
+                    suggestions.append(line)
+            
+            # Si aucune suggestion générée par l'IA, utiliser les suggestions par défaut
+            if not suggestions:
+                suggestions = default_suggestions
+            
+            return suggestions[:3]  # Limiter à 3 suggestions max
+            
         except Exception:
-            return [] 
+            return default_suggestions
+    
+    def _get_default_suggestions(self, skill: str, status: str) -> List[str]:
+        """Génère des suggestions par défaut basées sur le type de compétence"""
+        skill_lower = skill.lower()
+        
+        # Suggestions génériques
+        generic_suggestions = [
+            f"Ajouter des projets concrets utilisant {skill}",
+            f"Mentionner des expériences professionnelles avec {skill}",
+            f"Inclure des certifications ou formations en {skill}"
+        ]
+        
+        # Suggestions spécifiques par type de compétence
+        if any(tech in skill_lower for tech in ['python', 'javascript', 'java', 'c++', 'c#', 'php', 'ruby', 'go', 'rust']):
+            return [
+                f"Créer des projets GitHub utilisant {skill}",
+                f"Mentionner des frameworks populaires avec {skill}",
+                f"Ajouter des exemples de code {skill} dans votre portfolio"
+            ]
+        elif any(tech in skill_lower for tech in ['react', 'vue', 'angular', 'svelte']):
+            return [
+                f"Développer des applications web avec {skill}",
+                f"Mentionner des projets frontend utilisant {skill}",
+                f"Inclure des compétences en responsive design avec {skill}"
+            ]
+        elif any(tech in skill_lower for tech in ['docker', 'kubernetes', 'aws', 'azure', 'gcp']):
+            return [
+                f"Documenter des déploiements avec {skill}",
+                f"Mentionner des projets cloud utilisant {skill}",
+                f"Ajouter des certifications cloud avec {skill}"
+            ]
+        elif any(tech in skill_lower for tech in ['sql', 'mysql', 'postgresql', 'mongodb', 'redis']):
+            return [
+                f"Créer des bases de données avec {skill}",
+                f"Mentionner des projets utilisant {skill}",
+                f"Inclure des compétences en optimisation {skill}"
+            ]
+        elif any(tech in skill_lower for tech in ['git', 'github', 'gitlab', 'bitbucket']):
+            return [
+                f"Maintenir un portfolio GitHub avec {skill}",
+                f"Mentionner des contributions open source",
+                f"Documenter des workflows {skill} dans vos projets"
+            ]
+        elif any(tech in skill_lower for tech in ['agile', 'scrum', 'kanban']):
+            return [
+                f"Mentionner des expériences en méthodologie {skill}",
+                f"Ajouter des certifications {skill}",
+                f"Inclure des exemples de gestion de projet {skill}"
+            ]
+        elif any(lang in skill_lower for lang in ['français', 'anglais', 'espagnol', 'allemand', 'chinois']):
+            return [
+                f"Mentionner votre niveau de maîtrise en {skill}",
+                f"Ajouter des expériences internationales avec {skill}",
+                f"Inclure des certifications linguistiques en {skill}"
+            ]
+        else:
+            return generic_suggestions 
