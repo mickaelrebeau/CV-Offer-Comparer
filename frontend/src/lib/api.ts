@@ -291,7 +291,7 @@ export async function checkFreeAnalysisStatus() {
     console.error("Erreur lors de la vérification du statut:", error);
     return { 
       can_use_free_analysis: false, 
-      message: "Erreur de vérification - Utilisation du mode fallback",
+      message: "Erreur de vérification - Essai offert utilisé",
       error: error.message 
     };
   }
