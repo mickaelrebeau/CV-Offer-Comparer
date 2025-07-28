@@ -18,38 +18,43 @@ class AIService:
         genai.configure(api_key=settings.GOOGLE_API_KEY)
         self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
         
-        # Configuration pour les modèles locaux
-        self._init_local_models()
+        # Configuration pour les modèles locaux - versions légères
+        self._init_lightweight_models()
         
         # Cache pour les embeddings
         self.embedding_cache = {}
         self.cache_file = "embedding_cache.pkl"
         self._load_cache()
     
-    def _init_local_models(self):
-        """Initialise les modèles locaux pour la comparaison sémantique"""
+    def _init_lightweight_models(self):
+        """Initialise les modèles locaux légers pour la comparaison sémantique"""
         try:
-            # CamemBERT pour le français (modèle plus spécialisé)
+            # CamemBERT pour le français (modèle de base, plus léger)
             self.camembert_tokenizer = AutoTokenizer.from_pretrained('camembert-base')
             self.camembert_model = AutoModel.from_pretrained('camembert-base')
             
-            # Sentence Transformers spécialisé pour les compétences techniques
-            self.sentence_transformer = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
+            # Sentence Transformer léger (all-MiniLM-L6-v2 au lieu de MPNet)
+            self.sentence_transformer = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
             
-            # TF-IDF pour la comparaison lexicale
+            # TF-IDF pour la comparaison lexicale (plus léger que les modèles neuronaux)
             self.tfidf_vectorizer = TfidfVectorizer(
-                ngram_range=(1, 3),
-                max_features=10000,
+                ngram_range=(1, 2),  # Réduit de (1,3) à (1,2)
+                max_features=5000,    # Réduit de 10000 à 5000
                 stop_words='english'
             )
             
             # Mode évaluation pour les modèles
             self.camembert_model.eval()
             
-            print("Modèles locaux chargés avec succès")
+            # Optimisations mémoire
+            if torch.cuda.is_available():
+                # Utiliser CPU pour réduire la mémoire GPU
+                self.camembert_model = self.camembert_model.cpu()
+            
+            print("Modèles légers chargés avec succès")
             
         except Exception as e:
-            print(f"Erreur lors du chargement des modèles locaux: {e}")
+            print(f"Erreur lors du chargement des modèles légers: {e}")
             self.camembert_tokenizer = None
             self.camembert_model = None
             self.sentence_transformer = None
@@ -141,13 +146,13 @@ class AIService:
             return self.embedding_cache[cache_key]
         
         try:
-            # Tokenisation avec padding et truncation
+            # Tokenisation avec padding et truncation réduite
             inputs = self.camembert_tokenizer(
                 normalized_text, 
                 return_tensors="pt", 
                 padding=True, 
                 truncation=True, 
-                max_length=512
+                max_length=256  # Réduit de 512 à 256
             )
             
             # Génération des embeddings
@@ -210,38 +215,39 @@ class AIService:
             return 0.0
     
     def _calculate_semantic_similarity(self, text1: str, text2: str) -> float:
-        """Calcule la similarité sémantique entre deux textes avec pondération"""
+        """Calcule la similarité sémantique entre deux textes avec pondération optimisée"""
         
         similarities = []
         weights = []
         
-        # 1. Similarité CamemBERT (poids: 0.4)
-        emb1_camembert = self._get_embeddings_camembert(text1)
-        emb2_camembert = self._get_embeddings_camembert(text2)
-        
-        if emb1_camembert is not None and emb2_camembert is not None:
-            similarity = cosine_similarity(emb1_camembert, emb2_camembert)[0][0]
-            similarities.append(float(similarity))
-            weights.append(0.4)
-        
-        # 2. Similarité Sentence Transformer (poids: 0.3)
+        # 1. Similarité Sentence Transformer (plus léger, poids augmenté)
         emb1_st = self._get_embeddings_sentence_transformer(text1)
         emb2_st = self._get_embeddings_sentence_transformer(text2)
         
         if emb1_st is not None and emb2_st is not None:
             similarity = cosine_similarity(emb1_st, emb2_st)[0][0]
             similarities.append(float(similarity))
-            weights.append(0.3)
+            weights.append(0.5)  # Augmenté de 0.3 à 0.5
         
-        # 3. Similarité TF-IDF (poids: 0.2)
+        # 2. Similarité TF-IDF (léger, poids maintenu)
         tfidf_similarity = self._calculate_tfidf_similarity(text1, text2)
         similarities.append(tfidf_similarity)
-        weights.append(0.2)
+        weights.append(0.3)  # Augmenté de 0.2 à 0.3
         
-        # 4. Similarité basique (poids: 0.1)
+        # 3. Similarité basique (très léger, poids maintenu)
         basic_similarity = self._basic_similarity(text1, text2)
         similarities.append(basic_similarity)
-        weights.append(0.1)
+        weights.append(0.2)  # Augmenté de 0.1 à 0.2
+        
+        # 4. CamemBERT (plus lourd, utilisé seulement si nécessaire)
+        if len(similarities) < 2:  # Si pas assez de modèles disponibles
+            emb1_camembert = self._get_embeddings_camembert(text1)
+            emb2_camembert = self._get_embeddings_camembert(text2)
+            
+            if emb1_camembert is not None and emb2_camembert is not None:
+                similarity = cosine_similarity(emb1_camembert, emb2_camembert)[0][0]
+                similarities.append(float(similarity))
+                weights.append(0.4)
         
         # Calculer la moyenne pondérée
         if similarities and weights:
