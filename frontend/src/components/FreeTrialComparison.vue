@@ -14,8 +14,7 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Textarea v-model="offerText" placeholder="Collez le texte de l'offre d'emploi..."
-            class="min-h-[300px] w-full border-2 border-gray-300 rounded-md p-2" />
+          <Textarea v-model="offerText" placeholder="Collez le texte de l'offre d'emploi..." />
         </CardContent>
       </Card>
 
@@ -32,19 +31,23 @@
         </CardHeader>
         <CardContent>
           <!-- Onglets -->
-          <div class="flex space-x-1 mb-4">
-            <Button variant="outline" size="sm"
-              :class="activeTab === 'upload' ? 'bg-primary text-primary-foreground p-2 flex items-center justify-center rounded-md' : 'p-2 flex items-center justify-center rounded-md'"
-              @click="activeTab = 'upload'">
-              <Upload class="h-4 w-4 mr-2" />
-              Upload PDF
-            </Button>
-            <Button variant="outline" size="sm"
-              :class="activeTab === 'manual' ? 'bg-primary text-primary-foreground p-2 flex items-center justify-center rounded-md' : 'p-2 flex items-center justify-center'"
-              @click="activeTab = 'manual'">
-              <Edit class="h-4 w-4 mr-2" />
-              Saisie manuelle
-            </Button>
+          <div class="flex border-b border-border mb-4">
+            <button @click="activeTab = 'upload'"
+              class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
+              :class="activeTab === 'upload' 
+                ? 'border-primary text-primary bg-primary/5' 
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'">
+              <Upload class="h-4 w-4" />
+              <span>Upload PDF</span>
+            </button>
+            <button @click="activeTab = 'manual'"
+              class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
+              :class="activeTab === 'manual' 
+                ? 'border-primary text-primary bg-primary/5' 
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'">
+              <Edit class="h-4 w-4" />
+              <span>Saisie manuelle</span>
+            </button>
           </div>
 
           <!-- Contenu des onglets -->
@@ -54,8 +57,7 @@
           </div>
 
           <div v-else-if="activeTab === 'manual'">
-            <Textarea v-model="cvText" placeholder="Collez le texte de votre CV..."
-              class="min-h-[300px] w-full border-2 border-gray-300 rounded-md p-2" />
+            <Textarea v-model="cvText" placeholder="Collez le texte de votre CV..." />
           </div>
         </CardContent>
       </Card>
@@ -78,7 +80,7 @@
         class="px-8 py-3 p-2 flex items-center justify-center rounded-md border-2 border-primary disabled:opacity-50">
         <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
         <ArrowRightLeft class="mr-2 h-4 w-4" />
-        {{ canAnalyze ? 'Commencer l\'essai gratuit' : 'Essai gratuit utilisé' }}
+        {{ canAnalyze ? 'Commencer l\'essai gratuit' : 'Essai offert utilisé' }}
       </Button>
     </div>
 
