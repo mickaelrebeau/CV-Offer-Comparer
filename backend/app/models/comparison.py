@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 class ComparisonRequest(BaseModel):
     offer_text: str
@@ -14,12 +14,22 @@ class ComparisonItem(BaseModel):
     confidence: float
     suggestions: Optional[List[str]] = None
 
+class CategoryStats(BaseModel):
+    description: str
+    color: str
+    total: int
+    matches: int
+    missing: int
+    unclear: int
+    match_percentage: float
+
 class ComparisonSummary(BaseModel):
     totalItems: int
     matches: int
     missing: int
     unclear: int
     matchPercentage: float
+    categoryStats: Optional[Dict[str, Dict[str, Any]]] = None
 
 class ComparisonResponse(BaseModel):
     items: List[ComparisonItem]
