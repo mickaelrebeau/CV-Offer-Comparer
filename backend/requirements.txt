@@ -14,6 +14,9 @@ supabase>=2.0.0
 # AI and ML
 google-generativeai>=0.3.2
 sentence-transformers>=2.2.0
+transformers>=4.35.0
+torch>=2.0.0
+scikit-learn>=1.3.0
 
 # Data processing - versions stables
 numpy>=1.26.0,<2.0.0
