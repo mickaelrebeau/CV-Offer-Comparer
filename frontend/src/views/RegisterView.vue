@@ -42,8 +42,7 @@
 
           <div class="mt-10"/>
 
-          <Button type="submit" variant="default" size="lg" :disabled="loading"
-            class="py-2 px-4 w-full bg-primary hover:bg-primary/90 text-white rounded-md">
+          <Button type="submit" variant="full" size="lg" :disabled="loading">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
             Créer un compte
           </Button>
