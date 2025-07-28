@@ -15,7 +15,7 @@
         </CardHeader>
         <CardContent>
           <Textarea :model-value="compareStore.offerText" placeholder="Collez le texte de l'offre d'emploi..."
-           @input="handleOfferInput" />
+            @input="handleOfferInput" />
         </CardContent>
       </Card>
 
@@ -33,8 +33,7 @@
         <CardContent>
           <!-- Onglets -->
           <div class="flex border-b border-border mb-4">
-            <button
-              @click="activeTab = 'upload'"
+            <button @click="activeTab = 'upload'"
               class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
               :class="activeTab === 'upload' 
                 ? 'border-primary text-primary bg-primary/5' 
@@ -42,8 +41,7 @@
               <Upload class="h-4 w-4" />
               <span>Upload PDF</span>
             </button>
-            <button
-              @click="activeTab = 'manual'"
+            <button @click="activeTab = 'manual'"
               class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
               :class="activeTab === 'manual' 
                 ? 'border-primary text-primary bg-primary/5' 
@@ -66,7 +64,7 @@
               </p>
             </div>
             <Textarea :model-value="compareStore.cvText" placeholder="Collez le texte de votre CV..."
-             @input="handleCVInput" />
+              @input="handleCVInput" />
           </div>
         </CardContent>
       </Card>
@@ -182,15 +180,19 @@
                   <div class="font-medium">{{ item.category }}</div>
                   <div class="text-sm mt-1">{{ item.offerText }}</div>
                   <div v-if="item.cvText" class="text-sm mt-1 text-muted-foreground">
-                    <span class="font-bold text-primary">CV:</span> {{ item.cvText }}
+                    <span class="font-semibold text-primary">CV:</span> {{ item.cvText }}
                   </div>
                   <div v-if="item.suggestions && item.suggestions.length > 0" class="mt-2">
                     <div class="text-xs font-medium text-muted-foreground mb-1">Suggestions:</div>
                     <ul class="text-xs space-y-1">
-                      <li v-for="suggestion in item.suggestions" :key="suggestion" class="text-muted-foreground">
+                      <li v-for="suggestion in item.suggestions" :key="suggestion" class="text-muted-foreground py-1">
                         • {{ suggestion }}
                       </li>
                     </ul>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between">
+                    <p class="text-sm"><span class="font-semibold text-primary">Confidence: </span>{{
+                      confidencePourcentage(item.confidence) }}%</p>
                   </div>
                 </div>
                 <div class="ml-2">
@@ -253,6 +255,10 @@ const getStatusColor = (status: string) => {
 const getMatchPercentage = (count: number) => {
   const total = compareStore.comparisonResult?.summary?.totalItems || 1
   return (count / total) * 100
+}
+
+const confidencePourcentage = (confidence: number) => {
+  return Math.round(confidence * 100)
 }
 </script>
 
