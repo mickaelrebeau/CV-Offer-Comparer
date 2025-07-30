@@ -11,9 +11,27 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: "/dashboard",
+      name: "dashboard",
+      component: () => import("@/views/DashboardView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/compare",
       name: "compare",
       component: () => import("@/views/CompareView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/interview-simulator",
+      name: "interview-simulator",
+      component: () => import("@/views/InterviewSimulatorView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/interview-results/:id?",
+      name: "interview-results",
+      component: () => import("@/views/InterviewResultsView.vue"),
       meta: { requiresAuth: true },
     },
     {
@@ -60,10 +78,7 @@ router.beforeEach(async (to, from, next) => {
     });
   }
 
-  // Les utilisateurs connectés peuvent rester sur la page d'accueil s'ils le souhaitent
-  // La redirection automatique est gérée dans HomeView.vue
-
-  // Rediriger les utilisateurs non connectés vers /login pour les routes protégées
+  // Rediriger les utilisateurs connectés vers le dashboard pour les routes protégées
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next("/login");
   } else {
