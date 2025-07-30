@@ -197,18 +197,18 @@ const startComparison = () => {
   router.push('/register')
 }
 
-// Rediriger automatiquement les utilisateurs connectés vers la page de comparaison
+// Rediriger automatiquement les utilisateurs connectés vers le dashboard
 onMounted(() => {
   // Attendre que l'authentification soit initialisée
   if (!authStore.loading && authStore.isAuthenticated) {
-    router.push('/compare')
+    router.push('/dashboard')
   }
 })
 
 // Surveiller les changements d'état d'authentification
 authStore.$subscribe(() => {
   if (!authStore.loading && authStore.isAuthenticated) {
-    router.push('/compare')
+    router.push('/dashboard')
   }
 })
 </script> 
