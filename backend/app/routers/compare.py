@@ -50,17 +50,22 @@ async def compare_cv_offer_stream(
     async def generate_comparison():
         try:
             # Envoyer le statut initial
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Début de l\'analyse...'})}\n\n"
+            msg = {'type': 'status', 'message': 'Début de l\'analyse...'}
+            yield f"data: {json.dumps(msg)}\n\n"
             
             # Extraire les compétences de l'offre
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Extraction des compétences de l\'offre...'})}\n\n"
+            msg = {'type': 'status', 'message': 'Extraction des compétences de l\'offre...'}
+            yield f"data: {json.dumps(msg)}\n\n"
             offer_skills = comparison_service.ai_service.extract_skills(request.offer_text)
-            yield f"data: {json.dumps({'type': 'status', 'message': f'Compétences de l\'offre trouvées: {len(offer_skills)}'})}\n\n"
+            msg = {'type': 'status', 'message': f'Compétences de l\'offre trouvées: {len(offer_skills)}'}
+            yield f"data: {json.dumps(msg)}\n\n"
             
             # Extraire les compétences du CV
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Extraction des compétences du CV...'})}\n\n"
+            msg = {'type': 'status', 'message': 'Extraction des compétences du CV...'}
+            yield f"data: {json.dumps(msg)}\n\n"
             cv_skills = comparison_service.ai_service.extract_skills(request.cv_text)
-            yield f"data: {json.dumps({'type': 'status', 'message': f'Compétences du CV trouvées: {len(cv_skills)}'})}\n\n"
+            msg = {'type': 'status', 'message': f'Compétences du CV trouvées: {len(cv_skills)}'}
+            yield f"data: {json.dumps(msg)}\n\n"
             
             comparison_items = []
             total_items = len(offer_skills)
@@ -68,7 +73,8 @@ async def compare_cv_offer_stream(
             missing = 0
             unclear = 0
             
-            yield f"data: {json.dumps({'type': 'status', 'message': f'Début de la comparaison de {total_items} éléments...'})}\n\n"
+            msg = {'type': 'status', 'message': f'Début de la comparaison de {total_items} éléments...'}
+            yield f"data: {json.dumps(msg)}\n\n"
             
             # Traitement par batch pour optimiser les performances
             batch_size = 5
@@ -80,7 +86,8 @@ async def compare_cv_offer_stream(
                     
                     # Envoyer le progrès
                     progress = (current_index / total_items) * 100 if total_items > 0 else 0
-                    yield f"data: {json.dumps({'type': 'progress', 'value': progress, 'current': current_index + 1, 'total': total_items})}\n\n"
+                    msg = {'type': 'progress', 'value': progress, 'current': current_index + 1, 'total': total_items}
+                    yield f"data: {json.dumps(msg)}\n\n"
                     
                     # Trouver la meilleure correspondance
                     best_match = None
@@ -124,7 +131,8 @@ async def compare_cv_offer_stream(
                     comparison_items.append(item)
                     
                     # Envoyer l'élément immédiatement
-                    yield f"data: {json.dumps({'type': 'item', 'item': item.dict()})}\n\n"
+                    msg = {'type': 'item', 'item': item.dict()}
+                    yield f"data: {json.dumps(msg)}\n\n"
                 
                 # Pause plus courte entre les batches
                 await asyncio.sleep(0.05)
@@ -142,10 +150,13 @@ async def compare_cv_offer_stream(
             )
             
             # Envoyer le résumé final
-            yield f"data: {json.dumps({'type': 'summary', 'summary': summary.dict()})}\n\n"
-            yield f"data: {json.dumps({'type': 'complete'})}\n\n"
+            msg = {'type': 'summary', 'summary': summary.dict()}
+            yield f"data: {json.dumps(msg)}\n\n"
+            msg = {'type': 'complete'}
+            yield f"data: {json.dumps(msg)}\n\n"
             
         except Exception as e:
+            msg = {'type': 'error', 'message': str(e)}
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
     
     return StreamingResponse(
