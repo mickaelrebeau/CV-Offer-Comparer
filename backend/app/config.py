@@ -15,7 +15,7 @@ class Settings(BaseSettings):
         "http://localhost:3000", 
         "http://localhost:5173",
         "https://cv-offer-comparer-mike-dreeman.vercel.app",  # Frontend Vercel
-        "https://cv-offer-comparer.onrender.com", # Backend Render
+        "https://cv-offer-comparer-production.up.railway.app", # Backend Render
     ]
     
     # Upload

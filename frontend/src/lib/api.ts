@@ -7,7 +7,7 @@ const getBaseURL = () => {
     return "http://localhost:8000/api";
   }
   // En production, utilisez l'URL de votre backend déployé
-  return "https://cv-offer-comparer.onrender.com/api";
+  return "https://cv-offer-comparer-production.up.railway.app/api";
 };
 
 const api = axios.create({
