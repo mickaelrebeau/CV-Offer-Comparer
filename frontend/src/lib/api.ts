@@ -370,4 +370,87 @@ export async function uploadFreeCV(file: File): Promise<{ success: boolean; text
   }
 }
 
+// Fonctions pour le simulateur d'entretien
+export async function generateInterviewQuestions(
+  cvFile: File,
+  jobText: string,
+  numQuestions: number = 5
+): Promise<{ success: boolean; interview_session?: any; message: string }> {
+  try {
+    const formData = new FormData();
+    formData.append('cv_file', cvFile);
+    formData.append('job_text', jobText);
+    formData.append('num_questions', numQuestions.toString());
+
+    const response = await api.post('/interview/generate-questions', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Erreur lors de la génération des questions d'entretien:", error);
+    return {
+      success: false,
+      message: error.response?.data?.detail || error.message || "Erreur lors de la génération des questions"
+    };
+  }
+}
+
+export async function analyzeInterviewResponses(
+  questions: any[],
+  answers: any[],
+  cvText: string,
+  jobText: string
+): Promise<{ success: boolean; analysis?: any; message: string }> {
+  try {
+    const formData = new FormData();
+    formData.append('questions', JSON.stringify(questions));
+    formData.append('answers', JSON.stringify(answers));
+    formData.append('cv_text', cvText);
+    formData.append('job_text', jobText);
+
+    const response = await api.post('/interview/analyze-responses', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Erreur lors de l'analyse des réponses:", error);
+    return {
+      success: false,
+      message: error.response?.data?.detail || error.message || "Erreur lors de l'analyse des réponses"
+    };
+  }
+}
+
+export async function saveInterviewSession(interviewData: any): Promise<{ success: boolean; session_id?: string; message: string }> {
+  try {
+    const response = await api.post('/interview/save-session', interviewData);
+    return response.data;
+  } catch (error: any) {
+    console.error("Erreur lors de la sauvegarde de la session d'entretien:", error);
+    return {
+      success: false,
+      message: error.response?.data?.detail || error.message || "Erreur lors de la sauvegarde"
+    };
+  }
+}
+
+export async function getInterviewHistory(): Promise<{ success: boolean; interviews?: any[]; message: string }> {
+  try {
+    const response = await api.get('/interview/history');
+    return response.data;
+  } catch (error: any) {
+    console.error("Erreur lors de la récupération de l'historique d'entretien:", error);
+    return {
+      success: false,
+      message: error.response?.data?.detail || error.message || "Erreur lors de la récupération de l'historique"
+    };
+  }
+}
+
 export { api } 
