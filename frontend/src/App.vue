@@ -14,7 +14,7 @@
         <div class="container mx-auto px-4 py-4">
           <nav class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <h1 class="text-2xl font-bold text-primary cursor-pointer" @click="router.push('/')">
+              <h1 class="text-2xl font-bold text-primary cursor-pointer" @click="handleLogoClick">
                 Comparateur CV ↔ Offre
               </h1>
             </div>
@@ -49,6 +49,15 @@ import { useRouter } from 'vue-router'
 const { isDark, toggleTheme } = useTheme()
 const authStore = useAuthStore()
 const router = useRouter()
+
+// Gestion du clic sur le logo
+const handleLogoClick = () => {
+  if (authStore.isAuthenticated) {
+    router.push('/dashboard')
+  } else {
+    router.push('/')
+  }
+}
 
 // Initialiser l'authentification au démarrage
 onMounted(async () => {
