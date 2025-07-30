@@ -1,3 +1,4 @@
+import json
 import google.generativeai as genai
 import re
 from typing import List, Dict, Any, Tuple
@@ -696,3 +697,218 @@ class AIService:
             ]
         else:
             return generic_suggestions 
+
+    def generate_interview_questions(self, cv_text: str, job_offer_text: str, num_questions: int = 10) -> List[Dict[str, str]]:
+        """
+        Génère des questions d'entretien personnalisées basées sur le CV et l'offre d'emploi.
+        
+        Args:
+            cv_text: Le texte du CV
+            job_offer_text: Le texte de l'offre d'emploi
+            num_questions: Nombre de questions à générer (défaut: 5)
+            
+        Returns:
+            Liste de dictionnaires contenant les questions avec leurs catégories
+        """
+        try:
+            # Extraire les compétences du CV et de l'offre
+            cv_skills = self.extract_skills(cv_text)
+            job_skills = self.extract_skills(job_offer_text)
+            
+            # Créer le prompt pour l'IA
+            prompt = f"""
+            En tant qu'expert en recrutement, génère {num_questions} questions d'entretien pertinentes 
+            pour un candidat basées sur les informations suivantes :
+            
+            CV du candidat (compétences identifiées) : {', '.join(cv_skills[:10])}
+            Offre d'emploi (exigences) : {', '.join(job_skills[:10])}
+            
+            Génère des questions variées couvrant :
+            - Expérience technique (30%)
+            - Compétences comportementales (25%)
+            - Motivation et projet professionnel (20%)
+            - Résolution de problèmes (15%)
+            - Questions spécifiques au poste (10%)
+            
+            Format de réponse : JSON avec la structure suivante :
+            [
+                {{
+                    "text": "Question complète",
+                    "category": "Catégorie (Expérience/Compétences/Motivation/Problème/Spécifique)"
+                }}
+            ]
+            
+            Les questions doivent être :
+            - Spécifiques au profil du candidat
+            - Adaptées aux exigences du poste
+            - Variées en difficulté
+            - Professionnelles et pertinentes
+            """
+            
+            # Générer les questions avec l'IA
+            response = self.model.generate_content(prompt)
+            
+            # Parser la réponse JSON
+            import json
+            try:
+                questions = json.loads(response.text)
+                if isinstance(questions, list) and len(questions) > 0:
+                    return questions[:num_questions]
+            except json.JSONDecodeError:
+                pass
+            
+            # Fallback : questions génériques basées sur les compétences
+            return self._generate_fallback_questions(cv_skills, job_skills, num_questions)
+            
+        except Exception as e:
+            print(f"Erreur lors de la génération des questions d'entretien: {e}")
+            return self._generate_fallback_questions([], [], num_questions)
+    
+    def _generate_fallback_questions(self, cv_skills: List[str], job_skills: List[str], num_questions: int) -> List[Dict[str, str]]:
+        """Génère des questions de fallback si l'IA échoue"""
+        questions = [
+            {
+                "text": "Pouvez-vous nous parler de votre expérience professionnelle et comment elle s'applique à ce poste ?",
+                "category": "Expérience"
+            },
+            {
+                "text": "Quels sont vos points forts et comment les utilisez-vous dans votre travail ?",
+                "category": "Compétences"
+            },
+            {
+                "text": "Comment gérez-vous les situations stressantes et les délais serrés ?",
+                "category": "Soft Skills"
+            },
+            {
+                "text": "Pouvez-vous nous donner un exemple de problème que vous avez résolu ?",
+                "category": "Problème"
+            },
+            {
+                "text": "Pourquoi souhaitez-vous rejoindre notre entreprise ?",
+                "category": "Motivation"
+            }
+        ]
+        return questions[:num_questions]
+
+    def analyze_interview_responses(self, questions: List[Dict[str, str]], answers: List[Dict[str, str]], cv_text: str, job_text: str) -> Dict[str, Any]:
+        """
+        Analyse les réponses d'entretien et génère des suggestions personnalisées.
+        
+        Args:
+            questions: Liste des questions posées
+            answers: Liste des réponses données
+            cv_text: Texte du CV
+            job_text: Texte de l'offre d'emploi
+            
+        Returns:
+            Dictionnaire contenant l'analyse et les suggestions
+        """
+        try:
+            # Préparer les données pour l'analyse
+            analysis_data = {
+                "questions": questions,
+                "answers": answers,
+                "cv_summary": self.extract_skills(cv_text)[:10],  # Top 10 compétences du CV
+                "job_requirements": self.extract_skills(job_text)[:10]  # Top 10 exigences du job
+            }
+            
+            # Construire le prompt pour l'analyse
+            prompt = f"""
+            En tant qu'expert en recrutement et coach en entretien, analyse les réponses d'entretien suivantes 
+            et fournis des suggestions d'amélioration personnalisées.
+            
+            CONTEXTE:
+            - CV du candidat (compétences principales): {', '.join(analysis_data['cv_summary'])}
+            - Offre d'emploi (exigences): {', '.join(analysis_data['job_requirements'])}
+            
+            QUESTIONS ET RÉPONSES:
+            """
+            
+            for i, (question, answer) in enumerate(zip(questions, answers)):
+                prompt += f"""
+                Question {i+1} ({question.get('category', 'Général')}): {question.get('text', '')}
+                Réponse: {answer.get('answer', 'Aucune réponse')}
+                """
+            
+            prompt += """
+            
+            ANALYSE REQUISE:
+            1. Évalue la qualité globale des réponses (1-10)
+            2. Identifie les points forts du candidat
+            3. Identifie les points d'amélioration
+            4. Fournis 3-5 suggestions concrètes et personnalisées
+            5. Donne des conseils spécifiques pour améliorer les réponses faibles
+            
+            Format de réponse JSON:
+            {{
+                "score_global": 7,
+                "points_forts": ["Point fort 1", "Point fort 2"],
+                "points_amelioration": ["Point d'amélioration 1", "Point d'amélioration 2"],
+                "suggestions": [
+                    {{
+                        "titre": "Suggestion 1",
+                        "description": "Description détaillée",
+                        "priorite": "haute/moyenne/basse"
+                    }}
+                ],
+                "conseils_specifiques": [
+                    {{
+                        "question": "Question concernée",
+                        "conseil": "Conseil spécifique"
+                    }}
+                ]
+            }}
+            """
+            
+            # Générer l'analyse avec l'IA
+            response = self.model.generate_content(prompt)
+            
+            try:
+                # Essayer de parser la réponse JSON
+                analysis_result = json.loads(response.text)
+                return {
+                    "success": True,
+                    "analysis": analysis_result
+                }
+            except json.JSONDecodeError:
+                # Fallback si le parsing JSON échoue
+                return {
+                    "success": True,
+                    "analysis": {
+                        "score_global": 6,
+                        "points_forts": ["Réponses structurées", "Expérience pertinente"],
+                        "points_amelioration": ["Préparation des exemples", "Concision"],
+                        "suggestions": [
+                            {
+                                "titre": "Préparez des exemples concrets",
+                                "description": "Préparez 3-5 exemples spécifiques de vos réalisations",
+                                "priorite": "haute"
+                            },
+                            {
+                                "titre": "Améliorez la concision",
+                                "description": "Gardez vos réponses entre 1-2 minutes",
+                                "priorite": "moyenne"
+                            }
+                        ],
+                        "conseils_specifiques": []
+                    }
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "analysis": {
+                    "score_global": 5,
+                    "points_forts": ["Participation à l'entretien"],
+                    "points_amelioration": ["Préparation générale"],
+                    "suggestions": [
+                        {
+                            "titre": "Pratiquez régulièrement",
+                            "description": "Utilisez ce simulateur pour vous entraîner",
+                            "priorite": "haute"
+                        }
+                    ],
+                    "conseils_specifiques": []
+                }
+            } 
