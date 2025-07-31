@@ -75,7 +75,7 @@ async function handleLogin() {
   if (loginError) {
     error.value = 'Email ou mot de passe incorrect'
   } else {
-    router.push('/compare')
+    router.push('/dashboard')
   }
   
   loading.value = false
