@@ -29,7 +29,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/interview-results/:id?",
+      path: "/interview-results",
       name: "interview-results",
       component: () => import("@/views/InterviewResultsView.vue"),
       meta: { requiresAuth: true },
