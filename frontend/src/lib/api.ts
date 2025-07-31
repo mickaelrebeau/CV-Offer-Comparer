@@ -427,30 +427,4 @@ export async function analyzeInterviewResponses(
   }
 }
 
-export async function saveInterviewSession(interviewData: any): Promise<{ success: boolean; session_id?: string; message: string }> {
-  try {
-    const response = await api.post('/interview/save-session', interviewData);
-    return response.data;
-  } catch (error: any) {
-    console.error("Erreur lors de la sauvegarde de la session d'entretien:", error);
-    return {
-      success: false,
-      message: error.response?.data?.detail || error.message || "Erreur lors de la sauvegarde"
-    };
-  }
-}
-
-export async function getInterviewHistory(): Promise<{ success: boolean; interviews?: any[]; message: string }> {
-  try {
-    const response = await api.get('/interview/history');
-    return response.data;
-  } catch (error: any) {
-    console.error("Erreur lors de la récupération de l'historique d'entretien:", error);
-    return {
-      success: false,
-      message: error.response?.data?.detail || error.message || "Erreur lors de la récupération de l'historique"
-    };
-  }
-}
-
 export { api } 
