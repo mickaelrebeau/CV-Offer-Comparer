@@ -18,24 +18,98 @@
         }">
         <div class="container mx-auto px-4 py-4">
           <nav class="flex items-center justify-between">
+            <!-- Logo -->
             <div class="flex items-center space-x-4">
-              <h1 class="text-2xl font-bold text-primary cursor-pointer" @click="handleLogoClick">
-                Comparateur CV ↔ Offre
+              <h1 class="text-xl md:text-2xl font-bold text-primary cursor-pointer" @click="handleLogoClick">
+                <span class="hidden sm:inline">Comparateur CV ↔ Offre</span>
+                <span class="sm:hidden">CV ↔ Offre</span>
               </h1>
             </div>
-            <div class="flex items-center space-x-4">
+
+            <!-- Navigation desktop -->
+            <div class="hidden md:flex items-center space-x-4">
               <Button variant="outline" @click="toggleTheme">
                 <Sun v-if="isDark" class="h-4 w-4" />
                 <Moon v-else class="h-4 w-4" />
               </Button>
               <UserMenu />
             </div>
+
+            <!-- Bouton hamburger mobile -->
+            <div class="md:hidden flex items-center space-x-2">
+              <Button variant="outline" @click="toggleTheme" size="sm">
+                <Sun v-if="isDark" class="h-4 w-4" />
+                <Moon v-else class="h-4 w-4" />
+              </Button>
+              <Button variant="outline" @click="toggleMobileMenu" size="sm">
+                <Menu v-if="!isMobileMenuOpen" class="h-4 w-4" />
+                <X v-else class="h-4 w-4" />
+              </Button>
+            </div>
           </nav>
+
+          <!-- Menu mobile -->
+          <div v-if="isMobileMenuOpen"
+            class="md:hidden mt-4 pb-4 border-t pt-4 animate-in slide-in-from-top-2 duration-200">
+            <div class="space-y-3">
+              <!-- Navigation mobile -->
+              <div class="space-y-2">
+                <Button v-if="!authStore.isAuthenticated" variant="ghost" class="w-full justify-start"
+                  @click="navigateTo('/')" :class="{ 'bg-accent': $route.path === '/' }">
+                  Accueil
+                </Button>
+                <Button v-if="authStore.isAuthenticated" variant="ghost" class="w-full justify-start"
+                  @click="navigateTo('/dashboard')" :class="{ 'bg-accent rounded': $route.path === '/dashboard' }">
+                  Tableau de bord
+                </Button>
+                <Button v-if="!authStore.isAuthenticated" variant="ghost" class="w-full justify-start"
+                  @click="navigateTo('/free-trial')" :class="{ 'bg-accent rounded': $route.path === '/free-trial' }">
+                  Essai gratuit
+                </Button>
+                <Button v-if="authStore.isAuthenticated" variant="ghost" class="w-full justify-start"
+                  @click="navigateTo('/compare')" :class="{ 'bg-accent rounded': $route.path === '/compare' }">
+                  Comparer un CV ↔ Offre
+                </Button>
+                <Button v-if="authStore.isAuthenticated" variant="ghost" class="w-full justify-start"
+                  @click="navigateTo('/interview-simulator')"
+                  :class="{ 'bg-accent rounded': $route.path === '/interview-simulator' }">
+                  Simulateur d'entretien
+                </Button>
+              </div>
+
+              <!-- Séparateur -->
+              <div class="border-t my-3"></div>
+
+              <!-- Menu utilisateur mobile -->
+              <div v-if="!authStore.isAuthenticated" class="space-y-2">
+                <Button variant="outline" class="w-full" @click="navigateTo('/login')">
+                  Se connecter
+                </Button>
+                <Button variant="default" class="w-full" @click="navigateTo('/register')">
+                  S'inscrire
+                </Button>
+              </div>
+
+              <div v-else class="space-y-2 flex flex-col items-center">
+                <div class="px-3 py-2 text-sm text-muted-foreground">
+                  {{ authStore.user?.email }}
+                </div>
+                <Button variant="full-outline" @click="navigateTo('/profile')">
+                  <User class="h-4 w-4 mr-2" />
+                  Profile
+                </Button>
+                <Button variant="full" @click="handleSignOut">
+                  <LogOut class="h-4 w-4 mr-2" />
+                  Se déconnecter
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
       <!-- Espace pour compenser le header fixe -->
-      <div class="h-20"></div>
+      <div class="h-20 md:h-20"></div>
 
       <main class="container mb-12 mx-auto px-4 py-8 min-h-[calc(100vh-20rem)]">
         <RouterView />
@@ -100,9 +174,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref, onUnmounted } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { Sun, Moon, Shield, HelpCircle, Mail, FileText } from 'lucide-vue-next'
+import { Sun, Moon, Shield, HelpCircle, Mail, FileText, Menu, X, User, LogOut } from 'lucide-vue-next'
 import UserMenu from '@/components/UserMenu.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/stores/auth'
@@ -111,9 +185,11 @@ import { useRouter } from 'vue-router'
 const { isDark, toggleTheme } = useTheme()
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 // État pour l'animation du header
-const showHeader = ref(false)
+const showHeader = ref(true) // Visible par défaut
+const isMobileMenuOpen = ref(false)
 let lastScrollY = 0
 
 // Gestion du scroll pour l'animation du header
@@ -125,9 +201,22 @@ const handleScroll = () => {
     showHeader.value = true
   } else {
     showHeader.value = false
+    // Fermer le menu mobile lors du scroll
+    isMobileMenuOpen.value = false
   }
 
   lastScrollY = currentScrollY
+}
+
+// Toggle du menu mobile
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+// Navigation avec fermeture du menu mobile
+const navigateTo = (path: string) => {
+  router.push(path)
+  isMobileMenuOpen.value = false
 }
 
 // Gestion du clic sur le logo
@@ -137,6 +226,14 @@ const handleLogoClick = () => {
   } else {
     router.push('/')
   }
+  isMobileMenuOpen.value = false
+}
+
+// Gestion de la déconnexion
+const handleSignOut = async () => {
+  await authStore.signOut()
+  router.push('/')
+  isMobileMenuOpen.value = false
 }
 
 // Initialiser l'authentification au démarrage
