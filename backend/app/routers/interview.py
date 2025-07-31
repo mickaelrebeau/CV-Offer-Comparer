@@ -52,8 +52,8 @@ async def generate_interview_questions(
 
 @router.post("/analyze-responses")
 async def analyze_interview_responses(
-    questions: list,
-    answers: list,
+    questions: str = Form(...),
+    answers: str = Form(...),
     cv_text: str = Form(...),
     job_text: str = Form(...)
 ):
@@ -61,10 +61,16 @@ async def analyze_interview_responses(
     Analyse les réponses d'entretien et génère des suggestions personnalisées.
     """
     try:
+        import json
+        
+        # Parser les listes JSON
+        questions_list = json.loads(questions)
+        answers_list = json.loads(answers)
+        
         interview_service = InterviewService()
         result = await interview_service.analyze_responses(
-            questions, 
-            answers, 
+            questions_list, 
+            answers_list, 
             cv_text, 
             job_text
         )
@@ -76,5 +82,7 @@ async def analyze_interview_responses(
             
     except HTTPException:
         raise
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=400, detail=f"Format JSON invalide: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse des réponses: {str(e)}")
