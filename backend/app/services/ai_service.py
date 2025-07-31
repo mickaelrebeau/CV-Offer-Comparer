@@ -16,8 +16,13 @@ import os
 class AIService:
     def __init__(self):
         # Configuration pour l'API Google (gardé pour l'extraction des compétences)
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        try:
+            genai.configure(api_key=settings.GOOGLE_API_KEY)
+            self.model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            print("Modèle IA Google initialisé avec succès")
+        except Exception as e:
+            print(f"Erreur lors de l'initialisation du modèle IA: {e}")
+            self.model = None
         
         # Configuration pour les modèles locaux - versions légères
         self._init_lightweight_models()
@@ -705,7 +710,7 @@ class AIService:
         Args:
             cv_text: Le texte du CV
             job_offer_text: Le texte de l'offre d'emploi
-            num_questions: Nombre de questions à générer (défaut: 5)
+            num_questions: Nombre de questions à générer (défaut: 10)
             
         Returns:
             Liste de dictionnaires contenant les questions avec leurs catégories
@@ -717,7 +722,7 @@ class AIService:
             
             # Créer le prompt pour l'IA
             prompt = f"""
-            En tant qu'expert en recrutement, génère {num_questions} questions d'entretien pertinentes 
+            En tant qu'expert en recrutement, génère exactement {num_questions} questions d'entretien pertinentes 
             pour un candidat basées sur les informations suivantes :
             
             CV du candidat (compétences identifiées) : {', '.join(cv_skills[:10])}
@@ -730,7 +735,7 @@ class AIService:
             - Résolution de problèmes (15%)
             - Questions spécifiques au poste (10%)
             
-            Format de réponse : JSON avec la structure suivante :
+            IMPORTANT: Retourne UNIQUEMENT un JSON valide avec la structure suivante :
             [
                 {{
                     "text": "Question complète",
@@ -743,7 +748,11 @@ class AIService:
             - Adaptées aux exigences du poste
             - Variées en difficulté
             - Professionnelles et pertinentes
+            
+            Assure-toi que le JSON est valide et contient exactement {num_questions} questions.
             """
+            
+            print("Envoi de la requête à l'IA...")
             
             # Générer les questions avec l'IA
             response = self.model.generate_content(prompt)
@@ -751,44 +760,113 @@ class AIService:
             # Parser la réponse JSON
             import json
             try:
-                questions = json.loads(response.text)
-                if isinstance(questions, list) and len(questions) > 0:
-                    return questions[:num_questions]
-            except json.JSONDecodeError:
-                pass
+                # Nettoyer la réponse pour extraire le JSON
+                response_text = response.text.strip()
+                
+                # Chercher le JSON dans la réponse
+                start_idx = response_text.find('[')
+                end_idx = response_text.rfind(']') + 1
+                
+                if start_idx != -1 and end_idx > start_idx:
+                    json_str = response_text[start_idx:end_idx]
+                    questions = json.loads(json_str)
+                    
+                    if isinstance(questions, list) and len(questions) > 0:
+                        print(f"Questions générées avec succès: {len(questions)}")
+                        return questions[:num_questions]
+                    else:
+                        print("La réponse JSON ne contient pas de liste valide")
+                else:
+                    print("Aucun JSON trouvé dans la réponse")
+                    
+            except json.JSONDecodeError as e:
+                print(f"Erreur de parsing JSON: {e}")
+                print(f"Réponse problématique: {response.text}")
             
-            # Fallback : questions génériques basées sur les compétences
-            return self._generate_fallback_questions(cv_skills, job_skills, num_questions)
+            # Si on arrive ici, utiliser les questions de fallback
+            print("Utilisation des questions de fallback")
+            return self._get_fallback_questions(cv_skills, job_skills, num_questions)
             
         except Exception as e:
             print(f"Erreur lors de la génération des questions d'entretien: {e}")
-            return self._generate_fallback_questions([], [], num_questions)
-    
-    def _generate_fallback_questions(self, cv_skills: List[str], job_skills: List[str], num_questions: int) -> List[Dict[str, str]]:
-        """Génère des questions de fallback si l'IA échoue"""
-        questions = [
+            # Retourner des questions de fallback en cas d'erreur
+            return self._get_fallback_questions([], [], num_questions)
+
+    def _get_fallback_questions(self, cv_skills: List[str], job_skills: List[str], num_questions: int) -> List[Dict[str, str]]:
+        """
+        Génère des questions de fallback en cas d'échec de l'IA.
+        """
+        print("Génération de questions de fallback...")
+        
+        # Questions génériques de base
+        base_questions = [
             {
-                "text": "Pouvez-vous nous parler de votre expérience professionnelle et comment elle s'applique à ce poste ?",
+                "text": "Pouvez-vous vous présenter et me parler de votre parcours professionnel ?",
                 "category": "Expérience"
             },
             {
-                "text": "Quels sont vos points forts et comment les utilisez-vous dans votre travail ?",
+                "text": "Quelles sont vos principales compétences techniques ?",
                 "category": "Compétences"
-            },
-            {
-                "text": "Comment gérez-vous les situations stressantes et les délais serrés ?",
-                "category": "Soft Skills"
-            },
-            {
-                "text": "Pouvez-vous nous donner un exemple de problème que vous avez résolu ?",
-                "category": "Problème"
             },
             {
                 "text": "Pourquoi souhaitez-vous rejoindre notre entreprise ?",
                 "category": "Motivation"
+            },
+            {
+                "text": "Décrivez une situation difficile que vous avez rencontrée et comment vous l'avez résolue.",
+                "category": "Problème"
+            },
+            {
+                "text": "Quels sont vos objectifs professionnels à court et moyen terme ?",
+                "category": "Motivation"
+            },
+            {
+                "text": "Comment gérez-vous le stress et les délais serrés ?",
+                "category": "Compétences"
+            },
+            {
+                "text": "Pouvez-vous me donner un exemple de projet sur lequel vous êtes particulièrement fier ?",
+                "category": "Expérience"
+            },
+            {
+                "text": "Comment vous tenez-vous à jour dans votre domaine d'expertise ?",
+                "category": "Compétences"
+            },
+            {
+                "text": "Quelle est votre approche du travail en équipe ?",
+                "category": "Compétences"
+            },
+            {
+                "text": "Avez-vous des questions sur le poste ou l'entreprise ?",
+                "category": "Spécifique"
             }
         ]
-        return questions[:num_questions]
+        
+        # Personnaliser les questions avec les compétences extraites
+        personalized_questions = []
+        
+        if cv_skills and job_skills:
+            # Questions basées sur les compétences du CV
+            if len(cv_skills) > 0:
+                cv_skill = cv_skills[0]
+                personalized_questions.append({
+                    "text": f"Pouvez-vous me parler de votre expérience avec {cv_skill} ?",
+                    "category": "Expérience"
+                })
+            
+            # Questions basées sur les exigences du job
+            if len(job_skills) > 0:
+                job_skill = job_skills[0]
+                personalized_questions.append({
+                    "text": f"Quelle est votre expérience avec {job_skill} ?",
+                    "category": "Compétences"
+                })
+        
+        # Combiner les questions personnalisées avec les questions de base
+        all_questions = personalized_questions + base_questions
+        
+        # Retourner le nombre demandé de questions
+        return all_questions[:num_questions]
 
     def analyze_interview_responses(self, questions: List[Dict[str, str]], answers: List[Dict[str, str]], cv_text: str, job_text: str) -> Dict[str, Any]:
         """
@@ -804,13 +882,19 @@ class AIService:
             Dictionnaire contenant l'analyse et les suggestions
         """
         try:
+            # Vérifier que le modèle est disponible
+            if not hasattr(self, 'model') or self.model is None:
+                print("Modèle IA non disponible, utilisation du fallback")
+                return self._get_fallback_analysis()
+            
             # Préparer les données pour l'analyse
-            analysis_data = {
-                "questions": questions,
-                "answers": answers,
-                "cv_summary": self.extract_skills(cv_text)[:10],  # Top 10 compétences du CV
-                "job_requirements": self.extract_skills(job_text)[:10]  # Top 10 exigences du job
-            }
+            try:
+                cv_skills = self.extract_skills(cv_text)[:10]  # Top 10 compétences du CV
+                job_skills = self.extract_skills(job_text)[:10]  # Top 10 exigences du job
+            except Exception as e:
+                print(f"Erreur lors de l'extraction des compétences: {e}")
+                cv_skills = ["Compétences techniques", "Expérience professionnelle"]
+                job_skills = ["Compétences requises", "Exigences du poste"]
             
             # Construire le prompt pour l'analyse
             prompt = f"""
@@ -818,8 +902,8 @@ class AIService:
             et fournis des suggestions d'amélioration personnalisées.
             
             CONTEXTE:
-            - CV du candidat (compétences principales): {', '.join(analysis_data['cv_summary'])}
-            - Offre d'emploi (exigences): {', '.join(analysis_data['job_requirements'])}
+            - CV du candidat (compétences principales): {', '.join(cv_skills)}
+            - Offre d'emploi (exigences): {', '.join(job_skills)}
             
             QUESTIONS ET RÉPONSES:
             """
@@ -858,57 +942,76 @@ class AIService:
                     }}
                 ]
             }}
+            
+            Assure-toi que le JSON est valide et contient exactement {num_questions} questions.
+            Ne retourne pas de commentaire ou de texte superflu.
+            Génère uniquement le JSON, rien d'autre.
             """
             
             # Générer l'analyse avec l'IA
-            response = self.model.generate_content(prompt)
-            
             try:
+                response = self.model.generate_content(prompt)
+                
+                if not response or not response.text:
+                    print("Réponse vide de l'IA, utilisation du fallback")
+                    return self._get_fallback_analysis()
+                
                 # Essayer de parser la réponse JSON
-                analysis_result = json.loads(response.text)
-                return {
-                    "success": True,
-                    "analysis": analysis_result
-                }
-            except json.JSONDecodeError:
-                # Fallback si le parsing JSON échoue
-                return {
-                    "success": True,
-                    "analysis": {
-                        "score_global": 6,
-                        "points_forts": ["Réponses structurées", "Expérience pertinente"],
-                        "points_amelioration": ["Préparation des exemples", "Concision"],
-                        "suggestions": [
-                            {
-                                "titre": "Préparez des exemples concrets",
-                                "description": "Préparez 3-5 exemples spécifiques de vos réalisations",
-                                "priorite": "haute"
-                            },
-                            {
-                                "titre": "Améliorez la concision",
-                                "description": "Gardez vos réponses entre 1-2 minutes",
-                                "priorite": "moyenne"
-                            }
-                        ],
-                        "conseils_specifiques": []
+                response_text = response.text.strip()
+                print(f"Réponse brute de l'IA (analyse): {response_text[:200]}...")
+                
+                # Chercher le JSON dans la réponse
+                start_idx = response_text.find('{')
+                end_idx = response_text.rfind('}') + 1
+                
+                if start_idx != -1 and end_idx > start_idx:
+                    json_str = response_text[start_idx:end_idx]
+                    analysis_result = json.loads(json_str)
+                    return {
+                        "success": True,
+                        "analysis": analysis_result
                     }
-                }
+                else:
+                    print("Réponse vide de l'IA, utilisation du fallback")
+                    return self._get_fallback_analysis()
+                    
+            except json.JSONDecodeError as e:
+                print(f"Erreur de parsing JSON: {e}")
+                print(f"Réponse problématique: {response.text if response else 'None'}")
+                return self._get_fallback_analysis()
+            except Exception as e:
+                print(f"Erreur lors de l'appel à l'IA: {e}")
+                return self._get_fallback_analysis()
                 
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "analysis": {
-                    "score_global": 5,
-                    "points_forts": ["Participation à l'entretien"],
-                    "points_amelioration": ["Préparation générale"],
-                    "suggestions": [
-                        {
-                            "titre": "Pratiquez régulièrement",
-                            "description": "Utilisez ce simulateur pour vous entraîner",
-                            "priorite": "haute"
-                        }
-                    ],
-                    "conseils_specifiques": []
-                }
-            } 
+            print(f"Erreur générale dans analyze_interview_responses: {e}")
+            return self._get_fallback_analysis()
+    
+    def _get_fallback_analysis(self) -> Dict[str, Any]:
+        """Retourne une analyse de fallback en cas d'erreur"""
+        return {
+            "success": True,
+            "analysis": {
+                "score_global": 6,
+                "points_forts": ["Réponses structurées", "Expérience pertinente"],
+                "points_amelioration": ["Préparation des exemples", "Concision"],
+                "suggestions": [
+                    {
+                        "titre": "Préparez des exemples concrets",
+                        "description": "Préparez 3-5 exemples spécifiques de vos réalisations",
+                        "priorite": "haute"
+                    },
+                    {
+                        "titre": "Améliorez la concision",
+                        "description": "Gardez vos réponses entre 1-2 minutes",
+                        "priorite": "moyenne"
+                    },
+                    {
+                        "titre": "Pratiquez régulièrement",
+                        "description": "Utilisez ce simulateur pour vous entraîner",
+                        "priorite": "haute"
+                    }
+                ],
+                "conseils_specifiques": []
+            }
+        } 
