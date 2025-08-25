@@ -10,7 +10,6 @@
     </div>
 
     <div class="grid grid-cols-1 gap-6">
-      <!-- Informations utilisateur -->
       <Card>
         <CardHeader>
           <CardTitle>Informations personnelles</CardTitle>
@@ -31,7 +30,6 @@
         </CardContent>
       </Card>
 
-      <!-- Actions -->
       <Card class="mt-6">
         <CardHeader>
           <CardTitle>Actions</CardTitle>
@@ -50,13 +48,11 @@
       </Card>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
     <Modal :is-open="showDeleteModal" title="Confirmer la suppression"
       message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible, vous ne pourrez plus accéder à votre compte."
       confirm-text="Supprimer le compte" cancel-text="Annuler" type="error" @confirm="handleDeleteAccount"
       @cancel="showDeleteModal = false" @close="showDeleteModal = false" />
 
-    <!-- Notification -->
     <Notification :is-open="showNotification" :message="notificationMessage" :type="notificationType"
       @close="showNotification = false" />
   </div>
@@ -76,7 +72,6 @@ const router = useRouter()
 
 const { user, signOut, deleteAccount } = authStore
 
-// État des modals et notifications
 const showDeleteModal = ref(false)
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -103,7 +98,6 @@ async function handleDeleteAccount() {
     notificationType.value = 'success'
     showNotification.value = true
 
-    // Redirection après un délai pour permettre à l'utilisateur de voir le message
     setTimeout(() => {
       router.push('/')
     }, 2000)
