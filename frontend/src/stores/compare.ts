@@ -40,37 +40,31 @@ export const useCompareStore = defineStore("compare", () => {
   const status = ref("");
   const hasUsedFreeAnalysis = ref(false);
 
-  // Vérifier si l'utilisateur a déjà utilisé son analyse gratuite
   const checkFreeAnalysisUsage = async () => {
     try {
       const { isAuthenticated } = useAuthStore();
 
-      // Si l'utilisateur est connecté, il peut toujours analyser
       if (isAuthenticated) {
         hasUsedFreeAnalysis.value = false;
         return false;
       }
 
-      // Vérifier le statut côté serveur
       const status = await checkFreeAnalysisStatus();
       hasUsedFreeAnalysis.value = !status.can_use_free_analysis;
       return hasUsedFreeAnalysis.value;
     } catch (error) {
       console.error("Erreur lors de la vérification du statut:", error);
-      // En cas d'erreur, utiliser le localStorage comme fallback
       const used = localStorage.getItem("cv-offer-compare-free-analysis-used");
       hasUsedFreeAnalysis.value = used === "true";
       return hasUsedFreeAnalysis.value;
     }
   };
 
-  // Marquer l'analyse gratuite comme utilisée
   const markFreeAnalysisAsUsed = () => {
     localStorage.setItem("cv-offer-compare-free-analysis-used", "true");
     hasUsedFreeAnalysis.value = true;
   };
 
-  // Réinitialiser l'analyse gratuite (pour les tests ou si nécessaire)
   const resetFreeAnalysis = () => {
     localStorage.removeItem("cv-offer-compare-free-analysis-used");
     hasUsedFreeAnalysis.value = false;
@@ -82,14 +76,12 @@ export const useCompareStore = defineStore("compare", () => {
     return offer.trim() && cv.trim();
   });
 
-  // Vérifier si l'utilisateur peut faire une analyse
   const canAnalyze = computed(() => {
     const { isAuthenticated } = useAuthStore();
     return !hasUsedFreeAnalysis.value || isAuthenticated;
   });
 
   async function compareCVWithOffer() {
-    // Vérification supplémentaire pour s'assurer que les valeurs sont des chaînes
     const offer = String(offerText.value || "");
     const cv = String(cvText.value || "");
 
@@ -109,7 +101,6 @@ export const useCompareStore = defineStore("compare", () => {
 
       comparisonResult.value = response.data;
 
-      // Marquer l'analyse gratuite comme utilisée si l'utilisateur n'est pas connecté
       const { isAuthenticated } = useAuthStore();
       if (!isAuthenticated) {
         markFreeAnalysisAsUsed();
@@ -124,7 +115,6 @@ export const useCompareStore = defineStore("compare", () => {
   }
 
   async function compareCVWithOfferStream() {
-    // Vérification supplémentaire pour s'assurer que les valeurs sont des chaînes
     const offer = String(offerText.value || "");
     const cv = String(cvText.value || "");
 
@@ -145,7 +135,6 @@ export const useCompareStore = defineStore("compare", () => {
     try {
       const { isAuthenticated } = useAuthStore();
 
-      // Utiliser la route appropriée selon l'état d'authentification
       const streamFunction = isAuthenticated
         ? streamCompare
         : streamFreeCompare;
@@ -153,20 +142,16 @@ export const useCompareStore = defineStore("compare", () => {
       await streamFunction(
         offer,
         cv,
-        // onStatus
         (message: string) => {
           status.value = message;
           console.log("Status:", message);
         },
-        // onProgress
         (value: number, current: number, total: number) => {
           progress.value = value;
           console.log("Progress:", value + "%");
         },
-        // onItem
         (item: any) => {
           items.push(item);
-          // Mettre à jour le résultat en temps réel
           comparisonResult.value = {
             items: [...items],
             summary: summary || {
@@ -178,7 +163,6 @@ export const useCompareStore = defineStore("compare", () => {
             },
           };
         },
-        // onSummary
         (summaryData: any) => {
           summary = summaryData;
           comparisonResult.value = {
@@ -186,17 +170,13 @@ export const useCompareStore = defineStore("compare", () => {
             summary: summary,
           };
         },
-        // onComplete
         () => {
           status.value = "Comparaison terminée";
-          console.log("Comparaison terminée");
 
-          // Marquer l'analyse gratuite comme utilisée si l'utilisateur n'est pas connecté
           if (!isAuthenticated) {
             markFreeAnalysisAsUsed();
           }
         },
-        // onError
         (errorMessage: string) => {
           error.value = errorMessage;
           console.error("Erreur de comparaison:", errorMessage);
@@ -211,13 +191,6 @@ export const useCompareStore = defineStore("compare", () => {
     }
   }
 
-  async function getAuthToken(): Promise<string> {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session?.access_token || "";
-  }
-
   function clearData() {
     offerText.value = "";
     cvText.value = "";
@@ -226,23 +199,11 @@ export const useCompareStore = defineStore("compare", () => {
   }
 
   function updateOfferText(text: string) {
-    console.log("updateOfferText called with:", text.length, "characters");
-    console.log("Before update - offerText.value:", offerText.value.length);
-    console.log("Text to set:", text.substring(0, 50) + "...");
     offerText.value = String(text || "");
-    console.log("After update - offerText.value:", offerText.value.length);
-    console.log("hasData:", hasData.value);
-    console.log("offerText.value type:", typeof offerText.value);
   }
 
   function updateCVText(text: string) {
     cvText.value = String(text || "");
-    console.log(
-      "updateCVText:",
-      cvText.value.length,
-      "hasData:",
-      hasData.value
-    );
   }
 
   return {
