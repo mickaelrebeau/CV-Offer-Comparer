@@ -1,8 +1,6 @@
 <template>
   <div class="space-y-6">
-    <!-- Zone de saisie -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Offre d'emploi -->
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center space-x-2">
@@ -18,7 +16,6 @@
         </CardContent>
       </Card>
 
-      <!-- CV avec onglets -->
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center space-x-2">
@@ -187,7 +184,7 @@
       <Card class="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 rounded-lg">
         <CardContent class="p-6">
           <div class="text-center">
-            <h3 class="text-lg font-semibold mb-2">Vous avez aimé l'essai gratuit ?</h3>
+            <h3 class="text-lg font-semibold mb-2">Vous avez aimé l'essai offert ?</h3>
             <p class="text-muted-foreground mb-4">
               Créez un compte pour accéder à des analyses illimitées et des fonctionnalités avancées.
             </p>
