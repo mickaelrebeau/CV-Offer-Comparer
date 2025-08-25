@@ -100,7 +100,9 @@ def categorize_requirement(text: str) -> str:
                 # Mots génériques techniques
                 "programmation", "développement", "coding", "scripting", "debugging", "testing",
                 "architecture", "design pattern", "algorithm", "data structure", "optimization",
-                "performance", "scalability", "security", "encryption", "authentication"
+                "performance", "scalability", "security", "encryption", "authentication",
+                "maintenance", "maintenance logicielle", "maintenance informatique", "support",
+                "dépannage", "troubleshooting", "diagnostic", "réparation", "optimisation"
             ],
             "weight": 4,
             "priority": 6
