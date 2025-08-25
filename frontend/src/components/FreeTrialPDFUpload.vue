@@ -77,7 +77,6 @@
       </div>
     </div>
 
-    <!-- Aperçu du texte extrait -->
     <div v-if="extractedText && showPreview" class="mt-6">
       <div class="flex items-center justify-between mb-2">
         <h4 class="font-medium">Aperçu du texte extrait :</h4>
@@ -149,7 +148,6 @@ const handleFileSelect = (e: Event) => {
 }
 
 const handleFile = async (file: File) => {
-  // Vérifications
   if (!file.name.toLowerCase().endsWith('.pdf')) {
     uploadError.value = 'Seuls les fichiers PDF sont acceptés'
     return
@@ -160,7 +158,6 @@ const handleFile = async (file: File) => {
     return
   }
 
-  // Reset states
   uploadError.value = null
   uploading.value = true
   uploadedFile.value = file
@@ -170,7 +167,6 @@ const handleFile = async (file: File) => {
 
     if (result.success) {
       extractedText.value = result.text
-      console.log('FreeTrialPDFUpload: emitting update:modelValue with text length:', result.text.length)
       emit('update:modelValue', result.text)
       showPreview.value = true
     } else {
