@@ -5,11 +5,10 @@ import type { User } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
-  const loading = ref(true) // Commencer avec loading = true
+  const loading = ref(true)
 
   const isAuthenticated = computed(() => !!user.value)
 
-  // Initialiser l'état d'authentification au démarrage
   async function initializeAuth() {
     loading.value = true
     try {
@@ -111,7 +110,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Écouter les changements d'authentification
   supabase.auth.onAuthStateChange((event, session) => {
     user.value = session?.user ?? null;
   });
