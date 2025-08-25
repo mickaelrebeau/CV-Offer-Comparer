@@ -332,25 +332,19 @@ import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff, Gift, Trash2, C
 const router = useRouter()
 const authStore = useAuthStore()
 
-// Fonction pour commencer l'essai gratuit
 const startFreeTrial = () => {
   router.push('/free-trial')
 }
 
-// Fonction pour commencer la comparaison (analyse gratuite ou connectée)
 const startComparison = () => {
   router.push('/register')
 }
-
-// Rediriger automatiquement les utilisateurs connectés vers le dashboard
 onMounted(() => {
-  // Attendre que l'authentification soit initialisée
   if (!authStore.loading && authStore.isAuthenticated) {
     router.push('/dashboard')
   }
 })
 
-// Surveiller les changements d'état d'authentification
 authStore.$subscribe(() => {
   if (!authStore.loading && authStore.isAuthenticated) {
     router.push('/dashboard')
