@@ -3,16 +3,13 @@ import { ref, computed } from 'vue'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 
 export const useInterviewStore = defineStore('interview', () => {
-  // État
   const currentInterview = ref<any>(null)
   const isLoading = ref(false)
   const error = ref('')
 
-  // Getters
   const hasCurrentInterview = computed(() => !!currentInterview.value)
   const currentQuestions = computed(() => currentInterview.value?.questions || [])
 
-  // Actions
   const generateQuestions = async (cvFile: File, jobText: string, numQuestions: number = 5) => {
     isLoading.value = true
     error.value = ''
@@ -60,16 +57,11 @@ export const useInterviewStore = defineStore('interview', () => {
   }
 
   return {
-    // État
     currentInterview,
     isLoading,
     error,
-    
-    // Getters
     hasCurrentInterview,
     currentQuestions,
-    
-    // Actions
     generateQuestions,
     analyzeResponses,
     clearCurrentInterview
