@@ -8,7 +8,6 @@
         Testez notre outil gratuitement ! Une seule analyse offerte par utilisateur.
       </p>
       
-      <!-- Statut de l'essai gratuit -->
       <div v-if="freeAnalysisStatus" class="mt-4 p-4 rounded-lg border" 
            :class="freeAnalysisStatus.can_use_free_analysis ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'">
         <div class="flex items-center">
