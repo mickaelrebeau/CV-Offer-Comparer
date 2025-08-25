@@ -1,12 +1,10 @@
 import axios from 'axios'
 import { supabase } from './supabase'
 
-// Configuration de l'URL de base selon l'environnement
 const getBaseURL = () => {
   if ((import.meta as any).env?.DEV) {
     return "http://localhost:8000/api";
   }
-  // En production, utilisez l'URL de votre backend déployé
   return "https://cv-offer-comparer-production.up.railway.app/api";
 };
 
@@ -15,7 +13,6 @@ const api = axios.create({
   timeout: 30000,
 });
 
-// Intercepteur pour ajouter le token d'authentification
 api.interceptors.request.use(async (config) => {
   const {
     data: { session },
@@ -26,19 +23,16 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Intercepteur pour gérer les erreurs
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Rediriger vers la page de connexion si non authentifié
       window.location.href = "/login";
     }
     return Promise.reject(error);
   }
 );
 
-// Fonction de test SSE
 export async function testStream(
   onStatus: (message: string) => void,
   onProgress: (progress: number, current: number, total: number) => void,
@@ -71,7 +65,7 @@ export async function testStream(
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; // Garder la dernière ligne incomplète
+      buffer = lines.pop() || ""; 
 
       for (const line of lines) {
         if (line.startsWith("data: ")) {
@@ -103,7 +97,6 @@ export async function testStream(
   }
 }
 
-// Fonction pour gérer les SSE avec l'API Fetch native
 export async function streamCompare(
   offerText: string,
   cvText: string,
@@ -151,7 +144,7 @@ export async function streamCompare(
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; // Garder la dernière ligne incomplète
+      buffer = lines.pop() || ""; 
 
       for (const line of lines) {
         if (line.startsWith("data: ")) {
@@ -189,7 +182,6 @@ export async function streamCompare(
   }
 }
 
-// Fonction pour l'analyse gratuite (sans authentification)
 export async function streamFreeCompare(
   offerText: string,
   cvText: string,
@@ -234,7 +226,7 @@ export async function streamFreeCompare(
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; // Garder la dernière ligne incomplète
+      buffer = lines.pop() || "";
 
       for (const line of lines) {
         if (line.startsWith("data: ")) {
@@ -272,7 +264,6 @@ export async function streamFreeCompare(
   }
 }
 
-// Fonction pour vérifier le statut de l'analyse gratuite
 export async function checkFreeAnalysisStatus() {
   try {
     const response = await fetch(`${getBaseURL()}/free-analysis-status`, {
@@ -297,7 +288,6 @@ export async function checkFreeAnalysisStatus() {
   }
 }
 
-// Fonction pour réinitialiser l'analyse gratuite (pour les tests)
 export async function resetFreeAnalysis() {
   try {
     const response = await fetch(`${getBaseURL()}/reset-free-analysis`, {
@@ -318,7 +308,6 @@ export async function resetFreeAnalysis() {
   }
 }
 
-// Fonction pour récupérer les statistiques des analyses gratuites
 export async function getFreeAnalysisStats() {
   try {
     const response = await fetch(`${getBaseURL()}/free-analysis-stats`, {
@@ -343,7 +332,6 @@ export async function getFreeAnalysisStats() {
   }
 }
 
-// Fonction pour uploader un CV PDF pour l'essai gratuit
 export async function uploadFreeCV(file: File): Promise<{ success: boolean; text: string; message: string }> {
   try {
     const formData = new FormData();
@@ -370,7 +358,6 @@ export async function uploadFreeCV(file: File): Promise<{ success: boolean; text
   }
 }
 
-// Fonctions pour le simulateur d'entretien
 export async function generateInterviewQuestions(
   cvFile: File,
   jobText: string,
