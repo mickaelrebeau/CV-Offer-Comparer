@@ -30,7 +30,6 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <!-- Onglets -->
           <div class="flex border-b border-border mb-4">
             <button @click="activeTab = 'upload'"
               class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
@@ -50,7 +49,6 @@
             </button>
           </div>
 
-          <!-- Contenu des onglets -->
           <div v-if="activeTab === 'upload'">
             <FreeTrialPDFUpload :model-value="cvText"
               @update:model-value="(value) => { console.log('FreeTrialPDFUpload event:', value.length); cvText = value; }" />
@@ -63,9 +61,7 @@
       </Card>
     </div>
 
-    <!-- Bouton de comparaison -->
     <div class="flex justify-center items-center flex-col">
-      <!-- Indicateur de progression -->
       <div v-if="loading" class="mb-4 w-full max-w-md">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm text-muted-foreground">{{ status }}</span>
@@ -84,14 +80,11 @@
       </Button>
     </div>
 
-    <!-- Message d'erreur -->
     <div v-if="error" class="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md">
       {{ error }}
     </div>
 
-    <!-- Résultats de comparaison -->
     <div v-if="comparisonResult" class="space-y-6">
-      <!-- Résumé -->
       <Card>
         <CardHeader>
           <CardTitle>Résumé de la comparaison</CardTitle>
@@ -120,7 +113,6 @@
         </CardContent>
       </Card>
 
-      <!-- Graphique de correspondance -->
       <Card>
         <CardHeader>
           <CardTitle>Répartition des compétences</CardTitle>
@@ -157,7 +149,6 @@
         </CardContent>
       </Card>
 
-      <!-- Offre d'emploi avec highlights -->
       <Card>
         <CardHeader>
           <CardTitle>Offre d'emploi analysée</CardTitle>
@@ -193,7 +184,6 @@
         </CardContent>
       </Card>
 
-      <!-- Call to action -->
       <Card class="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 rounded-lg">
         <CardContent class="p-6">
           <div class="text-center">
@@ -230,7 +220,6 @@ import FreeTrialPDFUpload from './FreeTrialPDFUpload.vue'
 
 const router = useRouter()
 
-// État local
 const offerText = ref('')
 const cvText = ref('')
 const loading = ref(false)
@@ -241,10 +230,8 @@ const comparisonResult = ref<any>(null)
 const canAnalyze = ref(true)
 const activeTab = ref('upload')
 
-// Computed properties
 const hasData = computed(() => offerText.value.trim() && cvText.value.trim())
 
-// Vérifier le statut de l'analyse gratuite au montage
 onMounted(async () => {
   try {
     const status = await checkFreeAnalysisStatus()
@@ -254,7 +241,6 @@ onMounted(async () => {
   }
 })
 
-// Fonctions utilitaires
 const formatPercentage = (value: number) => {
   return `${Math.round(value * 100)}%`
 }
@@ -277,7 +263,6 @@ const getMatchPercentage = (count: number) => {
   return (count / total) * 100
 }
 
-// Navigation
 const goToRegister = () => {
   router.push('/register')
 }
@@ -286,7 +271,6 @@ const goToLogin = () => {
   router.push('/login')
 }
 
-// Fonction de comparaison
 const compareCVWithOffer = async () => {
   if (!hasData.value || loading.value || !canAnalyze.value) return
 
@@ -318,7 +302,7 @@ const compareCVWithOffer = async () => {
       () => {
         loading.value = false
         comparisonResult.value = { items, summary }
-        canAnalyze.value = false // Marquer comme utilisé
+        canAnalyze.value = false
       },
       (errorMessage: string) => {
         loading.value = false
