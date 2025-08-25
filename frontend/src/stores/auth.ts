@@ -55,24 +55,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signOut() {
-    loading.value = true
+  async function signInWithGoogle() {
+    loading.value = true;
     try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-      user.value = null
-      return { error: null }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (error) throw error;
+      return { data, error: null };
     } catch (error) {
-      return { error }
+      return { data: null, error };
     } finally {
-      loading.value = false
+      loading.value = false;
+    }
+  }
+
+  async function signOut() {
+    loading.value = true;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      user.value = null;
+      return { error: null };
+    } catch (error) {
+      return { error };
+    } finally {
+      loading.value = false;
     }
   }
 
   async function getCurrentUser() {
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
-    user.value = currentUser
-    return currentUser
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
+    user.value = currentUser;
+    return currentUser;
   }
 
   async function deleteAccount() {
@@ -102,6 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     deleteAccount,
     getCurrentUser,
