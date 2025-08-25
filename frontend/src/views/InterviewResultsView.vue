@@ -273,13 +273,11 @@ interface Suggestion {
 const router = useRouter()
 const route = useRoute()
 
-// État de l'application
 const isLoading = ref(true)
 const error = ref('')
 const interviewData = ref<InterviewData | null>(null)
 const analysisResult = ref<AnalysisResult | null>(null)
 
-// Calculs
 const averageTimePerQuestion = computed(() => {
     if (!interviewData.value) return '0:00'
     const totalTime = interviewData.value.answers.reduce((sum, answer) => sum + (answer.time || 0), 0)
@@ -320,7 +318,6 @@ const suggestions = computed((): Suggestion[] => {
 
     if (!interviewData.value) return suggestions
 
-    // Suggestion basée sur le temps de réponse
     const avgTime = interviewData.value.answers.reduce((sum, a) => sum + (a.time || 0), 0) / interviewData.value.answers.length
     if (avgTime < 60) {
         suggestions.push({
@@ -334,7 +331,6 @@ const suggestions = computed((): Suggestion[] => {
         })
     }
 
-    // Suggestion basée sur les réponses vides
     const emptyAnswers = interviewData.value.answers.filter(a => !a.answer || a.answer.trim().length < 10).length
     if (emptyAnswers > 0) {
         suggestions.push({
@@ -343,7 +339,6 @@ const suggestions = computed((): Suggestion[] => {
         })
     }
 
-    // Suggestions générales
     suggestions.push({
         title: "Pratiquez régulièrement",
         description: "Utilisez ce simulateur régulièrement pour améliorer vos compétences d'entretien."
@@ -357,7 +352,6 @@ const suggestions = computed((): Suggestion[] => {
     return suggestions
 })
 
-// Fonctions utilitaires
 const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -372,19 +366,16 @@ const getScoreMessage = (score: number | undefined) => {
     return 'Besoin de pratique'
 }
 
-// Charger les données de l'entretien
 const loadInterviewData = async () => {
     isLoading.value = true
     error.value = ''
 
     try {
-        // Récupérer les données d'analyse depuis localStorage
         const storedAnalysis = localStorage.getItem('interviewAnalysis')
 
         if (storedAnalysis) {
             const analysisData = JSON.parse(storedAnalysis)
 
-            // Convertir le format des données
             interviewData.value = {
                 id: 'analysis-session',
                 num_questions: analysisData.questions.length,
@@ -400,12 +391,10 @@ const loadInterviewData = async () => {
 
             analysisResult.value = analysisData.analysis
 
-            // Nettoyer le localStorage
             localStorage.removeItem('interviewAnalysis')
             return
         }
 
-        // Si aucune donnée d'analyse n'est trouvée, afficher un message d'erreur
         error.value = 'Aucune analyse d\'entretien trouvée. Veuillez compléter un entretien pour voir les résultats.'
 
     } catch (err: any) {
@@ -416,7 +405,6 @@ const loadInterviewData = async () => {
     }
 }
 
-// Navigation
 const goToDashboard = () => {
     router.push('/dashboard')
 }
@@ -425,7 +413,6 @@ const startNewInterview = () => {
     router.push('/interview-simulator')
 }
 
-// Charger les données au montage
 onMounted(() => {
     loadInterviewData()
 })
