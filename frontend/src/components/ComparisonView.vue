@@ -19,7 +19,6 @@
         </CardContent>
       </Card>
 
-      <!-- CV avec onglets -->
       <Card>
         <CardHeader>
           <CardTitle class="flex items-center space-x-2">
@@ -31,7 +30,6 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <!-- Onglets -->
           <div class="flex border-b border-border mb-4">
             <button @click="activeTab = 'upload'"
               class="px-4 py-2 text-sm font-medium transition-colors duration-200 flex items-center space-x-2 border-b-2"
@@ -51,7 +49,6 @@
             </button>
           </div>
 
-          <!-- Contenu des onglets -->
           <div v-if="activeTab === 'upload'">
             <PDFUpload :model-value="compareStore.cvText"
               @update:model-value="(value) => { console.log('PDFUpload event:', value.length); compareStore.updateCVText(value); }" />
@@ -70,9 +67,7 @@
       </Card>
     </div>
 
-    <!-- Bouton de comparaison -->
     <div class="flex justify-center items-center flex-col">
-      <!-- Indicateur de progression -->
       <div v-if="compareStore.loading" class="mb-4 w-full max-w-md">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm text-muted-foreground">{{ compareStore.status }}</span>
@@ -92,15 +87,12 @@
       </Button>
     </div>
 
-    <!-- Message d'erreur -->
     <div v-if="compareStore.error"
       class="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md">
       {{ compareStore.error }}
     </div>
 
-    <!-- Résultats de comparaison -->
     <div v-if="compareStore.comparisonResult" class="space-y-6">
-      <!-- Résumé -->
       <Card>
         <CardHeader>
           <CardTitle>Résumé de la comparaison</CardTitle>
@@ -129,7 +121,6 @@
         </CardContent>
       </Card>
 
-      <!-- Graphique de correspondance -->
       <Card>
         <CardHeader>
           <CardTitle>Répartition des compétences</CardTitle>
@@ -166,7 +157,6 @@
         </CardContent>
       </Card>
 
-      <!-- Offre d'emploi avec highlights -->
       <Card>
         <CardHeader>
           <CardTitle>Offre d'emploi analysée</CardTitle>
@@ -221,20 +211,15 @@ import PDFUpload from './PDFUpload.vue'
 
 const compareStore = useCompareStore()
 
-// Onglet actif pour le CV
 const activeTab = ref<'upload' | 'manual'>('upload')
 
 const handleOfferInput = (event: Event) => {
   const target = event.target as HTMLTextAreaElement;
-  console.log('handleOfferInput called with length:', target.value.length);
-  console.log('Before updateOfferText - offerText from store:', compareStore.offerText.length);
   compareStore.updateOfferText(target.value);
-  console.log('After updateOfferText - offerText from store:', compareStore.offerText.length);
 };
 
 const handleCVInput = (event: Event) => {
   const target = event.target as HTMLTextAreaElement;
-  console.log('handleCVInput called with length:', target.value.length);
   compareStore.updateCVText(target.value);
 };
 
@@ -251,7 +236,6 @@ const getStatusColor = (status: string) => {
   }
 }
 
-// Fonction pour calculer le pourcentage de correspondance
 const getMatchPercentage = (count: number) => {
   const total = compareStore.comparisonResult?.summary?.totalItems || 1
   return (count / total) * 100
