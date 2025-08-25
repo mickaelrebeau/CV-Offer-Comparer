@@ -1,26 +1,61 @@
 <template>
-  <div class="max-w-4xl mx-auto">
-    <!-- Hero Section -->
-    <div class="text-center space-y-6 py-12">
-      <h1 class="text-4xl font-bold text-primary">
-        Comparateur CV ↔ Offre d'emploi
-      </h1>
-      <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-        Analysez intelligemment la correspondance entre votre CV et les offres d'emploi
-        grâce à l'intelligence artificielle
-      </p>
-      <div class="flex justify-center space-x-4">
-        <Button size="lg" @click="startFreeTrial">
-          🎁 Essai offert
-        </Button>
-        <Button variant="outline" size="lg" @click="startComparison">
-          S'incrire
-        </Button>
+  <div class="max-w-5xl mx-auto">
+    <section class="py-8 flex items-center justify-center gap-8">
+      <div class="text-left space-y-6 py-8 w-1/2">
+        <h1 class="text-3xl font-bold text-primary">
+          Comparateur CV ↔ Offre d'emploi
+        </h1>
+        <p class="max-w-xl text-lg text-muted-foreground">
+          Analysez intelligemment la correspondance entre votre CV et les offres d'emploi
+          grâce à l'intelligence artificielle
+        </p>
+        <div class="flex justify-center space-x-4">
+          <Button size="lg" @click="startFreeTrial">
+            🎁 Essai offert
+          </Button>
+          <Button variant="outline" size="lg" @click="startComparison">
+            S'incrire
+          </Button>
+        </div>
+      </div>
+      <div class="w-1/2 border-2 rounded-lg overflow-hidden cursor-pointer relative group" @click="openVideoModal">
+        <video ref="videoRef" src="/demo.mp4" autoplay muted loop class="w-full h-auto"></video>
+        <div
+          class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div class="bg-white/90 rounded-full p-3">
+            <Play class="h-8 w-8 text-primary" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div v-if="isVideoModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      @click="closeVideoModal">
+      <div class="absolute inset-0 bg-black bg-opacity-75"></div>
+      <div class="relative z-10 w-full max-w-4xl" @click.stop>
+        <div class="bg-black rounded-lg overflow-hidden">
+          <div class="relative">
+            <video ref="modalVideoRef" src="/demo.mp4" class="w-full h-auto max-h-[70vh]" controls
+              preload="metadata"></video>
+            <button @click="closeVideoModal"
+              class="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200">
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+          <div class="p-4 bg-white">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              Démonstration du comparateur CV ↔ Offre d'emploi
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Découvrez comment notre outil analyse intelligemment la correspondance entre votre CV et les offres
+              d'emploi.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Fonctionnalités -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-12">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 py-12">
       <Card>
         <CardHeader>
           <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -67,8 +102,7 @@
       </Card>
     </div>
 
-    <!-- Comment ça marche -->
-    <Card class="mt-12">
+    <Card class="mt-12 max-w-4xl mx-auto ">
       <CardHeader>
         <CardTitle>Comment ça marche ?</CardTitle>
       </CardHeader>
@@ -103,7 +137,6 @@
           </div>
         </div>
 
-        <!-- Information sur l'analyse gratuite -->
         <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div class="flex items-center gap-2 mb-2">
             <Gift class="h-5 w-5 text-blue-600" />
@@ -113,7 +146,7 @@
             Testez notre outil gratuitement avec une première analyse. Une seule analyse offerte par utilisateur.
             Créez un compte pour des analyses illimitées !
           </p>
-          <div class="mt-3">
+          <div class="mt-3 max-w-md">
             <Button size="sm" @click="startFreeTrial"
               class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
               Commencer l'essai gratuit
@@ -123,8 +156,7 @@
       </CardContent>
     </Card>
 
-    <!-- Simulateur d'entretien -->
-    <Card class="mt-12 border border-primary-200 bg-primary-100/30 rounded-xl">
+    <Card class="mt-12 max-w-4xl mx-auto  border border-primary-200 bg-primary-100/30 rounded-xl">
       <CardHeader>
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -142,7 +174,6 @@
       </CardHeader>
       <CardContent>
         <div class="space-y-6">
-          <!-- Avantages du simulateur -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="flex items-start gap-3 p-4 bg-white rounded-lg border border-primary-100">
               <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -181,7 +212,6 @@
             </div>
           </div>
 
-          <!-- Accès réservé aux membres -->
           <div class="bg-gradient-to-r from-primary-50 to-amber-50 border border-primary-200 rounded-lg p-6">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
@@ -202,17 +232,18 @@
                 <strong>Créez votre compte gratuitement</strong> pour accéder au simulateur d'entretien et à toutes nos
                 fonctionnalités avancées !
               </p>
-              <Button @click="startComparison" variant="full">
-                Créer mon compte gratuit
-              </Button>
+              <div class="max-w-md mx-auto">
+                <Button @click="startComparison" variant="full">
+                  Créer mon compte gratuit
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </CardContent>
     </Card>
 
-    <!-- Confidentialité renforcée -->
-    <Card class="mt-12 border bg-card/10 rounded-xl">
+    <Card class="mt-12 max-w-4xl mx-auto  border bg-card/10 rounded-xl">
       <CardHeader>
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -230,7 +261,6 @@
       </CardHeader>
       <CardContent>
         <div class="space-y-6">
-          <!-- Point principal sur la non-sauvegarde -->
           <div class="bg-card border rounded-lg p-6">
             <div class="flex items-start gap-4">
               <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -254,7 +284,6 @@
             </div>
           </div>
 
-          <!-- Autres points de sécurité -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex items-start gap-3 p-4 bg-white rounded-lg border">
               <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -305,7 +334,6 @@
             </div>
           </div>
 
-          <!-- Message de confiance -->
           <div class="text-center p-6 bg-card rounded-lg border">
             <h4 class="font-bold text-primary mb-2">
               🛡️ Votre confidentialité est notre priorité
@@ -327,10 +355,29 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff, Gift, Trash2, Clock, XCircle, MessageSquare, Brain, UserCheck, Target, TrendingUp, Award } from 'lucide-vue-next'
+import { FileText, CheckCircle, Lightbulb, Shield, Lock, EyeOff, Gift, Trash2, Clock, XCircle, MessageSquare, Brain, UserCheck, Target, TrendingUp, Award, Play, X } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const videoRef = ref<HTMLVideoElement | null>(null)
+const modalVideoRef = ref<HTMLVideoElement | null>(null)
+const isVideoModalOpen = ref(false)
+
+const openVideoModal = () => {
+  if (videoRef.value) {
+    videoRef.value.pause()
+    isVideoModalOpen.value = true
+  }
+}
+
+const closeVideoModal = () => {
+  if (modalVideoRef.value) {
+    modalVideoRef.value.pause()
+  }
+  isVideoModalOpen.value = false
+}
 
 const startFreeTrial = () => {
   router.push('/free-trial')
