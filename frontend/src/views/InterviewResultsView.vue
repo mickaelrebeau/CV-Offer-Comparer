@@ -112,7 +112,7 @@
             </Card>
 
             <!-- Points forts -->
-            <Card v-if="analysisResult?.points_forts?.length" class="mb-6">
+            <Card class="mb-6">
                 <CardHeader>
                     <CardTitle class="flex items-center gap-2">
                         <CheckCircle class="h-5 w-5 text-green-500" />
@@ -120,11 +120,16 @@
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div class="space-y-2">
+                    <div v-if="analysisResult?.points_forts?.length" class="space-y-2">
                         <div v-for="(point, index) in analysisResult.points_forts" :key="index"
                             class="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
                             <CheckCircle class="h-4 w-4 text-green-500" />
                             <span class="text-sm">{{ point }}</span>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
+                            <span class="text-sm">Aucun point fort trouvé</span>
                         </div>
                     </div>
                 </CardContent>
