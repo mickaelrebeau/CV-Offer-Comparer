@@ -1,378 +1,407 @@
 <template>
-  <div class="overflow-x-hidden relative bg-background text-foreground font-sans antialiased">
-    <!-- HERO SECTION -->
-    <section class="relative pt-24 pb-16 lg:pt-36 lg:pb-28 overflow-hidden">
-      <!-- Background Ambient Grid & Subtle Glow -->
-      <div class="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none"></div>
-      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-radial-gradient opacity-70 pointer-events-none"></div>
+  <div class="min-h-screen bg-[#09090b] text-[#fafafa] font-sans antialiased selection:bg-zinc-800 selection:text-white">
+    
+    <!-- TOP SUBTLE NAVIGATION HEADER (ContentArchitecture Style) -->
+    <header class="border-b border-zinc-800/80 sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md">
+      <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between text-xs font-mono">
+        <a @click="handleLogoClick" class="cursor-pointer flex items-center gap-2 hover:text-white transition-colors">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span class="font-bold tracking-tight text-white">CV OFFER COMPARER</span>
+        </a>
 
-      <div class="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
-        <div class="flex flex-col items-center text-center max-w-4xl mx-auto">
-          
-          <!-- ContentArchitecture Style Tagline Subhead -->
-          <div class="hero-anim opacity-0 translate-y-6 text-xs font-mono italic text-muted-foreground mb-4">
-            _Built for high-stakes candidacies & ATS precision._
-          </div>
+        <nav class="hidden sm:flex items-center gap-6 text-zinc-400">
+          <a href="#problems" class="hover:text-white transition-colors">_problems</a>
+          <a href="#decisions" class="hover:text-white transition-colors">_architecture</a>
+          <a href="#workbench" class="hover:text-white transition-colors">_workbench</a>
+          <a href="#pricing" class="hover:text-white transition-colors">_access</a>
+        </nav>
 
-          <!-- Minimalist Status Pill -->
-          <div class="hero-anim opacity-0 translate-y-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80 text-[11px] font-mono tracking-tight text-foreground mb-8 shadow-sm">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="font-semibold">CV OFFER COMPARER</span>
-            <span class="text-zinc-400">/</span>
-            <span class="text-muted-foreground">ENGINEERED FOR JOB SEARCH</span>
-          </div>
-
-          <!-- Main Impact Headline -->
-          <h1 class="hero-anim opacity-0 translate-y-6 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-[1.02] text-foreground">
-            Passez le filtre ATS.<br />
-            <span class="text-gradient-indigo">Décrochez l'entretien.</span>
-          </h1>
-
-          <!-- Crisp Subhead -->
-          <p class="hero-anim opacity-0 translate-y-6 text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed font-normal">
-            L'architecture d'analyse sémantique qui aligne votre CV avec l'offre d'emploi.
-            Détectez les mots-clés manquants, éliminez les angles morts et entraînez-vous aux entretiens.
-          </p>
-
-          <!-- Primary CTA Buttons -->
-          <div class="hero-anim opacity-0 translate-y-6 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            <a @click="startAnalysis" class="cursor-pointer w-full sm:w-auto px-8 py-4 rounded-full bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-all shadow-glow hover:shadow-glow-lg flex items-center justify-center gap-2 group">
-              <span>Lancer une analyse gratuite</span>
-              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
+        <div class="flex items-center gap-3">
+          <template v-if="!authStore.isAuthenticated">
+            <a @click="navigateTo('/login')" class="cursor-pointer text-zinc-400 hover:text-white transition-colors">
+              login
             </a>
-            <a href="#architecture" class="cursor-pointer w-full sm:w-auto px-8 py-4 rounded-full bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-foreground font-medium text-sm transition-all border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
-              Explorer l'architecture
+            <a @click="startAnalysis" class="cursor-pointer px-3 py-1 rounded bg-white text-zinc-950 font-semibold hover:bg-zinc-200 transition-colors">
+              [get access]
             </a>
-          </div>
-
-          <p class="hero-anim opacity-0 translate-y-6 text-xs text-muted-foreground italic mt-4">
-            _Pour ingénieurs, managers et spécialistes exigeants._
-          </p>
-        </div>
-
-        <!-- Interactive Architecture Workbench Showcase -->
-        <div id="architecture" class="hero-ui opacity-0 mt-16 sm:mt-24 relative max-w-5xl mx-auto scroll-mt-24">
-          <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
-            <!-- Window Control Header -->
-            <div class="h-11 px-5 flex items-center justify-between bg-zinc-100/90 dark:bg-zinc-900/90 border-b border-zinc-200 dark:border-zinc-800">
-              <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-                <div class="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-                <div class="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-                <span class="ml-2 text-xs font-mono text-muted-foreground">cv-offer-comparer.app — workbench v2.0</span>
-              </div>
-              <div class="flex items-center gap-1.5 p-1 rounded-lg bg-zinc-200/60 dark:bg-zinc-800/60">
-                <button @click="activeDemoTab = 'analysis'" class="px-3 py-1 text-xs font-mono rounded-md transition-all" :class="activeDemoTab === 'analysis' ? 'bg-background text-foreground shadow-sm font-semibold' : 'text-muted-foreground hover:text-foreground'">
-                  01 / ATS Gap Analysis
-                </button>
-                <button @click="activeDemoTab = 'interview'" class="px-3 py-1 text-xs font-mono rounded-md transition-all" :class="activeDemoTab === 'interview' ? 'bg-background text-foreground shadow-sm font-semibold' : 'text-muted-foreground hover:text-foreground'">
-                  02 / Interview Studio
-                </button>
-              </div>
-            </div>
-
-            <!-- Tab Content: ATS Analysis -->
-            <div v-if="activeDemoTab === 'analysis'" class="p-6 sm:p-8 bg-background/60 space-y-6">
-              <div class="grid md:grid-cols-3 gap-6 items-stretch">
-                <!-- Score Gauge Card -->
-                <div class="p-6 rounded-xl bg-card border border-border flex flex-col items-center justify-center text-center">
-                  <div class="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-3">Matching Score</div>
-                  <div class="relative w-28 h-28 flex items-center justify-center">
-                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path class="text-zinc-200 dark:text-zinc-800" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                      <path class="text-emerald-500" stroke-linecap="round" stroke-dasharray="88, 100" stroke-width="3.2" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <span class="absolute text-3xl font-black tracking-tight">88%</span>
-                  </div>
-                  <span class="mt-3 text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    MATCH ATS VALIDE
-                  </span>
-                </div>
-
-                <!-- Matched & Missing Keywords Breakdown -->
-                <div class="md:col-span-2 space-y-4 flex flex-col justify-between">
-                  <div class="p-4 rounded-xl bg-card border border-border space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="font-mono font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Compétences Détectées (12)
-                      </span>
-                      <span class="text-muted-foreground font-mono text-[11px]">Match Sémantique</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-1">
-                      <span v-for="skill in ['TypeScript', 'Vue 3 / React', 'Tailwind CSS', 'FastAPI / Node', 'Git CI/CD', 'PostgreSQL']" :key="skill" class="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-medium">
-                        ✓ {{ skill }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="p-4 rounded-xl bg-card border border-border space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="font-mono font-semibold text-rose-500 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                        Angles Morts / Exigences Manquantes (2)
-                      </span>
-                      <span class="text-muted-foreground font-mono text-[11px]">Action Recommandée</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1.5 pt-1">
-                      <span v-for="missing in ['Docker / Containerization', 'Tests Unitaires (Vitest / Pytest)']" :key="missing" class="text-xs px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium">
-                        + {{ missing }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab Content: Interview Simulator -->
-            <div v-else class="p-6 sm:p-8 bg-background/60 space-y-4">
-              <div class="p-5 rounded-xl bg-card border border-border space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-500">Question 1 / 5 • Technique & Performance</span>
-                  <span class="text-xs text-muted-foreground font-mono">02:15</span>
-                </div>
-                <p class="text-sm font-semibold text-foreground leading-relaxed">
-                  "Vous mentionnez l'utilisation de Vue 3 et TypeScript. Comment optimisez-vous les performances de rendu lors du chargement de listes volumineuses ?"
-                </p>
-              </div>
-
-              <div class="p-5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/50 dark:border-indigo-800/40 space-y-2">
-                <div class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-                  <span>💡 RECOMMANDATION DE RÉPONSE & MOTS-CLÉS</span>
-                </div>
-                <p class="text-xs text-muted-foreground leading-relaxed font-normal">
-                  Axez votre réponse sur la virtualisation de liste (Virtual Scrolling), le lazy loading des composants, et la mémoïsation avec <code class="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-[11px]">computed</code>.
-                </p>
-              </div>
-            </div>
-          </div>
+          </template>
+          <template v-else>
+            <a @click="navigateTo('/dashboard')" class="cursor-pointer text-zinc-400 hover:text-white transition-colors">
+              [dashboard]
+            </a>
+          </template>
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- SECTION: THE COMMON PROBLEMS (ContentArchitecture Style) -->
-    <section class="py-20 lg:py-28 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40">
-      <div class="max-w-5xl mx-auto px-6 lg:px-8">
-        <div class="mb-12">
-          <div class="text-xs font-mono italic text-muted-foreground mb-3">_Problème récurrent_</div>
-          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
-            Le trou noir des filtres ATS vous coûte des entretiens. À chaque candidature.
-          </h2>
+    <main class="max-w-4xl mx-auto px-6 py-16 sm:py-24 space-y-24 sm:space-y-32">
+
+      <!-- HERO SECTION -->
+      <section class="space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Built for high-stakes candidacies & ATS precision._
+          </p>
+          <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.08]">
+            The ATS architecture candidates don't reinvent.
+          </h1>
         </div>
 
-        <p class="text-base sm:text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
-          Ce n'est presque jamais un manque de compétences qui bloque votre dossier. C'est l'algorithme ATS qui ne détecte pas vos synonymes. Ce sont les mots-clés absents de vos puces d'expérience. Et l'anxiété avant le premier tour où vous devinez à l'aveugle les questions du recruteur.
+        <p class="text-base sm:text-xl text-zinc-300 leading-relaxed font-normal max-w-2xl">
+          Every job hunt invents a new CV strategy, none decided. This Gemini-powered platform commits years of recruitment and ATS parsing decisions. Your application aligns inside them, in real-time.
         </p>
 
-        <!-- Matrix of Lost Time per Application -->
-        <div class="space-y-3 font-mono text-xs sm:text-sm">
-          <div class="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span class="text-foreground font-medium">• Relecture et adaptation manuelle du CV ligne par ligne</span>
-            <span class="text-rose-500 font-semibold sm:text-right">~2.5 HRS</span>
-          </div>
+        <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+          _For candidates who value precision, speed, and zero fluff._
+        </p>
 
-          <div class="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span class="text-foreground font-medium">• Recherche des synonymes et densité de mots-clés imposée par la fiche</span>
-            <span class="text-rose-500 font-semibold sm:text-right">~1.5 HRS</span>
-          </div>
-
-          <div class="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span class="text-foreground font-medium">• Improvisation et manque de préparation aux questions pièges</span>
-            <span class="text-rose-500 font-semibold sm:text-right">~2.0 HRS</span>
-          </div>
-
-          <div class="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span class="text-foreground font-medium">• Erreurs de parsing PDF et rejets automatiques inexpliqués</span>
-            <span class="text-rose-500 font-semibold sm:text-right">~1.0 HR</span>
-          </div>
-        </div>
-
-        <div class="mt-8 text-xs font-mono text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider">
-          _TEMPS PERDU ESTIMÉ : ~7 HEURES PAR DOSSIER DE CANDIDATURE_
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION: THE DECISIONS MADE (ContentArchitecture Style) -->
-    <section id="features" class="py-24 sm:py-32 border-t border-zinc-200 dark:border-zinc-800">
-      <div class="max-w-5xl mx-auto px-6 lg:px-8">
-        <div class="mb-16">
-          <div class="text-xs font-mono italic text-muted-foreground mb-3">_L'architecture solution_</div>
-          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight mb-6">
-            Chaque décision d'analyse déjà validée.
-          </h2>
-          <p class="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-3xl">
-            CV Offer Comparer est le socle structuré d'ingénierie de candidature. Des règles de matching sémantique, d'extraction de compétences et de simulation d'entretien éprouvées, prêtes à l'emploi.
-          </p>
-        </div>
-
-        <!-- Bento Decision Grid -->
-        <div class="grid md:grid-cols-2 gap-6">
-          <!-- Item 1 -->
-          <div class="glass-card p-8 rounded-2xl space-y-4 border border-border flex flex-col justify-between">
-            <div class="space-y-3">
-              <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-muted-foreground">01 / GEMINI LLM DIRECT</span>
-              <h3 class="text-xl font-bold tracking-tight text-foreground">
-                Analyse Structurée Monopasse
-              </h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">
-                Aucun enchaînement lent de prompts. Un seul appel structuré Gemini extrait les exigences, évalue la correspondance sémantique et génère les suggestions en streaming SSE instantané.
-              </p>
-            </div>
-            <div class="pt-4 border-t border-border/60 text-xs font-mono text-muted-foreground">
-              Stream SSE • Latence &lt; 2s
-            </div>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="glass-card p-8 rounded-2xl space-y-4 border border-border flex flex-col justify-between">
-            <div class="space-y-3">
-              <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-muted-foreground">02 / DIAGNOSTIC SÉMANTIQUE</span>
-              <h3 class="text-xl font-bold tracking-tight text-foreground">
-                Gap Analysis Multi-Catégories
-              </h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">
-                Catégorisation automatique des compétences techniques, soft skills, langues, formations et niveau d'expérience. Les variations de synonymes sont automatiquement neutralisées.
-              </p>
-            </div>
-            <div class="pt-4 border-t border-border/60 text-xs font-mono text-muted-foreground">
-              Hard & Soft Skills • Synonym Matching
-            </div>
-          </div>
-
-          <!-- Item 3 -->
-          <div class="glass-card p-8 rounded-2xl space-y-4 border border-border flex flex-col justify-between">
-            <div class="space-y-3">
-              <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-muted-foreground">03 / SIMULATEUR D'ENTRETIEN</span>
-              <h3 class="text-xl font-bold tracking-tight text-foreground">
-                Entraînement Ciblé sur les Angles Morts
-              </h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">
-                Le simulateur construit 10 questions sur-mesure d'après les faiblesses identifiées entre votre CV et l'offre, puis évalue la qualité de vos réponses.
-              </p>
-            </div>
-            <div class="pt-4 border-t border-border/60 text-xs font-mono text-muted-foreground">
-              Q&A Sur-mesure • Feedback Pratique
-            </div>
-          </div>
-
-          <!-- Item 4 -->
-          <div class="glass-card p-8 rounded-2xl space-y-4 border border-border flex flex-col justify-between">
-            <div class="space-y-3">
-              <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-zinc-100 dark:bg-zinc-800 text-muted-foreground">04 / SÉCURITÉ & SOBRIÉTÉ</span>
-              <h3 class="text-xl font-bold tracking-tight text-foreground">
-                PostgreSQL + Redis & Zero Slop
-              </h3>
-              <p class="text-sm text-muted-foreground leading-relaxed">
-                Gestion de session JWT robuste, stockage Postgres sécurisé et contrôle des limites d'essai via Redis. Aucune phrase creuse ou verbiage généré.
-              </p>
-            </div>
-            <div class="pt-4 border-t border-border/60 text-xs font-mono text-muted-foreground">
-              PostgreSQL • Redis • Privacy First
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- METRICS TICKER STRIP -->
-    <section class="py-12 border-y border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/30">
-      <div class="max-w-6xl mx-auto px-6 lg:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center font-mono">
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl font-black text-foreground">94%</div>
-            <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Taux de passage ATS</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl font-black text-foreground">&lt; 2s</div>
-            <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Streaming LLM</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl font-black text-foreground">100%</div>
-            <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Confidentialité Données</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-3xl sm:text-4xl font-black text-foreground">0</div>
-            <div class="text-[11px] text-muted-foreground uppercase tracking-wider">Jargon Inutile</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- METHOD & WORKFLOW (3 Steps) -->
-    <section id="how-it-works" class="py-24 sm:py-32 border-b border-zinc-200 dark:border-zinc-800">
-      <div class="max-w-5xl mx-auto px-6 lg:px-8">
-        <div class="mb-16">
-          <div class="text-xs font-mono italic text-muted-foreground mb-3">_Méthodologie_</div>
-          <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-foreground">
-            Simple, rigoureux, efficace.
-          </h2>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-8">
-          <!-- Step 1 -->
-          <div class="p-8 rounded-2xl bg-card border border-border space-y-4">
-            <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-foreground">
-              01
-            </div>
-            <h3 class="text-lg font-bold text-foreground">Importation du Dossier</h3>
-            <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed font-normal">
-              Déposez votre CV au format PDF ou collez le texte direct. Ajoutez le texte de l'offre d'emploi ciblée.
-            </p>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="p-8 rounded-2xl bg-card border border-border space-y-4">
-            <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-foreground">
-              02
-            </div>
-            <h3 class="text-lg font-bold text-foreground">Analyse & Match</h3>
-            <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed font-normal">
-              Gemini extrait la taxonomie du poste, évalue la couverture de votre CV et génère des suggestions de reformulation ATS.
-            </p>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="p-8 rounded-2xl bg-card border border-border space-y-4">
-            <div class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-mono font-bold text-foreground">
-              03
-            </div>
-            <h3 class="text-lg font-bold text-foreground">Simulation d'Entretien</h3>
-            <p class="text-xs sm:text-sm text-muted-foreground leading-relaxed font-normal">
-              Répondez aux questions ciblées sur vos angles morts et obtenez un feedback instantané avec conseils d'amélioration.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FINAL CALL TO ACTION -->
-    <section class="py-24 sm:py-32 relative overflow-hidden">
-      <div class="max-w-4xl mx-auto px-6 lg:px-8 relative z-10 text-center">
-        <div class="reveal-scale rounded-3xl p-10 sm:p-16 bg-zinc-900 text-white relative overflow-hidden border border-zinc-800 shadow-2xl">
-          <div class="absolute -top-24 -left-24 w-80 h-80 bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none"></div>
-          <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-purple-500/20 blur-[100px] rounded-full pointer-events-none"></div>
-
-          <div class="text-xs font-mono italic text-zinc-400 mb-4">_L'analyse suivante est à vous._</div>
-
-          <h2 class="text-3xl sm:text-5xl font-black tracking-tight mb-6 relative z-10 leading-tight">
-            Prêt à faire la différence lors de votre prochaine candidature ?
-          </h2>
-          <p class="text-zinc-400 text-sm sm:text-base mb-10 max-w-xl mx-auto relative z-10 font-normal leading-relaxed">
-            Profitez dès maintenant d'une analyse sémantique offerte, sans carte bancaire ni configuration complexe.
-          </p>
-
-          <a @click="startAnalysis" class="cursor-pointer inline-flex items-center gap-3 px-8 py-4 bg-white text-zinc-900 hover:bg-zinc-100 font-semibold rounded-full transition-all hover:scale-105 shadow-glow relative z-10 text-sm">
-            <span>Commencer une analyse gratuite</span>
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+        <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-mono">
+          <a @click="startAnalysis" class="cursor-pointer inline-flex items-center justify-center px-6 py-3 rounded bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-all">
+            [Start free analysis]
+          </a>
+          <a href="#workbench" class="inline-flex items-center justify-center px-6 py-3 rounded border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white transition-all">
+            Explore the workbench ↓
           </a>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- SECTION: COMMON PROBLEMS -->
+      <section id="problems" class="pt-12 border-t border-zinc-800 space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Common problems_
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            The manual ATS tailoring costs you days. Every single time.
+          </h2>
+        </div>
+
+        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
+          It's never the easy stuff that hurts. It's formatting the CV again. Matching exact keywords and subtle variations, wired up and subtly rejected again. The rejection email where your profile was filtered before a human ever saw it. A CV structure recruiters actually understand, instead of one they skim over.
+        </p>
+
+        <p class="text-xs sm:text-sm text-zinc-400 font-mono italic">
+          This is the part nobody quotes for and everybody rebuilds. Hours gone before the real interview starts.
+        </p>
+
+        <!-- Time lost breakdown table -->
+        <div class="space-y-2 font-mono text-xs sm:text-sm border-t border-b border-zinc-800/80 py-4">
+          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
+            <span class="text-zinc-300">- Candidate redesigns CV architecture on every prompt</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(∞ HRS)</span>
+          </div>
+          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
+            <span class="text-zinc-300">- Keyword density & synonym matching from job post</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(~3 HRS)</span>
+          </div>
+          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
+            <span class="text-zinc-300">- Identifying missing hard skills & experience gaps</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(~2 HRS)</span>
+          </div>
+          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
+            <span class="text-zinc-300">- Drafting tailored bullet points & impact statements</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(~2 HRS)</span>
+          </div>
+          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
+            <span class="text-zinc-300">- Preparing for recruiter technical & behavioral questions</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(~3 HRS)</span>
+          </div>
+          <div class="py-2.5 flex items-center justify-between gap-4">
+            <span class="text-zinc-300">- PDF formatting & ATS parser compatibility check</span>
+            <span class="text-zinc-500 font-semibold shrink-0">(~1 HR)</span>
+          </div>
+        </div>
+
+        <div class="text-xs font-mono text-amber-400/90 tracking-wide">
+          _ESTIMATED TIME LOST: ~11 HOURS PER APPLICATION (1.5 FULL DAYS)_
+        </div>
+      </section>
+
+      <!-- SECTION: DECISIONS MADE -->
+      <section id="decisions" class="pt-12 border-t border-zinc-800 space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Architecture_
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            Every decision already made. So you can skip to the actual interview.
+          </h2>
+        </div>
+
+        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
+          The CV Offer Architecture is the production foundation underneath successful candidacies. Hundreds of choices—schema, parsing, sifting, structure, scoring—made once and committed. Not a generic resume builder you outgrow in a week. Input your documents; the architecture is fixed, the analysis is instant. Fixed decisions are what make AI work: an engine inside committed conventions ships results, an engine without them hallucinates.
+        </p>
+
+        <!-- Bulleted Decision List -->
+        <ul class="space-y-6 text-sm text-zinc-300">
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>Gemini-native single-pass pipeline:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              A single structured Gemini call extracts job requirements, calculates confidence scores across categories, and streams results over SSE in under 2 seconds. No chained prompts, no API lag.
+            </p>
+          </li>
+
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>Categorized Gap Analysis:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              Hard skills, soft skills, languages, experience levels, and certifications are isolated automatically into clean buckets with specific match thresholds.
+            </p>
+          </li>
+
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>Synonym & term normalization:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              "Vue.js" and "Vue 3", "PostgreSQL" and "Postgres", or "bilingue" and "anglais courant" are recognized as matches. The engine evaluates semantic intent rather than dumb string matching.
+            </p>
+          </li>
+
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>Interview Studio:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              Generates 10 tailored interview questions based on the exact gap between your profile and the job description, then provides actionable feedback on your responses.
+            </p>
+          </li>
+
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>1-Click Reformulations:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              Provides impact-driven, ATS-friendly phrasing for missing or unclear qualifications that you can copy directly into your document.
+            </p>
+          </li>
+
+          <li class="space-y-1">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="text-emerald-500 font-mono">•</span>
+              <span>Privacy & security built-in:</span>
+            </div>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
+              PostgreSQL + Redis session control with JWT authentication. Documents are processed in memory and never stored or sold to third parties.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- SECTION: INTERACTIVE WORKBENCH (REAL PREVIEW) -->
+      <section id="workbench" class="pt-12 border-t border-zinc-800 space-y-6">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Interactive preview_
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            This is the actual workbench.
+          </h2>
+        </div>
+
+        <div class="border border-zinc-800 rounded-lg bg-[#0c0c0e] overflow-hidden font-mono text-xs">
+          <!-- Window Bar -->
+          <div class="h-10 px-4 flex items-center justify-between border-b border-zinc-800 bg-[#121215]">
+            <div class="flex items-center gap-2 text-zinc-400">
+              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+              <span class="ml-2 text-zinc-400 text-[11px]">cv-offer-comparer.app — workbench</span>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button 
+                @click="activeDemoTab = 'analysis'"
+                class="px-2.5 py-1 rounded transition-colors"
+                :class="activeDemoTab === 'analysis' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-500 hover:text-zinc-300'"
+              >
+                [01 / ATS Analysis]
+              </button>
+              <button 
+                @click="activeDemoTab = 'interview'"
+                class="px-2.5 py-1 rounded transition-colors"
+                :class="activeDemoTab === 'interview' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-500 hover:text-zinc-300'"
+              >
+                [02 / Interview Studio]
+              </button>
+            </div>
+          </div>
+
+          <!-- Workbench Content: ATS Analysis -->
+          <div v-if="activeDemoTab === 'analysis'" class="p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+              <div>
+                <div class="text-zinc-500 text-[11px]">MATCHING SCORE</div>
+                <div class="text-3xl sm:text-4xl font-bold text-white tracking-tight">88%</div>
+              </div>
+
+              <div class="flex items-center gap-2 text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-3 py-1.5 rounded">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>STATUS: MATCH ATS VALIDE</span>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <div class="text-zinc-500 text-[11px] mb-2">DETECTED SKILLS (12)</div>
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="skill in ['TypeScript', 'Vue 3 / React', 'Tailwind CSS', 'FastAPI / Python', 'Git CI/CD', 'PostgreSQL']" :key="skill" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-emerald-400 font-mono">
+                    ✓ {{ skill }}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-zinc-500 text-[11px] mb-2">MISSING REQUIREMENTS (2)</div>
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="missing in ['Docker / Containerization', 'Unit Tests (Vitest / Pytest)']" :key="missing" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-rose-400 font-mono">
+                    + {{ missing }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Workbench Content: Interview Studio -->
+          <div v-else class="p-6 space-y-4">
+            <div class="space-y-2 border-b border-zinc-800/80 pb-4">
+              <div class="text-zinc-500 text-[11px]">QUESTION 01 / 05 • TECHNICAL PERFORMANCE</div>
+              <p class="text-zinc-200 text-sm font-sans font-semibold leading-relaxed">
+                "Vous mentionnez l'utilisation de Vue 3 et TypeScript. Comment optimisez-vous les performances de rendu lors du chargement de listes volumineuses ?"
+              </p>
+            </div>
+
+            <div class="p-4 rounded bg-zinc-900/80 border border-zinc-800 space-y-2">
+              <div class="text-indigo-400 text-[11px] font-bold">💡 RECOMMANDATION DE RÉPONSE</div>
+              <p class="text-zinc-400 text-xs font-sans leading-relaxed">
+                Axez votre réponse sur la virtualisation de liste (Virtual Scrolling), le lazy loading des composants, et la mémoïsation avec <code class="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono">computed</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: SHOWCASE / METRICS -->
+      <section class="pt-12 border-t border-zinc-800 space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _The candidacies that get remembered._
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            Built for candidates who target top-tier roles.
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 font-mono text-xs border-t border-b border-zinc-800/80 py-6">
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-bold text-white">94%</div>
+            <div class="text-zinc-500 uppercase text-[10px]">ATS Pass Rate</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-bold text-white">&lt; 2s</div>
+            <div class="text-zinc-500 uppercase text-[10px]">LLM Latency</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-bold text-white">100%</div>
+            <div class="text-zinc-500 uppercase text-[10px]">Data Privacy</div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-2xl sm:text-3xl font-bold text-white">0</div>
+            <div class="text-zinc-500 uppercase text-[10px]">Fluff & Jargon</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: ACCESS & PRICING -->
+      <section id="pricing" class="pt-12 border-t border-zinc-800 space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Access_
+          </p>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+            One platform. Free trial included.
+          </h2>
+        </div>
+
+        <div class="border border-zinc-800 rounded-lg p-6 sm:p-8 bg-[#0c0c0e] space-y-6 font-mono text-xs">
+          <div class="flex items-baseline justify-between border-b border-zinc-800 pb-4">
+            <span class="text-lg font-bold text-white">FREE TRIAL / ACCOUNT</span>
+            <span class="text-emerald-400 font-bold">€0 / START FREE</span>
+          </div>
+
+          <ul class="space-y-2.5 text-zinc-300">
+            <li class="flex items-center gap-2">• FREE TRIAL AVAILABLE WITH NO CREDIT CARD</li>
+            <li class="flex items-center gap-2">• FULL GEMINI LLM STREAMING SSE ENGINE</li>
+            <li class="flex items-center gap-2">• CATEGORIZED ATS GAP ANALYSIS & REFORMULATIONS</li>
+            <li class="flex items-center gap-2">• INTERVIEW STUDIO & RESPONSE FEEDBACK</li>
+            <li class="flex items-center gap-2">• PDF UPLOAD & AUTOMATIC TEXT EXTRACTION</li>
+            <li class="flex items-center gap-2">• SECURE POSTGRESQL + REDIS SESSION CONTROL</li>
+          </ul>
+
+          <div class="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <a @click="startAnalysis" class="cursor-pointer w-full sm:w-auto text-center px-6 py-3 rounded bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-colors">
+              [Get free access]
+            </a>
+            <span class="text-zinc-500 text-[11px]">_Ready in under 30 seconds._</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: BEFORE YOU USE / FAQ (ContentArchitecture Style) -->
+      <section class="pt-12 border-t border-zinc-800 space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
+            _Before you start_
+          </p>
+          <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            Frequently asked questions.
+          </h3>
+        </div>
+
+        <div class="space-y-6 text-sm text-zinc-300">
+          <div class="space-y-1">
+            <h4 class="font-bold text-white">What stack is this built on?</h4>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              Vue 3, TypeScript, Pinia, Tailwind CSS, Lenis, and FastAPI backed by PostgreSQL, Redis, and Google Gemini LLM (`google-genai`). Deployed on Railway via Docker.
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <h4 class="font-bold text-white">How is this different from generic resume builders?</h4>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              Most tools give you a pile of visual templates. This gives you architectural decisions: exact semantic matching, gap analysis, and tailored interview preparation based on your actual target job description.
+            </p>
+          </div>
+
+          <div class="space-y-1">
+            <h4 class="font-bold text-white">Are my documents private?</h4>
+            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
+              Yes. Your CV and job descriptions are processed in memory during the analysis session and never sold or shared.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="pt-12 border-t border-zinc-800 text-xs font-mono text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>CV Offer Comparer — ATS Architecture Platform</span>
+        </div>
+        <div>
+          © 2026 Mickael Rebeau & contributors. MIT License.
+        </div>
+      </footer>
+
+    </main>
   </div>
 </template>
 
@@ -380,11 +409,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import gsap from 'gsap'
-import ScrollTrigger from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -396,50 +421,31 @@ const startAnalysis = () => {
   router.push('/free-trial')
 }
 
+const navigateTo = (path: string) => {
+  router.push(path)
+}
+
+const handleLogoClick = () => {
+  if (authStore.isAuthenticated) {
+    router.push('/dashboard')
+  } else {
+    router.push('/')
+  }
+}
+
 onMounted(() => {
-  // Initialize Lenis smooth scroll
   lenis = new Lenis({
     duration: 1.2,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
   })
 
-  lenis.on('scroll', ScrollTrigger.update)
-
-  const updateTicker = (time: number) => {
-    lenis?.raf(time * 1000)
+  function raf(time: number) {
+    lenis?.raf(time)
+    requestAnimationFrame(raf)
   }
 
-  gsap.ticker.add(updateTicker)
-  gsap.ticker.lagSmoothing(0)
-
-  // GSAP Animations
-  const tl = gsap.timeline()
-
-  tl.to('.hero-anim', {
-    y: 0,
-    opacity: 1,
-    duration: 0.9,
-    stagger: 0.12,
-    ease: 'power3.out'
-  }).to('.hero-ui', {
-    opacity: 1,
-    y: -10,
-    duration: 1,
-    ease: 'power2.out'
-  }, "-=0.4")
-
-  // CTA Scale animation
-  gsap.from('.reveal-scale', {
-    scrollTrigger: {
-      trigger: '.reveal-scale',
-      start: "top 90%",
-    },
-    scale: 0.95,
-    opacity: 0,
-    duration: 0.8,
-    ease: 'power2.out'
-  })
+  requestAnimationFrame(raf)
 })
 
 onUnmounted(() => {
