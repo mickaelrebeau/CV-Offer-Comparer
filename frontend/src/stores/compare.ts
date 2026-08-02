@@ -7,6 +7,7 @@ import {
   checkFreeAnalysisStatus,
 } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import posthog from "posthog-js";
 
 
 export interface ComparisonItem {
@@ -173,7 +174,9 @@ export const useCompareStore = defineStore("compare", () => {
         () => {
           status.value = "Comparaison terminée";
 
-          if (!isAuthenticated) {
+          if (isAuthenticated) {
+            posthog.capture("comparison_completed", { comparison_mode: "authenticated" });
+          } else {
             markFreeAnalysisAsUsed();
           }
         },

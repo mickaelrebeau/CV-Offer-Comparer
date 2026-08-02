@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api, getApiBaseURL } from '@/lib/api'
 import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/authToken'
+import posthog from 'posthog-js'
 import type { AuthResponse, AuthUser } from '@/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -10,6 +11,24 @@ export const useAuthStore = defineStore('auth', () => {
   let initPromise: Promise<void> | null = null
 
   const isAuthenticated = computed(() => !!user.value && !!getAccessToken())
+  const isPostHogConfigured = Boolean(
+    import.meta.env.VITE_POSTHOG_PROJECT_TOKEN && import.meta.env.VITE_POSTHOG_HOST,
+  )
+
+  function identifyUser(authUser: AuthUser) {
+    if (!isPostHogConfigured) return
+
+    posthog.identify(authUser.id, {
+      email: authUser.email,
+      ...(authUser.full_name ? { name: authUser.full_name } : {}),
+    })
+  }
+
+  function resetPostHog() {
+    if (isPostHogConfigured) {
+      posthog.reset()
+    }
+  }
 
   async function fetchMe(): Promise<AuthUser | null> {
     const token = getAccessToken()
@@ -20,10 +39,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { data } = await api.get<AuthUser>('/auth/me')
       user.value = data
+      identifyUser(data)
       return data
     } catch {
       clearAccessToken()
       user.value = null
+      resetPostHog()
       return null
     }
   }
@@ -54,8 +75,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function applyAuth(payload: AuthResponse) {
+    if (user.value && user.value.id !== payload.user.id) {
+      resetPostHog()
+    }
+
     setAccessToken(payload.access_token)
     user.value = payload.user
+    identifyUser(payload.user)
   }
 
   async function signUp(email: string, password: string) {
@@ -106,6 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function signOut() {
     clearAccessToken()
     user.value = null
+    resetPostHog()
     return { error: null }
   }
 
@@ -119,6 +146,7 @@ export const useAuthStore = defineStore('auth', () => {
       await api.delete('/auth/me')
       clearAccessToken()
       user.value = null
+      resetPostHog()
       return { error: null }
     } catch (error: any) {
       return {

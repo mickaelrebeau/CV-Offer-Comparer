@@ -137,6 +137,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { streamFreeCompare, checkFreeAnalysisStatus } from '@/lib/api'
 import FreeTrialPDFUpload from './FreeTrialPDFUpload.vue'
+import posthog from 'posthog-js'
 
 const router = useRouter()
 
@@ -206,6 +207,7 @@ const compareCVWithOffer = async () => {
         loading.value = false
         comparisonResult.value = { items, summary }
         canAnalyze.value = false
+        posthog.capture('free_trial_comparison_completed', { comparison_mode: 'free_trial' })
       },
       (eMsg: string) => {
         loading.value = false

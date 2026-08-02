@@ -64,6 +64,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import posthog from 'posthog-js'
 
 const router = useRouter()
 const route = useRoute()
@@ -97,6 +98,7 @@ async function handleLogin() {
   if (loginError) {
     error.value = 'Email ou mot de passe incorrect'
   } else {
+    posthog.capture('account_signed_in', { sign_in_method: 'password' })
     router.push('/dashboard')
   }
 

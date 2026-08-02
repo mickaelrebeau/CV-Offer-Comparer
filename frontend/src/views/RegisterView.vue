@@ -73,6 +73,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import posthog from 'posthog-js'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -104,6 +105,7 @@ async function handleRegister() {
   if (registerError) {
     error.value = registerError.message || 'Erreur lors de la création du compte'
   } else {
+    posthog.capture('account_registered', { registration_method: 'password' })
     success.value = 'Compte créé avec succès !'
     setTimeout(() => {
       router.push('/dashboard')

@@ -90,6 +90,7 @@ import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-vue-next'
 import { api } from '@/lib/api'
+import posthog from 'posthog-js'
 
 interface Props {
   modelValue?: string
@@ -169,6 +170,7 @@ const handleFile = async (file: File) => {
     if (response.data.success) {
       extractedText.value = response.data.text
       emit('update:modelValue', response.data.text)
+      posthog.capture('cv_uploaded', { upload_source: 'pdf' })
       showPreview.value = true
     } else {
       uploadError.value = response.data.message

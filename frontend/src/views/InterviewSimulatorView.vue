@@ -164,6 +164,7 @@ import {
 } from 'lucide-vue-next'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 import PDFUpload from '@/components/PDFUpload.vue'
+import posthog from 'posthog-js'
 
 const router = useRouter()
 
@@ -220,6 +221,9 @@ const generateQuestions = async () => {
       questions.value = result.interview_session.questions
       interviewSession.value = result.interview_session
       currentStep.value = 2
+      posthog.capture('interview_questions_generated', {
+        question_count: result.interview_session.questions.length,
+      })
     } else {
       throw new Error(result.message)
     }
@@ -232,6 +236,7 @@ const generateQuestions = async () => {
 
 const startInterview = () => {
   isInterviewStarted.value = true
+  posthog.capture('interview_started', { question_count: questions.value.length })
   startTimer()
 }
 
@@ -284,6 +289,10 @@ const finishInterview = async () => {
           cv_text: cvText.value,
           job_text: jobText.value,
         }))
+        posthog.capture('interview_completed', {
+          answered_question_count: answers.value.length,
+          duration_seconds: interviewTimer.value,
+        })
         router.push('/interview-results')
       } else {
         throw new Error(result.message || 'Erreur lors de l\'analyse')
