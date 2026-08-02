@@ -6,6 +6,8 @@
 
 Application web open source qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, et simulateur d’entretien.
 
+**[Read in English](README.en.md)**
+
 **Démo en ligne :** [cv-compare.up.railway.app](https://cv-compare.up.railway.app)
 
 ---
