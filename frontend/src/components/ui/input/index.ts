@@ -63,7 +63,7 @@ export const Input = defineComponent({
         required: props.required,
         minlength: props.minlength,
         id: props.id,
-        class: cn('w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm', extraClass as string),
+        class: cn('w-full rounded-lg border border-ink/20 bg-paper px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-ink/20', extraClass as string),
         onInput: handleInput,
         ...restAttrs
       })

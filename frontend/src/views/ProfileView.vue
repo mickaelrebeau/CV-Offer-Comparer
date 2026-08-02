@@ -1,56 +1,62 @@
 <template>
-  <div class="max-w-3xl mx-auto px-6 py-10 sm:py-16 space-y-8">
-    <div class="space-y-2">
-      <h1 class="text-3xl font-extrabold tracking-tight text-foreground">Mon Profil</h1>
-      <p class="text-sm text-muted-foreground">
-        Gérez vos identifiants et préférencs de compte.
-      </p>
-    </div>
+  <div class="page-shell">
+    <AppPageHeader
+      label="Compte"
+      title="Mon profil"
+      description="Gérez vos identifiants et préférences de compte."
+    />
 
-    <div class="space-y-6">
-      <Card class="glass-card p-6 rounded-2xl border border-border space-y-4">
-        <h2 class="text-base font-bold text-foreground border-b border-border pb-3">Informations Personnelles</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+    <div class="mx-auto max-w-2xl space-y-6">
+      <div class="panel p-6 space-y-4">
+        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">Informations</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-1">
-            <span class="text-muted-foreground font-medium uppercase tracking-wider">Adresse Email</span>
-            <p class="text-sm font-semibold text-foreground">{{ user?.email }}</p>
+            <span class="field-label">Adresse email</span>
+            <p class="text-sm text-ink">{{ user?.email }}</p>
           </div>
           <div class="space-y-1">
-            <span class="text-muted-foreground font-medium uppercase tracking-wider">Date d'inscription</span>
-            <p class="text-sm font-semibold text-foreground">
+            <span class="field-label">Date d'inscription</span>
+            <p class="text-sm text-ink">
               {{ user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : 'N/A' }}
             </p>
           </div>
         </div>
-      </Card>
+      </div>
 
-      <Card class="glass-card p-6 rounded-2xl border border-border space-y-4">
-        <h2 class="text-base font-bold text-foreground border-b border-border pb-3">Actions de Compte</h2>
-        <div class="flex flex-col sm:flex-row gap-4 pt-2">
-          <Button variant="outline" @click="handleSignOut" class="rounded-full">
-            Se déconnecter
-          </Button>
-          <Button variant="destructive" @click="showDeleteModal = true" class="rounded-full">
-            Supprimer mon compte
-          </Button>
+      <div class="panel p-6 space-y-4">
+        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">Actions</h2>
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+          <Button variant="outline" @click="handleSignOut">Se déconnecter</Button>
+          <Button variant="destructive" @click="showDeleteModal = true">Supprimer mon compte</Button>
         </div>
-      </Card>
+      </div>
     </div>
 
-    <Modal :is-open="showDeleteModal" title="Confirmer la suppression"
+    <Modal
+      :is-open="showDeleteModal"
+      title="Confirmer la suppression"
       message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive."
-      confirm-text="Supprimer définitivement" cancel-text="Annuler" type="error" @confirm="handleDeleteAccount"
-      @cancel="showDeleteModal = false" @close="showDeleteModal = false" />
+      confirm-text="Supprimer définitivement"
+      cancel-text="Annuler"
+      type="error"
+      @confirm="handleDeleteAccount"
+      @cancel="showDeleteModal = false"
+      @close="showDeleteModal = false"
+    />
 
-    <Notification :is-open="showNotification" :message="notificationMessage" :type="notificationType"
-      @close="showNotification = false" />
+    <Notification
+      :is-open="showNotification"
+      :message="notificationMessage"
+      :type="notificationType"
+      @close="showNotification = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Card } from '@/components/ui/card'
+import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { Notification } from '@/components/ui/notification'
@@ -92,7 +98,7 @@ async function handleDeleteAccount() {
     setTimeout(() => {
       router.push('/')
     }, 1500)
-  } catch (err) {
+  } catch {
     notificationMessage.value = 'Une erreur est survenue lors de la suppression.'
     notificationType.value = 'error'
     showNotification.value = true

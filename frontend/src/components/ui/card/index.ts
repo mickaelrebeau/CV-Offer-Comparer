@@ -7,7 +7,7 @@ export const Card = defineComponent({
     return () => {
       const { class: extraClass, ...restAttrs } = attrs
       return h('div', {
-        class: cn('rounded-2xl border bg-card text-card-foreground shadow-sm', extraClass as string),
+        class: cn('rounded-xl border border-ink/15 bg-paper text-ink', extraClass as string),
         ...restAttrs
       }, slots.default?.())
     }

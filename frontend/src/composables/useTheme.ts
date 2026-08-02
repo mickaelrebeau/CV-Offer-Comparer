@@ -1,37 +1,18 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
+/** Thème unique papier/encre — aligné sur la landing. */
 export function useTheme() {
-  const isDark = ref(true)
-
-  const savedTheme = localStorage.getItem('theme')
-  if (savedTheme) {
-    isDark.value = savedTheme === 'dark'
-  } else {
-    isDark.value = true
-  }
+  const isDark = ref(false)
 
   function applyTheme() {
-    if (isDark.value) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
   }
-
-  function toggleTheme() {
-    isDark.value = !isDark.value
-  }
-
-  watch(isDark, () => {
-    applyTheme()
-  })
 
   applyTheme()
 
   return {
     isDark,
-    toggleTheme,
+    toggleTheme: () => {},
   }
 }

@@ -1,20 +1,17 @@
 <template>
-  <div class="relative">
-    <Button v-if="!isAuthenticated" variant="outline" size="sm" class="rounded-full" @click="$router.push('/login')">
+  <div class="flex items-center gap-2">
+    <span v-if="isAuthenticated" class="hidden max-w-[180px] truncate font-mono text-micro uppercase text-ink-soft sm:inline-block">
+      {{ user?.email }}
+    </span>
+    <Button v-if="!isAuthenticated" variant="outline" size="sm" @click="$router.push('/login')">
       Connexion
     </Button>
-
-    <div v-else class="flex items-center gap-3">
-      <span class="text-xs font-medium text-muted-foreground hidden sm:inline-block">
-        {{ user?.email }}
-      </span>
-      <Button variant="outline" size="sm" class="rounded-full text-xs" @click="$router.push('/profile')">
-        Profil
-      </Button>
-      <Button variant="ghost" size="sm" class="rounded-full text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-500/10" @click="handleSignOut">
+    <template v-else>
+      <Button variant="outline" size="sm" @click="$router.push('/profile')">Profil</Button>
+      <Button variant="ghost" size="sm" class="text-rose-600 hover:text-rose-700" @click="handleSignOut">
         Déconnexion
       </Button>
-    </div>
+    </template>
   </div>
 </template>
 

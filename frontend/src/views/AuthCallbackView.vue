@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-[50vh] flex items-center justify-center px-6">
-    <div class="text-center space-y-3">
-      <Loader2 class="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-      <p class="text-sm text-muted-foreground">Connexion en cours…</p>
+  <div class="flex min-h-[50vh] items-center justify-center px-6">
+    <div class="space-y-3 text-center font-mono">
+      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" />
+      <p class="text-caption uppercase text-ink-soft">Connexion en cours</p>
     </div>
   </div>
 </template>
@@ -22,7 +22,6 @@ onMounted(async () => {
   if (handled.value) return
   handled.value = true
 
-  // Attendre la fin de l'init globale (qui peut déjà avoir consommé le token URL)
   if (authStore.loading) {
     await authStore.initializeAuth()
   }
