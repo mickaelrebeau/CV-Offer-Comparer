@@ -78,6 +78,10 @@
     @apply bg-background text-foreground antialiased selection:bg-indigo-500/20 selection:text-indigo-600 dark:selection:text-indigo-400;
     font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1;
   }
+
+  body.landing-surface {
+    @apply bg-paper text-ink selection:bg-ink selection:text-paper;
+  }
 }
 
 @layer utilities {

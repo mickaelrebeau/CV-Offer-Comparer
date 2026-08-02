@@ -8,9 +8,29 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      fontSize: {
+        display: ['clamp(2.5rem, 6.2vw, 4.75rem)', { lineHeight: '0.98', letterSpacing: '-0.02em' }],
+        headline: ['clamp(2rem, 4.6vw, 3.25rem)', { lineHeight: '1.04', letterSpacing: '-0.018em' }],
+        title: ['clamp(1.5rem, 2.6vw, 2.125rem)', { lineHeight: '1.1', letterSpacing: '-0.015em' }],
+        lead: ['clamp(1rem, 1.2vw, 1.125rem)', { lineHeight: '1.55' }],
+        caption: ['0.8125rem', { lineHeight: '1.3', letterSpacing: '0.02em' }],
+        micro: ['0.6875rem', { lineHeight: '1.3', letterSpacing: '0.06em' }],
       },
       colors: {
+        paper: {
+          DEFAULT: '#F1EEE7',
+          dim: '#E6E2D8',
+          line: '#D5D0C4',
+        },
+        ink: {
+          DEFAULT: '#232323',
+          deep: '#141414',
+          soft: '#5E5C57',
+          line: '#3A3A3A',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -85,6 +105,8 @@ export default {
       animation: {
         'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
+        'scan': 'scan 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+        'caret': 'caret 1.1s steps(1) infinite',
       },
       keyframes: {
         pulseSubtle: {
@@ -94,6 +116,15 @@ export default {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        scan: {
+          '0%': { transform: 'translateY(-10%)', opacity: '0' },
+          '15%, 85%': { opacity: '1' },
+          '100%': { transform: 'translateY(1000%)', opacity: '0' },
+        },
+        caret: {
+          '0%, 50%': { opacity: '1' },
+          '51%, 100%': { opacity: '0' },
         },
       },
     },

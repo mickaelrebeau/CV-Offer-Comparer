@@ -1,406 +1,487 @@
 <template>
-  <div class="min-h-screen bg-[#09090b] text-[#fafafa] font-sans antialiased selection:bg-zinc-800 selection:text-white">
-    
-    <!-- TOP SUBTLE NAVIGATION HEADER (ContentArchitecture Style) -->
-    <header class="border-b border-zinc-800/80 sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md">
-      <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between text-xs font-mono">
-        <a @click="handleLogoClick" class="cursor-pointer flex items-center gap-2 hover:text-white transition-colors">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span class="font-bold tracking-tight text-white">CV OFFER COMPARER</span>
+  <div class="bg-paper text-ink font-sans antialiased selection:bg-ink selection:text-paper">
+
+    <!-- ────────────────────────── NAVIGATION (fixe, centrée) ────────────────────────── -->
+    <header class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-between items-start p-5 lg:justify-center lg:p-8">
+      <nav
+        class="pointer-events-auto hidden lg:flex items-center gap-7 rounded-full border border-ink/12 bg-paper/80 px-6 py-2.5 font-mono text-caption uppercase backdrop-blur-md"
+      >
+        <a href="#probleme" class="text-ink-soft transition-colors hover:text-ink">Problème</a>
+        <a href="#methode" class="text-ink-soft transition-colors hover:text-ink">Méthode</a>
+        <a href="#apercu" class="text-ink-soft transition-colors hover:text-ink">Aperçu</a>
+        <a href="#acces" class="text-ink-soft transition-colors hover:text-ink">Accès</a>
+        <a href="#faq" class="text-ink-soft transition-colors hover:text-ink">FAQ</a>
+      </nav>
+
+      <a
+        @click="handleLogoClick"
+        class="pointer-events-auto cursor-pointer font-mono text-caption uppercase tracking-wide lg:hidden"
+      >
+        CV·Offer·Comparer
+      </a>
+
+      <div
+        class="pointer-events-auto flex items-center gap-1 rounded-full border border-ink/12 bg-paper/80 p-1 pl-1.5 backdrop-blur-md lg:absolute lg:right-8"
+      >
+        <a
+          v-if="!authStore.isAuthenticated"
+          @click="navigateTo('/login')"
+          class="hidden cursor-pointer px-4 py-1.5 font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
+        >
+          Connexion
         </a>
-
-        <nav class="hidden sm:flex items-center gap-6 text-zinc-400">
-          <a href="#problems" class="hover:text-white transition-colors">_problems</a>
-          <a href="#decisions" class="hover:text-white transition-colors">_architecture</a>
-          <a href="#workbench" class="hover:text-white transition-colors">_workbench</a>
-          <a href="#pricing" class="hover:text-white transition-colors">_access</a>
-        </nav>
-
-        <div class="flex items-center gap-3">
-          <template v-if="!authStore.isAuthenticated">
-            <a @click="navigateTo('/login')" class="cursor-pointer text-zinc-400 hover:text-white transition-colors">
-              login
-            </a>
-            <a @click="startAnalysis" class="cursor-pointer px-3 py-1 rounded bg-white text-zinc-950 font-semibold hover:bg-zinc-200 transition-colors">
-              [get access]
-            </a>
-          </template>
-          <template v-else>
-            <a @click="navigateTo('/dashboard')" class="cursor-pointer text-zinc-400 hover:text-white transition-colors">
-              [dashboard]
-            </a>
-          </template>
-        </div>
+        <a
+          @click="primaryAction"
+          class="cursor-pointer rounded-full bg-ink px-5 py-2 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+        >
+          {{ authStore.isAuthenticated ? 'Tableau de bord' : 'Analyser mon CV' }}
+        </a>
       </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-6 py-16 sm:py-24 space-y-24 sm:space-y-32">
+    <main>
 
-      <!-- HERO SECTION -->
-      <section class="space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Built for high-stakes candidacies & ATS precision._
+      <!-- ────────────────────────── 01 · HERO ────────────────────────── -->
+      <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12">
+        <div class="flex flex-col justify-center px-5 pt-32 pb-16 sm:px-8 lg:col-span-6 lg:px-16 lg:py-24 xl:pl-20">
+          <p class="mb-5 font-mono text-caption uppercase text-ink-soft">
+            Conçu pour les candidatures ciblées.
           </p>
-          <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.08]">
-            The ATS architecture candidates don't reinvent.
+
+          <h1 class="mb-8 max-w-[16ch] text-balance font-medium text-display">
+            L'analyse ATS que vous ne referez plus à la main.
           </h1>
-        </div>
 
-        <p class="text-base sm:text-xl text-zinc-300 leading-relaxed font-normal max-w-2xl">
-          Every job hunt invents a new CV strategy, none decided. This Gemini-powered platform commits years of recruitment and ATS parsing decisions. Your application aligns inside them, in real-time.
-        </p>
-
-        <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-          _For candidates who value precision, speed, and zero fluff._
-        </p>
-
-        <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-mono">
-          <a @click="startAnalysis" class="cursor-pointer inline-flex items-center justify-center px-6 py-3 rounded bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-all">
-            [Start free analysis]
-          </a>
-          <a href="#workbench" class="inline-flex items-center justify-center px-6 py-3 rounded border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white transition-all">
-            Explore the workbench ↓
-          </a>
-        </div>
-      </section>
-
-      <!-- SECTION: COMMON PROBLEMS -->
-      <section id="problems" class="pt-12 border-t border-zinc-800 space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Common problems_
+          <p class="mb-6 max-w-[52ch] text-lead text-ink-soft">
+            Chaque candidature repart de zéro : relire l'offre, deviner les mots-clés, réécrire les
+            mêmes phrases. Cette application fige les décisions — extraction, correspondance
+            sémantique, scoring, préparation d'entretien — et les rejoue sur chaque offre en une
+            seule passe.
           </p>
-          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            The manual ATS tailoring costs you days. Every single time.
-          </h2>
-        </div>
 
-        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
-          It's never the easy stuff that hurts. It's formatting the CV again. Matching exact keywords and subtle variations, wired up and subtly rejected again. The rejection email where your profile was filtered before a human ever saw it. A CV structure recruiters actually understand, instead of one they skim over.
-        </p>
-
-        <p class="text-xs sm:text-sm text-zinc-400 font-mono italic">
-          This is the part nobody quotes for and everybody rebuilds. Hours gone before the real interview starts.
-        </p>
-
-        <!-- Time lost breakdown table -->
-        <div class="space-y-2 font-mono text-xs sm:text-sm border-t border-b border-zinc-800/80 py-4">
-          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
-            <span class="text-zinc-300">- Candidate redesigns CV architecture on every prompt</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(∞ HRS)</span>
-          </div>
-          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
-            <span class="text-zinc-300">- Keyword density & synonym matching from job post</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(~3 HRS)</span>
-          </div>
-          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
-            <span class="text-zinc-300">- Identifying missing hard skills & experience gaps</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(~2 HRS)</span>
-          </div>
-          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
-            <span class="text-zinc-300">- Drafting tailored bullet points & impact statements</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(~2 HRS)</span>
-          </div>
-          <div class="py-2.5 flex items-center justify-between gap-4 border-b border-zinc-900">
-            <span class="text-zinc-300">- Preparing for recruiter technical & behavioral questions</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(~3 HRS)</span>
-          </div>
-          <div class="py-2.5 flex items-center justify-between gap-4">
-            <span class="text-zinc-300">- PDF formatting & ATS parser compatibility check</span>
-            <span class="text-zinc-500 font-semibold shrink-0">(~1 HR)</span>
-          </div>
-        </div>
-
-        <div class="text-xs font-mono text-amber-400/90 tracking-wide">
-          _ESTIMATED TIME LOST: ~11 HOURS PER APPLICATION (1.5 FULL DAYS)_
-        </div>
-      </section>
-
-      <!-- SECTION: DECISIONS MADE -->
-      <section id="decisions" class="pt-12 border-t border-zinc-800 space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Architecture_
+          <p class="mb-10 font-mono text-caption uppercase text-ink-soft">
+            Pour ceux qui visent un poste précis, pas cinquante.
           </p>
-          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            Every decision already made. So you can skip to the actual interview.
-          </h2>
-        </div>
 
-        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-3xl">
-          The CV Offer Architecture is the production foundation underneath successful candidacies. Hundreds of choices—schema, parsing, sifting, structure, scoring—made once and committed. Not a generic resume builder you outgrow in a week. Input your documents; the architecture is fixed, the analysis is instant. Fixed decisions are what make AI work: an engine inside committed conventions ships results, an engine without them hallucinates.
-        </p>
-
-        <!-- Bulleted Decision List -->
-        <ul class="space-y-6 text-sm text-zinc-300">
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>Gemini-native single-pass pipeline:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              A single structured Gemini call extracts job requirements, calculates confidence scores across categories, and streams results over SSE in under 2 seconds. No chained prompts, no API lag.
-            </p>
-          </li>
-
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>Categorized Gap Analysis:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              Hard skills, soft skills, languages, experience levels, and certifications are isolated automatically into clean buckets with specific match thresholds.
-            </p>
-          </li>
-
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>Synonym & term normalization:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              "Vue.js" and "Vue 3", "PostgreSQL" and "Postgres", or "bilingue" and "anglais courant" are recognized as matches. The engine evaluates semantic intent rather than dumb string matching.
-            </p>
-          </li>
-
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>Interview Studio:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              Generates 10 tailored interview questions based on the exact gap between your profile and the job description, then provides actionable feedback on your responses.
-            </p>
-          </li>
-
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>1-Click Reformulations:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              Provides impact-driven, ATS-friendly phrasing for missing or unclear qualifications that you can copy directly into your document.
-            </p>
-          </li>
-
-          <li class="space-y-1">
-            <div class="font-bold text-white flex items-center gap-2">
-              <span class="text-emerald-500 font-mono">•</span>
-              <span>Privacy & security built-in:</span>
-            </div>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed pl-4">
-              PostgreSQL + Redis session control with JWT authentication. Documents are processed in memory and never stored or sold to third parties.
-            </p>
-          </li>
-        </ul>
-      </section>
-
-      <!-- SECTION: INTERACTIVE WORKBENCH (REAL PREVIEW) -->
-      <section id="workbench" class="pt-12 border-t border-zinc-800 space-y-6">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Interactive preview_
-          </p>
-          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            This is the actual workbench.
-          </h2>
-        </div>
-
-        <div class="border border-zinc-800 rounded-lg bg-[#0c0c0e] overflow-hidden font-mono text-xs">
-          <!-- Window Bar -->
-          <div class="h-10 px-4 flex items-center justify-between border-b border-zinc-800 bg-[#121215]">
-            <div class="flex items-center gap-2 text-zinc-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-              <span class="ml-2 text-zinc-400 text-[11px]">cv-offer-comparer.app — workbench</span>
-            </div>
-
-            <div class="flex items-center gap-1">
-              <button 
-                @click="activeDemoTab = 'analysis'"
-                class="px-2.5 py-1 rounded transition-colors"
-                :class="activeDemoTab === 'analysis' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-500 hover:text-zinc-300'"
-              >
-                [01 / ATS Analysis]
-              </button>
-              <button 
-                @click="activeDemoTab = 'interview'"
-                class="px-2.5 py-1 rounded transition-colors"
-                :class="activeDemoTab === 'interview' ? 'bg-zinc-800 text-white font-bold' : 'text-zinc-500 hover:text-zinc-300'"
-              >
-                [02 / Interview Studio]
-              </button>
-            </div>
-          </div>
-
-          <!-- Workbench Content: ATS Analysis -->
-          <div v-if="activeDemoTab === 'analysis'" class="p-6 space-y-6">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
-              <div>
-                <div class="text-zinc-500 text-[11px]">MATCHING SCORE</div>
-                <div class="text-3xl sm:text-4xl font-bold text-white tracking-tight">88%</div>
-              </div>
-
-              <div class="flex items-center gap-2 text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-3 py-1.5 rounded">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>STATUS: MATCH ATS VALIDE</span>
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <div>
-                <div class="text-zinc-500 text-[11px] mb-2">DETECTED SKILLS (12)</div>
-                <div class="flex flex-wrap gap-2">
-                  <span v-for="skill in ['TypeScript', 'Vue 3 / React', 'Tailwind CSS', 'FastAPI / Python', 'Git CI/CD', 'PostgreSQL']" :key="skill" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-emerald-400 font-mono">
-                    ✓ {{ skill }}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <div class="text-zinc-500 text-[11px] mb-2">MISSING REQUIREMENTS (2)</div>
-                <div class="flex flex-wrap gap-2">
-                  <span v-for="missing in ['Docker / Containerization', 'Unit Tests (Vitest / Pytest)']" :key="missing" class="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-rose-400 font-mono">
-                    + {{ missing }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Workbench Content: Interview Studio -->
-          <div v-else class="p-6 space-y-4">
-            <div class="space-y-2 border-b border-zinc-800/80 pb-4">
-              <div class="text-zinc-500 text-[11px]">QUESTION 01 / 05 • TECHNICAL PERFORMANCE</div>
-              <p class="text-zinc-200 text-sm font-sans font-semibold leading-relaxed">
-                "Vous mentionnez l'utilisation de Vue 3 et TypeScript. Comment optimisez-vous les performances de rendu lors du chargement de listes volumineuses ?"
-              </p>
-            </div>
-
-            <div class="p-4 rounded bg-zinc-900/80 border border-zinc-800 space-y-2">
-              <div class="text-indigo-400 text-[11px] font-bold">💡 RECOMMANDATION DE RÉPONSE</div>
-              <p class="text-zinc-400 text-xs font-sans leading-relaxed">
-                Axez votre réponse sur la virtualisation de liste (Virtual Scrolling), le lazy loading des composants, et la mémoïsation avec <code class="px-1 py-0.5 rounded bg-zinc-800 text-zinc-200 font-mono">computed</code>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION: SHOWCASE / METRICS -->
-      <section class="pt-12 border-t border-zinc-800 space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _The candidacies that get remembered._
-          </p>
-          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            Built for candidates who target top-tier roles.
-          </h2>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 font-mono text-xs border-t border-b border-zinc-800/80 py-6">
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold text-white">94%</div>
-            <div class="text-zinc-500 uppercase text-[10px]">ATS Pass Rate</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold text-white">&lt; 2s</div>
-            <div class="text-zinc-500 uppercase text-[10px]">LLM Latency</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold text-white">100%</div>
-            <div class="text-zinc-500 uppercase text-[10px]">Data Privacy</div>
-          </div>
-          <div class="space-y-1">
-            <div class="text-2xl sm:text-3xl font-bold text-white">0</div>
-            <div class="text-zinc-500 uppercase text-[10px]">Fluff & Jargon</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION: ACCESS & PRICING -->
-      <section id="pricing" class="pt-12 border-t border-zinc-800 space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Access_
-          </p>
-          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
-            One platform. Free trial included.
-          </h2>
-        </div>
-
-        <div class="border border-zinc-800 rounded-lg p-6 sm:p-8 bg-[#0c0c0e] space-y-6 font-mono text-xs">
-          <div class="flex items-baseline justify-between border-b border-zinc-800 pb-4">
-            <span class="text-lg font-bold text-white">FREE TRIAL / ACCOUNT</span>
-            <span class="text-emerald-400 font-bold">€0 / START FREE</span>
-          </div>
-
-          <ul class="space-y-2.5 text-zinc-300">
-            <li class="flex items-center gap-2">• FREE TRIAL AVAILABLE WITH NO CREDIT CARD</li>
-            <li class="flex items-center gap-2">• FULL GEMINI LLM STREAMING SSE ENGINE</li>
-            <li class="flex items-center gap-2">• CATEGORIZED ATS GAP ANALYSIS & REFORMULATIONS</li>
-            <li class="flex items-center gap-2">• INTERVIEW STUDIO & RESPONSE FEEDBACK</li>
-            <li class="flex items-center gap-2">• PDF UPLOAD & AUTOMATIC TEXT EXTRACTION</li>
-            <li class="flex items-center gap-2">• SECURE POSTGRESQL + REDIS SESSION CONTROL</li>
-          </ul>
-
-          <div class="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <a @click="startAnalysis" class="cursor-pointer w-full sm:w-auto text-center px-6 py-3 rounded bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-colors">
-              [Get free access]
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a
+              @click="primaryAction"
+              class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+            >
+              Lancer une analyse gratuite
             </a>
-            <span class="text-zinc-500 text-[11px]">_Ready in under 30 seconds._</span>
+            <a
+              href="#methode"
+              class="inline-flex h-12 items-center justify-center rounded-lg border border-ink/20 px-6 font-mono text-caption uppercase text-ink transition-colors hover:border-ink/50"
+            >
+              Voir la méthode
+            </a>
+          </div>
+
+          <div class="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft">
+            <span>Gemini · 1 appel</span>
+            <span>Flux SSE · &lt; 2 s</span>
+            <span>Aucun document conservé</span>
+            <span>Licence MIT</span>
+          </div>
+        </div>
+
+        <!-- Panneau terminal -->
+        <div class="relative min-h-[70svh] bg-ink p-5 pt-24 sm:p-8 sm:pt-28 lg:col-span-6 lg:min-h-svh lg:p-12 lg:pt-28">
+          <div class="flex h-full flex-col overflow-hidden rounded-xl bg-ink-deep font-mono text-caption text-paper/90 ring-1 ring-white/10">
+            <div class="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+              <span>analyse — session en direct</span>
+              <span class="flex items-center gap-1.5">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                streaming
+              </span>
+            </div>
+
+            <div class="relative flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
+              <div class="pointer-events-none absolute inset-x-0 top-0 h-px animate-scan bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
+
+              <div class="space-y-1.5 text-paper/50">
+                <p><span class="text-paper/30">$</span> lecture offre.pdf … <span class="text-emerald-400">ok</span></p>
+                <p><span class="text-paper/30">$</span> lecture cv.pdf … <span class="text-emerald-400">ok</span></p>
+                <p><span class="text-paper/30">$</span> extraction des critères … <span class="text-emerald-400">18 trouvés</span></p>
+              </div>
+
+              <div class="my-5 flex items-end justify-between border-y border-white/10 py-5">
+                <div>
+                  <div class="mb-1 text-micro uppercase text-paper/40">Score de correspondance</div>
+                  <div class="text-5xl font-medium tabular-nums text-paper">{{ animatedScore }}%</div>
+                </div>
+                <div class="text-right text-micro uppercase text-paper/40">
+                  <div>18 critères</div>
+                  <div>14 couverts</div>
+                  <div>4 manquants</div>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <div
+                  v-for="row in streamRows.slice(0, visibleRows)"
+                  :key="row.label"
+                  class="flex items-baseline justify-between gap-4 border-b border-white/5 py-1.5"
+                >
+                  <span class="flex items-baseline gap-4">
+                    <span class="tabular-nums text-paper/30">{{ row.id }}</span>
+                    <span class="text-paper/80">{{ row.label }}</span>
+                  </span>
+                  <span :class="row.tone">{{ row.status }}</span>
+                </div>
+              </div>
+
+              <div class="mt-7 space-y-2.5">
+                <div class="text-micro uppercase text-paper/40">Couverture par catégorie</div>
+                <div v-for="cat in categories" :key="cat.label" class="flex items-center gap-4">
+                  <span class="w-28 shrink-0 text-paper/55">{{ cat.label }}</span>
+                  <span class="h-px flex-1 bg-white/10">
+                    <span class="block h-px bg-paper/60" :style="{ width: cat.value + '%' }"></span>
+                  </span>
+                  <span class="w-10 shrink-0 text-right tabular-nums text-paper/40">{{ cat.value }}%</span>
+                </div>
+              </div>
+
+              <p class="mt-auto pt-6 text-paper/30">
+                <span class="text-paper/20">$</span> génération des reformulations
+                <span class="animate-caret">▍</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- SECTION: BEFORE YOU USE / FAQ (ContentArchitecture Style) -->
-      <section class="pt-12 border-t border-zinc-800 space-y-8">
-        <div class="space-y-2">
-          <p class="text-xs sm:text-sm font-mono italic text-zinc-400">
-            _Before you start_
-          </p>
-          <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
-            Frequently asked questions.
-          </h3>
-        </div>
-
-        <div class="space-y-6 text-sm text-zinc-300">
-          <div class="space-y-1">
-            <h4 class="font-bold text-white">What stack is this built on?</h4>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Vue 3, TypeScript, Pinia, Tailwind CSS, Lenis, and FastAPI backed by PostgreSQL, Redis, and Google Gemini LLM (`google-genai`). Deployed on Railway via Docker.
-            </p>
+      <!-- ────────────────────────── 02 · PROBLÈME ────────────────────────── -->
+      <section id="probleme" class="border-t border-paper-line py-20 lg:py-40">
+        <div class="mx-auto grid max-w-[100rem] grid-cols-1 gap-12 px-5 sm:px-8 lg:grid-cols-12 lg:gap-8 lg:px-16">
+          <div class="order-2 lg:order-1 lg:col-span-6">
+            <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_24px_60px_-30px_rgba(35,35,35,0.6)]">
+              <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
+                <div class="flex h-9 items-center border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+                  temps-perdu.log
+                </div>
+                <div class="overflow-x-auto p-4 sm:p-6">
+                  <div class="min-w-max space-y-1.5">
+                    <div
+                      v-for="item in timeSinks"
+                      :key="item.id"
+                      class="flex items-baseline justify-between gap-8"
+                    >
+                      <span class="flex items-baseline gap-5">
+                        <span class="tabular-nums text-paper/35">{{ item.id }}</span>
+                        <span class="text-paper/85">{{ item.label }}</span>
+                      </span>
+                      <span class="tabular-nums text-paper/45">{{ item.cost }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="border-t border-white/10 px-4 py-3 text-micro uppercase text-paper/50 sm:px-6">
+                  Temps perdu estimé : ~12 heures par candidature (1,5 jour)
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <h4 class="font-bold text-white">How is this different from generic resume builders?</h4>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Most tools give you a pile of visual templates. This gives you architectural decisions: exact semantic matching, gap analysis, and tailored interview preparation based on your actual target job description.
-            </p>
-          </div>
-
-          <div class="space-y-1">
-            <h4 class="font-bold text-white">Are my documents private?</h4>
-            <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed">
-              Yes. Your CV and job descriptions are processed in memory during the analysis session and never sold or shared.
-            </p>
+          <div class="order-1 lg:order-2 lg:col-span-5 lg:col-start-8 lg:pt-4">
+            <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Problèmes courants</p>
+            <h2 class="mb-7 max-w-[18ch] text-balance font-medium text-headline">
+              Adapter un CV à une offre coûte une journée. À chaque fois.
+            </h2>
+            <div class="space-y-4 text-lead text-ink-soft">
+              <p>
+                Ce n'est jamais la partie facile qui fait mal. C'est relire l'offre ligne par ligne
+                pour deviner ce que le filtre attend. C'est réécrire les mêmes expériences sous un
+                intitulé différent. C'est le PDF que l'ATS découpe mal, et le refus automatique
+                avant qu'un humain n'ouvre le dossier.
+              </p>
+              <p>
+                Personne ne compte ces heures, et tout le monde les repaie à la candidature
+                suivante.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- FOOTER -->
-      <footer class="pt-12 border-t border-zinc-800 text-xs font-mono text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>CV Offer Comparer — ATS Architecture Platform</span>
+      <!-- ────────────────────────── 03 · MÉTHODE (bande encre) ────────────────────────── -->
+      <section id="methode" class="bg-ink py-20 text-paper lg:py-40">
+        <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
+          <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5">
+              <p class="mb-5 font-mono text-caption uppercase text-paper/45">Architecture</p>
+              <h2 class="max-w-[16ch] text-balance font-medium text-headline">
+                Chaque décision déjà prise. Pour passer directement à l'entretien.
+              </h2>
+            </div>
+            <div class="lg:col-span-6 lg:col-start-7 lg:pt-2">
+              <p class="text-lead text-paper/60">
+                Un générateur de CV vous donne des gabarits. Ici, ce sont des décisions : comment
+                l'offre est découpée, comment une compétence est reconnue comme équivalente, quels
+                écarts comptent, dans quel ordre les résultats arrivent à l'écran. Fixées une fois,
+                appliquées à chaque analyse. C'est ce qui rend le modèle utile : un LLM sans
+                contraintes improvise, un LLM dans une structure figée produit un résultat
+                comparable d'une offre à l'autre.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-16 border-t border-white/10 lg:mt-24">
+            <div
+              v-for="decision in decisions"
+              :key="decision.id"
+              class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
+            >
+              <div class="font-mono text-caption uppercase text-paper/35 lg:col-span-2">
+                {{ decision.id }}
+              </div>
+              <h3 class="font-medium text-title lg:col-span-4">{{ decision.title }}</h3>
+              <p class="max-w-[62ch] text-lead text-paper/55 lg:col-span-6">{{ decision.body }}</p>
+            </div>
+          </div>
         </div>
-        <div>
-          © 2026 Mickael Rebeau & contributors. MIT License.
+      </section>
+
+      <!-- ────────────────────────── 04 · APERÇU ────────────────────────── -->
+      <section id="apercu" class="py-20 lg:py-40">
+        <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
+          <div class="mb-12 flex flex-col gap-6 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Aperçu réel</p>
+              <h2 class="max-w-[14ch] text-balance font-medium text-headline">
+                Voici l'outil, pas une maquette.
+              </h2>
+            </div>
+
+            <div class="flex gap-1 rounded-lg border border-ink/15 p-1 font-mono text-caption uppercase">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="activeTab = tab.id"
+                class="rounded-md px-4 py-2 transition-colors"
+                :class="activeTab === tab.id ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
+              >
+                {{ tab.label }}
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_40px_80px_-40px_rgba(35,35,35,0.55)]">
+            <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
+              <div class="flex h-10 items-center gap-2 border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+                <span class="h-2 w-2 rounded-full bg-white/15"></span>
+                <span class="h-2 w-2 rounded-full bg-white/15"></span>
+                <span class="h-2 w-2 rounded-full bg-white/15"></span>
+                <span class="ml-3">{{ activeTab === 'analyse' ? 'comparateur — résultat' : 'simulateur — session' }}</span>
+              </div>
+
+              <!-- Onglet analyse -->
+              <div v-if="activeTab === 'analyse'" class="grid grid-cols-1 lg:grid-cols-12">
+                <div class="border-b border-white/10 p-6 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-8">
+                  <div class="mb-2 text-micro uppercase text-paper/40">Score global</div>
+                  <div class="mb-6 text-6xl font-medium tabular-nums">88%</div>
+
+                  <div class="space-y-3">
+                    <div v-for="cat in categories" :key="cat.label">
+                      <div class="mb-1.5 flex items-baseline justify-between text-micro uppercase">
+                        <span class="text-paper/60">{{ cat.label }}</span>
+                        <span class="tabular-nums text-paper/40">{{ cat.value }}%</span>
+                      </div>
+                      <div class="h-px w-full bg-white/10">
+                        <div class="h-px bg-paper/70" :style="{ width: cat.value + '%' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-6 lg:col-span-8 lg:p-8">
+                  <div class="mb-3 text-micro uppercase text-paper/40">Détail des critères</div>
+                  <div class="space-y-0">
+                    <div
+                      v-for="crit in criteria"
+                      :key="crit.label"
+                      class="flex items-baseline justify-between gap-6 border-b border-white/5 py-2.5"
+                    >
+                      <span class="text-paper/85">{{ crit.label }}</span>
+                      <span class="shrink-0 text-micro uppercase" :class="crit.tone">{{ crit.status }}</span>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 rounded-lg border border-white/10 p-4">
+                    <div class="mb-2 text-micro uppercase text-paper/40">Reformulation proposée</div>
+                    <p class="font-sans text-sm leading-relaxed text-paper/80">
+                      « Conteneurisation des services applicatifs avec Docker et déploiement continu
+                      via GitHub Actions, réduisant le temps de mise en production de 40 %. »
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Onglet simulateur -->
+              <div v-else class="grid grid-cols-1 lg:grid-cols-12">
+                <div class="border-b border-white/10 p-6 lg:col-span-7 lg:border-b-0 lg:border-r lg:p-8">
+                  <div class="mb-3 text-micro uppercase text-paper/40">Question 01 / 10 — technique</div>
+                  <p class="mb-6 font-sans text-lg font-medium leading-snug text-paper">
+                    Votre CV mentionne Vue 3 et TypeScript. Comment gérez-vous le rendu d'une liste
+                    de plusieurs milliers d'éléments sans dégrader l'interface ?
+                  </p>
+                  <div class="rounded-lg border border-white/10 p-4">
+                    <div class="mb-2 text-micro uppercase text-paper/40">Axes attendus</div>
+                    <ul class="space-y-1.5 text-paper/70">
+                      <li>— virtualisation de liste</li>
+                      <li>— chargement différé des composants</li>
+                      <li>— mémoïsation via <span class="text-paper">computed</span></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="p-6 lg:col-span-5 lg:p-8">
+                  <div class="mb-3 text-micro uppercase text-paper/40">Origine de la question</div>
+                  <p class="mb-6 text-paper/60">
+                    Générée depuis l'écart réel entre votre profil et l'offre, pas depuis une banque
+                    de questions générique.
+                  </p>
+                  <div class="space-y-2 border-t border-white/10 pt-4 text-micro uppercase text-paper/40">
+                    <div class="flex justify-between"><span>Questions</span><span class="text-paper/70">10</span></div>
+                    <div class="flex justify-between"><span>Retour par réponse</span><span class="text-paper/70">immédiat</span></div>
+                    <div class="flex justify-between"><span>Durée moyenne</span><span class="text-paper/70">12 min</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────────────── 05 · CHIFFRES + ÉTAPES (bande encre) ────────────────────────── -->
+      <section class="bg-ink py-20 text-paper lg:py-40">
+        <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
+          <div class="grid grid-cols-2 gap-8 border-b border-white/10 pb-16 lg:grid-cols-4">
+            <div v-for="stat in stats" :key="stat.label">
+              <div class="mb-2 text-4xl font-medium tabular-nums lg:text-5xl">{{ stat.value }}</div>
+              <div class="font-mono text-micro uppercase text-paper/40">{{ stat.label }}</div>
+            </div>
+          </div>
+
+          <div class="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
+            <div v-for="step in steps" :key="step.id">
+              <div class="mb-4 font-mono text-caption uppercase text-paper/35">{{ step.id }}</div>
+              <h3 class="mb-3 font-medium text-title">{{ step.title }}</h3>
+              <p class="max-w-[42ch] text-lead text-paper/55">{{ step.body }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────────────── 06 · ACCÈS ────────────────────────── -->
+      <section id="acces" class="py-20 lg:py-40">
+        <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
+          <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+            <div class="lg:col-span-5">
+              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Accès</p>
+              <h2 class="mb-6 max-w-[14ch] text-balance font-medium text-headline">
+                Gratuit à l'essai. Ouvert au code.
+              </h2>
+              <p class="max-w-[46ch] text-lead text-ink-soft">
+                Le projet est publié sous licence MIT. Vous pouvez l'utiliser en ligne, lire le
+                code, l'héberger vous-même ou contribuer.
+              </p>
+            </div>
+
+            <div class="lg:col-span-6 lg:col-start-7">
+              <div class="rounded-xl border border-ink/15 p-6 sm:p-8">
+                <div class="mb-6 flex items-baseline justify-between border-b border-paper-line pb-5">
+                  <span class="font-mono text-caption uppercase">Compte gratuit</span>
+                  <span class="text-3xl font-medium">0 €</span>
+                </div>
+
+                <ul class="mb-8 space-y-2.5 font-mono text-caption uppercase text-ink-soft">
+                  <li v-for="perk in perks" :key="perk" class="flex gap-3">
+                    <span class="text-ink/30">—</span>
+                    <span>{{ perk }}</span>
+                  </li>
+                </ul>
+
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <a
+                    @click="primaryAction"
+                    class="inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+                  >
+                    Créer mon compte
+                  </a>
+                  <a
+                    href="https://github.com/mickaelrebeau/CV-Offer-Comparer"
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex h-12 items-center justify-center rounded-lg border border-ink/20 px-6 font-mono text-caption uppercase transition-colors hover:border-ink/50"
+                  >
+                    Voir le code
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────────────── 07 · FAQ (bande encre) ────────────────────────── -->
+      <section id="faq" class="bg-ink py-20 text-paper lg:py-40">
+        <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
+          <div class="mb-14 lg:mb-20">
+            <p class="mb-5 font-mono text-caption uppercase text-paper/45">Avant de commencer</p>
+            <h2 class="max-w-[16ch] text-balance font-medium text-headline">
+              Les questions qu'on nous pose.
+            </h2>
+          </div>
+
+          <div class="border-t border-white/10">
+            <div
+              v-for="item in faq"
+              :key="item.id"
+              class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
+            >
+              <div class="font-mono text-caption uppercase text-paper/40 lg:col-span-4">
+                {{ item.id }} / {{ item.question }}
+              </div>
+              <p class="max-w-[70ch] text-lead text-paper/60 lg:col-span-7 lg:col-start-6">
+                {{ item.answer }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-16">
+            <a
+              @click="primaryAction"
+              class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-paper px-6 font-mono text-caption uppercase text-ink transition-opacity hover:opacity-85"
+            >
+              Lancer une analyse gratuite
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ────────────────────────── FOOTER ────────────────────────── -->
+      <footer class="px-5 py-16 sm:px-8 lg:px-16 lg:py-20">
+        <div class="mx-auto max-w-[100rem]">
+          <p class="mb-12 font-mono text-caption uppercase text-ink-soft">CV Offer Comparer</p>
+
+          <div
+            class="mb-14 select-none text-balance font-medium leading-[0.92] tracking-[-0.03em]"
+            style="font-size: clamp(2.5rem, 11vw, 11rem)"
+          >
+            Candidatez juste.
+          </div>
+
+          <div class="flex flex-col gap-4 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft sm:flex-row sm:items-center sm:justify-between">
+            <span>© 2026 — Licence MIT</span>
+            <div class="flex gap-6">
+              <a href="https://github.com/mickaelrebeau/CV-Offer-Comparer" target="_blank" rel="noopener" class="transition-colors hover:text-ink">GitHub</a>
+              <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
+              <a @click="navigateTo('/login')" class="cursor-pointer transition-colors hover:text-ink">Connexion</a>
+            </div>
+          </div>
         </div>
       </footer>
-
     </main>
   </div>
 </template>
@@ -414,44 +495,203 @@ import Lenis from 'lenis'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const activeDemoTab = ref<'analysis' | 'interview'>('analysis')
+const activeTab = ref<'analyse' | 'simulateur'>('analyse')
+
+const tabs = [
+  { id: 'analyse' as const, label: '01 · Analyse' },
+  { id: 'simulateur' as const, label: '02 · Entretien' },
+]
+
+const timeSinks = [
+  { id: '001', label: "Relire l'offre et isoler les vrais critères", cost: '~1 H' },
+  { id: '002', label: "Réécrire le CV pour l'intitulé du poste", cost: '~3 H' },
+  { id: '003', label: 'Deviner les mots-clés attendus par le filtre', cost: '~2 H' },
+  { id: '004', label: 'Vérifier que le PDF passe le parsing', cost: '~1 H' },
+  { id: '005', label: 'Repérer honnêtement les compétences manquantes', cost: '~1 H' },
+  { id: '006', label: 'Reformuler les expériences en résultats mesurables', cost: '~2 H' },
+  { id: '007', label: 'Préparer les questions techniques probables', cost: '~2 H' },
+  { id: '008', label: 'Tout recommencer à la candidature suivante', cost: '∞ H' },
+]
+
+const decisions = [
+  {
+    id: '001',
+    title: 'Une seule passe',
+    body: "L'offre et le CV partent ensemble dans un appel structuré unique. Pas de chaîne de prompts, pas de latence cumulée : la première réponse arrive en moins de deux secondes.",
+  },
+  {
+    id: '002',
+    title: 'Correspondance sémantique',
+    body: "« Vue 3 » et « Vue.js », « Postgres » et « PostgreSQL », « anglais courant » et « bilingue » sont reconnus comme équivalents. L'intention compte, pas la chaîne de caractères.",
+  },
+  {
+    id: '003',
+    title: "Cinq catégories d'écart",
+    body: "Compétences techniques, compétences transverses, langues, niveau d'expérience, diplômes et certifications. Les mêmes cases à chaque analyse, avec le même seuil de correspondance.",
+  },
+  {
+    id: '004',
+    title: 'Reformulations prêtes à coller',
+    body: "Chaque critère faible ou manquant reçoit une formulation orientée résultat, lisible par un ATS comme par un recruteur, que vous copiez directement dans votre document.",
+  },
+  {
+    id: '005',
+    title: "Entretien dérivé de l'écart",
+    body: "Les questions ne sortent pas d'une banque générique : elles sont générées depuis la différence exacte entre votre profil et l'offre, avec un retour sur chaque réponse.",
+  },
+  {
+    id: '006',
+    title: 'Résultats au fil du flux',
+    body: "Les critères s'affichent au fur et à mesure via un flux SSE. Vous lisez les premiers résultats pendant que les suivants arrivent, sans écran d'attente.",
+  },
+  {
+    id: '007',
+    title: 'Rien à stocker',
+    body: "Les documents sont traités en mémoire pendant la session. Authentification JWT, base PostgreSQL pour votre compte uniquement. Aucun CV revendu, aucun profil constitué.",
+  },
+]
+
+const stats = [
+  { value: '< 2 s', label: 'Première réponse' },
+  { value: '1', label: 'Appel modèle par analyse' },
+  { value: '5', label: "Catégories d'écart" },
+  { value: '0', label: 'Document conservé' },
+]
+
+const steps = [
+  {
+    id: '001',
+    title: 'Déposez',
+    body: "Votre CV en PDF et le texte de l'offre. Le texte est extrait et nettoyé automatiquement.",
+  },
+  {
+    id: '002',
+    title: 'Lisez',
+    body: 'Score global, détail par critère, écarts classés et reformulations, affichés au fil du flux.',
+  },
+  {
+    id: '003',
+    title: 'Préparez',
+    body: "Dix questions d'entretien construites sur vos points faibles réels, avec un retour immédiat.",
+  },
+]
+
+const perks = [
+  'Essai sans carte bancaire',
+  'Analyse complète en flux continu',
+  'Écarts classés et reformulations',
+  "Simulateur d'entretien et retours",
+  'Import PDF et extraction automatique',
+  'Code source ouvert, auto-hébergeable',
+]
+
+const faq = [
+  {
+    id: 'Q.001',
+    question: 'Sur quelle stack est-ce construit ?',
+    answer: "Vue 3, TypeScript, Pinia et Tailwind côté interface. FastAPI, PostgreSQL et le modèle Gemini via google-genai côté serveur. Déploiement Docker sur Railway.",
+  },
+  {
+    id: 'Q.002',
+    question: 'En quoi est-ce différent des générateurs de CV ?',
+    answer: "Un générateur vous donne une mise en page. Ici, vous obtenez un diagnostic : ce que l'offre demande, ce que votre CV couvre réellement, ce qui manque, et quoi écrire à la place.",
+  },
+  {
+    id: 'Q.003',
+    question: 'Mes documents sont-ils conservés ?',
+    answer: "Non. Le CV et l'offre sont traités en mémoire le temps de l'analyse. Seul votre compte est stocké, et vous pouvez le supprimer depuis votre profil.",
+  },
+  {
+    id: 'Q.004',
+    question: 'Le score est-il fiable ?',
+    answer: "C'est une estimation calibrée sur les critères extraits de l'offre, pas le score exact d'un ATS propriétaire. Il sert à hiérarchiser vos corrections, pas à prédire une embauche.",
+  },
+  {
+    id: 'Q.005',
+    question: 'Puis-je héberger le projet moi-même ?',
+    answer: "Oui. Le dépôt est public sous licence MIT et contient les Dockerfile, le guide de démarrage et les variables d'environnement nécessaires.",
+  },
+  {
+    id: 'Q.006',
+    question: 'Comment contribuer ?',
+    answer: "Les issues et pull requests sont ouvertes. Le guide de contribution décrit la mise en place locale, les conventions de commit et le processus de revue.",
+  },
+]
+
+const categories = [
+  { label: 'Techniques', value: 92 },
+  { label: 'Transverses', value: 85 },
+  { label: 'Langues', value: 100 },
+  { label: 'Expérience', value: 78 },
+  { label: 'Diplômes', value: 90 },
+]
+
+const criteria = [
+  { label: 'TypeScript — 3 ans minimum', status: 'couvert', tone: 'text-emerald-400' },
+  { label: 'Vue 3 / Composition API', status: 'couvert', tone: 'text-emerald-400' },
+  { label: 'Tests unitaires (Vitest)', status: 'partiel', tone: 'text-amber-400' },
+  { label: 'Docker / conteneurisation', status: 'manquant', tone: 'text-rose-400' },
+  { label: 'Anglais professionnel', status: 'couvert', tone: 'text-emerald-400' },
+]
+
+const streamRows = [
+  { id: '001', label: 'TypeScript', status: 'couvert', tone: 'text-emerald-400' },
+  { id: '002', label: 'Vue 3', status: 'couvert', tone: 'text-emerald-400' },
+  { id: '003', label: 'Tests unitaires', status: 'partiel', tone: 'text-amber-400' },
+  { id: '004', label: 'Docker', status: 'manquant', tone: 'text-rose-400' },
+]
+
+const animatedScore = ref(0)
+const visibleRows = ref(0)
+
 let lenis: Lenis | null = null
-
-const startAnalysis = () => {
-  router.push('/free-trial')
-}
-
-const navigateTo = (path: string) => {
-  router.push(path)
-}
-
-const handleLogoClick = () => {
-  if (authStore.isAuthenticated) {
-    router.push('/dashboard')
-  } else {
-    router.push('/')
-  }
-}
+let scoreTimer: number | undefined
+let rowTimer: number | undefined
 
 onMounted(() => {
   lenis = new Lenis({
-    duration: 1.2,
+    duration: 1.1,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
   })
 
-  function raf(time: number) {
+  const raf = (time: number) => {
     lenis?.raf(time)
     requestAnimationFrame(raf)
   }
-
   requestAnimationFrame(raf)
+
+  scoreTimer = window.setInterval(() => {
+    if (animatedScore.value >= 88) {
+      window.clearInterval(scoreTimer)
+      return
+    }
+    animatedScore.value += 2
+  }, 24)
+
+  rowTimer = window.setInterval(() => {
+    if (visibleRows.value >= streamRows.length) {
+      window.clearInterval(rowTimer)
+      return
+    }
+    visibleRows.value += 1
+  }, 420)
 })
 
 onUnmounted(() => {
-  if (lenis) {
-    lenis.destroy()
-    lenis = null
-  }
+  lenis?.destroy()
+  lenis = null
+  window.clearInterval(scoreTimer)
+  window.clearInterval(rowTimer)
 })
+
+const navigateTo = (path: string) => router.push(path)
+
+const primaryAction = () => {
+  router.push(authStore.isAuthenticated ? '/dashboard' : '/free-trial')
+}
+
+const handleLogoClick = () => {
+  router.push(authStore.isAuthenticated ? '/dashboard' : '/')
+}
 </script>
