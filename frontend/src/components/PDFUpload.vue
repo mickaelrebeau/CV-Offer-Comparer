@@ -1,113 +1,100 @@
 <template>
   <div class="w-full">
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
+    <div
+      @drop="handleDrop"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @click="triggerFileInput"
+      class="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all relative overflow-hidden"
+      :class="{
+        'border-brand-500 bg-brand-500/5': isDragOver,
+        'border-emerald-500/50 bg-emerald-500/5': uploadedFile,
+        'border-rose-500/50 bg-rose-500/5': uploadError,
+        'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 bg-card': !isDragOver && !uploadedFile && !uploadError
+      }"
+    >
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".pdf"
+        @change="handleFileSelect"
+        class="hidden"
+      />
+      
+      <div v-if="!uploadedFile && !uploading" class="space-y-3">
+        <div class="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 text-muted-foreground flex items-center justify-center mx-auto">
           <Upload class="h-5 w-5" />
-          Upload de votre CV (PDF)
-        </CardTitle>
-        <CardDescription>
-          Glissez-déposez votre CV au format PDF ou cliquez pour sélectionner un fichier
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div
-          @drop="handleDrop"
-          @dragover="handleDragOver"
-          @dragleave="handleDragLeave"
-          @click="triggerFileInput"
-          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
-          :class="{
-            'border-primary bg-primary/5': isDragOver,
-            'border-green-500 bg-green-50': uploadedFile,
-            'border-red-500 bg-red-50': uploadError
-          }"
-        >
-          <input
-            ref="fileInput"
-            type="file"
-            accept=".pdf"
-            @change="handleFileSelect"
-            class="hidden"
-          />
-          
-          <div v-if="!uploadedFile && !uploading">
-            <Upload class="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <p class="text-lg font-medium text-gray-700 mb-2">
-              Glissez votre CV PDF ici
-            </p>
-            <p class="text-sm text-gray-500">
-              ou cliquez pour sélectionner un fichier
-            </p>
-            <p class="text-xs text-gray-400 mt-2">
-              Taille maximale : 10MB
-            </p>
-          </div>
-
-          <div v-else-if="uploading" class="space-y-4">
-            <Loader2 class="h-12 w-12 mx-auto animate-spin text-primary" />
-            <p class="text-lg font-medium text-gray-700">
-              Extraction du texte en cours...
-            </p>
-            <p class="text-sm text-gray-500">
-              Veuillez patienter pendant que nous analysons votre CV
-            </p>
-          </div>
-
-          <div v-else-if="uploadedFile" class="space-y-4">
-            <CheckCircle class="h-12 w-12 mx-auto text-green-500" />
-            <div>
-              <p class="text-lg font-medium text-gray-700">
-                CV uploadé avec succès !
-              </p>
-              <p class="text-sm text-gray-500">
-                {{ uploadedFile.name }}
-              </p>
-              <p class="text-xs text-gray-400 mt-1">
-                {{ extractedText.length }} caractères extraits
-              </p>
-            </div>
-            <Button variant="outline" size="sm" @click="removeFile">
-              Changer de fichier
-            </Button>
-          </div>
-
-          <div v-else-if="uploadError" class="space-y-4">
-            <XCircle class="h-12 w-12 mx-auto text-red-500" />
-            <div>
-              <p class="text-lg font-medium text-red-700">
-                Erreur lors de l'upload
-              </p>
-              <p class="text-sm text-red-500">
-                {{ uploadError }}
-              </p>
-            </div>
-            <Button variant="outline" size="sm" @click="resetUpload">
-              Réessayer
-            </Button>
-          </div>
         </div>
-
-        <!-- Aperçu du texte extrait -->
-        <div v-if="extractedText && showPreview" class="mt-6">
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="font-medium">Aperçu du texte extrait :</h4>
-            <Button variant="ghost" size="sm" @click="showPreview = !showPreview">
-              {{ showPreview ? 'Masquer' : 'Afficher' }}
-            </Button>
-          </div>
-          <div class="bg-gray-50 rounded-md p-4 max-h-40 overflow-y-auto">
-            <pre class="text-sm text-gray-700 whitespace-pre-wrap">{{ extractedText }}</pre>
-          </div>
+        <div>
+          <p class="text-sm font-semibold text-foreground">
+            Glissez votre CV (PDF) ici
+          </p>
+          <p class="text-xs text-muted-foreground mt-1">
+            ou cliquez pour parcourir vos fichiers (Max 10MB)
+          </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div v-else-if="uploading" class="space-y-3 py-2">
+        <Loader2 class="h-8 w-8 mx-auto animate-spin text-brand-500" />
+        <p class="text-sm font-semibold text-foreground">
+          Extraction du contenu PDF...
+        </p>
+        <p class="text-xs text-muted-foreground">
+          Analyse sémantique du document en cours
+        </p>
+      </div>
+
+      <div v-else-if="uploadedFile" class="space-y-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+          <CheckCircle class="h-5 w-5" />
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-foreground">
+            CV extrait avec succès !
+          </p>
+          <p class="text-xs font-mono text-muted-foreground mt-1">
+            {{ uploadedFile.name }} ({{ extractedText.length }} caractères)
+          </p>
+        </div>
+        <Button variant="outline" size="sm" class="mt-2 text-xs" @click.stop="removeFile">
+          Remplacer le fichier
+        </Button>
+      </div>
+
+      <div v-else-if="uploadError" class="space-y-3">
+        <div class="w-10 h-10 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
+          <XCircle class="h-5 w-5" />
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-rose-500">
+            Erreur lors de l'extraction
+          </p>
+          <p class="text-xs text-muted-foreground mt-1">
+            {{ uploadError }}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" class="mt-2 text-xs" @click.stop="resetUpload">
+          Réessayer
+        </Button>
+      </div>
+    </div>
+
+    <!-- Extracted Text Drawer / Preview -->
+    <div v-if="extractedText && showPreview" class="mt-4 p-4 rounded-xl bg-zinc-100/50 dark:bg-zinc-900/50 border border-border">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Aperçu du texte extrait</span>
+        <button @click="showPreview = !showPreview" class="text-xs text-muted-foreground hover:text-foreground">
+          {{ showPreview ? 'Masquer' : 'Afficher' }}
+        </button>
+      </div>
+      <pre class="text-xs text-muted-foreground whitespace-pre-wrap max-h-36 overflow-y-auto font-mono leading-relaxed">{{ extractedText }}</pre>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-vue-next'
 import { api } from '@/lib/api'
@@ -169,7 +156,7 @@ const handleFile = async (file: File) => {
   }
 
   if (file.size > 10 * 1024 * 1024) {
-    uploadError.value = 'Le fichier est trop volumineux (max 10MB)'
+    uploadError.value = 'Le fichier dépasse la limite de 10MB'
     return
   }
 
@@ -196,7 +183,7 @@ const handleFile = async (file: File) => {
       uploadedFile.value = null
     }
   } catch (error: any) {
-    uploadError.value = error.response?.data?.detail || 'Erreur lors de l\'upload'
+    uploadError.value = error.response?.data?.detail || 'Erreur lors de l\'extraction PDF'
     uploadedFile.value = null
   } finally {
     uploading.value = false
@@ -219,4 +206,4 @@ const resetUpload = () => {
     fileInput.value.value = ''
   }
 }
-</script> 
+</script>

@@ -1,13 +1,13 @@
 import { ref, watch } from 'vue'
 
 export function useTheme() {
-  const isDark = ref(false)
+  const isDark = ref(true)
 
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme) {
     isDark.value = savedTheme === 'dark'
   } else {
-    isDark.value = false // thème par défaut = light
+    isDark.value = true
   }
 
   function applyTheme() {
@@ -34,4 +34,4 @@ export function useTheme() {
     isDark,
     toggleTheme,
   }
-} 
+}

@@ -1,56 +1,45 @@
 <template>
-  <div class="max-w-4xl mx-auto">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-primary mb-2">
-        Mon Profil
-      </h1>
-      <p class="text-muted-foreground">
-        Gérez vos informations et vos préférences
+  <div class="max-w-3xl mx-auto px-6 py-10 sm:py-16 space-y-8">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-extrabold tracking-tight text-foreground">Mon Profil</h1>
+      <p class="text-sm text-muted-foreground">
+        Gérez vos identifiants et préférencs de compte.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Informations personnelles</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-2">Email</label>
-              <p class="text-muted-foreground">{{ user?.email }}</p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2">Date d'inscription</label>
-              <p class="text-muted-foreground">
-                {{ user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : 'N/A' }}
-              </p>
-            </div>
+    <div class="space-y-6">
+      <Card class="glass-card p-6 rounded-2xl border border-border space-y-4">
+        <h2 class="text-base font-bold text-foreground border-b border-border pb-3">Informations Personnelles</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="space-y-1">
+            <span class="text-muted-foreground font-medium uppercase tracking-wider">Adresse Email</span>
+            <p class="text-sm font-semibold text-foreground">{{ user?.email }}</p>
           </div>
-        </CardContent>
+          <div class="space-y-1">
+            <span class="text-muted-foreground font-medium uppercase tracking-wider">Date d'inscription</span>
+            <p class="text-sm font-semibold text-foreground">
+              {{ user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : 'N/A' }}
+            </p>
+          </div>
+        </div>
       </Card>
 
-      <Card class="mt-6">
-        <CardHeader>
-          <CardTitle>Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="mb-10 border-b border-gray-800" />
-          <div class="space-y-4 flex flex-col">
-            <Button variant="destructive" @click="handleSignOut">
-              Se déconnecter
-            </Button>
-            <Button variant="outline" @click="showDeleteModal = true">
-              Supprimer mon compte
-            </Button>
-          </div>
-        </CardContent>
+      <Card class="glass-card p-6 rounded-2xl border border-border space-y-4">
+        <h2 class="text-base font-bold text-foreground border-b border-border pb-3">Actions de Compte</h2>
+        <div class="flex flex-col sm:flex-row gap-4 pt-2">
+          <Button variant="outline" @click="handleSignOut" class="rounded-full">
+            Se déconnecter
+          </Button>
+          <Button variant="destructive" @click="showDeleteModal = true" class="rounded-full">
+            Supprimer mon compte
+          </Button>
+        </div>
       </Card>
     </div>
 
     <Modal :is-open="showDeleteModal" title="Confirmer la suppression"
-      message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible, vous ne pourrez plus accéder à votre compte."
-      confirm-text="Supprimer le compte" cancel-text="Annuler" type="error" @confirm="handleDeleteAccount"
+      message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive."
+      confirm-text="Supprimer définitivement" cancel-text="Annuler" type="error" @confirm="handleDeleteAccount"
       @cancel="showDeleteModal = false" @close="showDeleteModal = false" />
 
     <Notification :is-open="showNotification" :message="notificationMessage" :type="notificationType"
@@ -60,11 +49,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card/index'
-import { Button } from '../components/ui/button/index'
-import { Modal } from '../components/ui/modal/index'
-import { Notification } from '../components/ui/notification/index'
-import { useAuthStore } from '../stores/auth'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Modal } from '@/components/ui/modal'
+import { Notification } from '@/components/ui/notification'
+import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
@@ -88,24 +77,23 @@ async function handleDeleteAccount() {
   try {
     const { error } = await deleteAccount()
     if (error) {
-      notificationMessage.value = `Erreur lors de la suppression du compte : ${error.message}`
+      notificationMessage.value = `Erreur : ${error.message}`
       notificationType.value = 'error'
       showNotification.value = true
       return
     }
 
-    notificationMessage.value = 'Votre compte a été supprimé avec succès.'
+    notificationMessage.value = 'Votre compte a été supprimé.'
     notificationType.value = 'success'
     showNotification.value = true
 
     setTimeout(() => {
       router.push('/')
-    }, 2000)
-  } catch (error) {
-    console.error('Erreur lors de la suppression du compte:', error)
-    notificationMessage.value = 'Une erreur inattendue s\'est produite lors de la suppression du compte.'
+    }, 1500)
+  } catch (err) {
+    notificationMessage.value = 'Une erreur est survenue lors de la suppression.'
     notificationType.value = 'error'
     showNotification.value = true
   }
 }
-</script> 
+</script>

@@ -1,20 +1,18 @@
 <template>
   <div class="relative">
-    <!-- Utilisateur non connecté -->
-    <Button v-if="!isAuthenticated" variant="outline" @click="$router.push('/login')">
-      Se connecter
+    <Button v-if="!isAuthenticated" variant="outline" size="sm" class="rounded-full" @click="$router.push('/login')">
+      Connexion
     </Button>
 
-    <!-- Utilisateur connecté -->
-    <div v-else class="flex items-center space-x-4">
-      <span class="text-sm text-muted-foreground">
+    <div v-else class="flex items-center gap-3">
+      <span class="text-xs font-medium text-muted-foreground hidden sm:inline-block">
         {{ user?.email }}
       </span>
-      <Button variant="outline" @click="$router.push('/profile')">
-        Profile
+      <Button variant="outline" size="sm" class="rounded-full text-xs" @click="$router.push('/profile')">
+        Profil
       </Button>
-      <Button variant="outline" @click="handleSignOut">
-        Se déconnecter
+      <Button variant="ghost" size="sm" class="rounded-full text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-500/10" @click="handleSignOut">
+        Déconnexion
       </Button>
     </div>
   </div>
@@ -34,4 +32,4 @@ async function handleSignOut() {
   await signOut()
   router.push('/')
 }
-</script> 
+</script>

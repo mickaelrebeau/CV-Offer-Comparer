@@ -1,21 +1,22 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-primary mb-2">
-        🎁 Essai Offert - Comparateur CV ↔ Offre d'emploi
+  <div class="max-w-7xl mx-auto px-6 py-10 sm:py-16 space-y-8">
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-semibold tracking-wider uppercase">
+        <span>ESSAI OFFERT</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+        Analyse Gratuite CV ↔ Offre d'emploi
       </h1>
-      <p class="text-muted-foreground">
-        Testez notre outil gratuitement ! Une seule analyse offerte par utilisateur.
+      <p class="text-base text-muted-foreground max-w-2xl">
+        Testez le moteur de diagnostic immédiatement. Une analyse complète vous est offerte.
       </p>
       
-      <div v-if="freeAnalysisStatus" class="mt-4 p-4 rounded-lg border" 
-           :class="freeAnalysisStatus.can_use_free_analysis ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'">
-        <div class="flex items-center">
-          <CheckCircle v-if="freeAnalysisStatus.can_use_free_analysis" class="h-5 w-5 text-green-600 mr-2" />
-          <AlertCircle v-else class="h-5 w-5 text-amber-600 mr-2" />
-          <span class="text-sm font-medium" :class="freeAnalysisStatus.can_use_free_analysis ? 'text-green-800' : 'text-amber-800'">
-            {{ freeAnalysisStatus.message }}
-          </span>
+      <div v-if="freeAnalysisStatus" class="mt-4 p-4 rounded-xl border text-sm font-medium transition-all" 
+           :class="freeAnalysisStatus.can_use_free_analysis ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400' : 'border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400'">
+        <div class="flex items-center gap-2.5">
+          <CheckCircle v-if="freeAnalysisStatus.can_use_free_analysis" class="h-5 w-5 text-emerald-500 shrink-0" />
+          <AlertCircle v-else class="h-5 w-5 text-amber-500 shrink-0" />
+          <span>{{ freeAnalysisStatus.message }}</span>
         </div>
       </div>
     </div>
@@ -39,4 +40,4 @@ onMounted(async () => {
     console.error('Erreur lors de la vérification du statut:', error)
   }
 })
-</script> 
+</script>

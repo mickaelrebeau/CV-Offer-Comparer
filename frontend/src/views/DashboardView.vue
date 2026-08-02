@@ -1,95 +1,117 @@
 <template>
-    <div class="max-w-6xl mx-auto">
-        <div class="text-center space-y-6 py-8">
-            <h1 class="text-3xl font-bold text-primary">Tableau de bord</h1>
-            <p class="text-lg text-muted-foreground">Choisissez l'outil qui vous aidera à préparer votre recherche d'emploi</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-8">
-            <!-- Comparateur CV ↔ Offre Card -->
-            <Card class="hover:shadow-lg transition-shadow cursor-pointer border rounded-lg" @click="goToComparator">
-                <CardHeader>
-                    <CardTitle class="flex items-center space-x-2">
-                        <FileText class="h-6 w-6" />
-                        <span>Comparateur CV ↔ Offre</span>
-                    </CardTitle>
-                    <CardDescription>
-                        Analysez la correspondance entre votre CV et une offre d'emploi avec notre IA avancée
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div class="space-y-2 text-sm text-muted-foreground">
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Analyse sémantique intelligente</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Extraction automatique des compétences</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Rapport détaillé avec suggestions</span>
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button variant="full" @click="goToComparator">
-                        Commencer l'analyse
-                    </Button>
-                </CardFooter>
-            </Card>
-
-            <!-- Simulateur d'entretien Card -->
-            <Card class="hover:shadow-lg transition-shadow cursor-pointer border rounded-lg" @click="goToInterviewSimulator">
-                <CardHeader>
-                    <CardTitle class="flex items-center space-x-2">
-                        <MessageSquare class="h-6 w-6" />
-                        <span>Simulateur d'entretien</span>
-                    </CardTitle>
-                    <CardDescription>
-                        Préparez-vous aux entretiens avec des questions personnalisées basées sur votre profil
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div class="space-y-2 text-sm text-muted-foreground">
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Questions générées par IA</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Simulation en temps réel</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <CheckCircle class="h-4 w-4 text-green-500" />
-                            <span>Analyse IA de vos réponses</span>
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <Button variant="full" @click="goToInterviewSimulator">
-                        Commencer l'entraînement
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
+  <div class="max-w-6xl mx-auto px-6 py-10 sm:py-16 space-y-10">
+    <!-- Header -->
+    <div class="space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+        <span>ESPACE CANDIDAT</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+        Tableau de bord
+      </h1>
+      <p class="text-base text-muted-foreground max-w-xl">
+        Sélectionnez le module d'optimisation adapté à l'avancement de votre candidature.
+      </p>
     </div>
+
+    <!-- Core Tools Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Comparateur CV ↔ Offre Card -->
+      <Card class="glass-card p-8 rounded-2xl cursor-pointer hover:border-brand-500/50 transition-all flex flex-col justify-between group relative overflow-hidden" @click="goToComparator">
+        <div class="space-y-6 z-10">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <FileText class="h-6 w-6" />
+          </div>
+
+          <div class="space-y-2">
+            <h2 class="text-2xl font-bold tracking-tight text-foreground group-hover:text-brand-500 transition-colors">
+              Comparateur CV ↔ Offre
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              Analysez le niveau d'adéquation entre votre CV et une fiche de poste. Identifiez instantanément les mots-clés manquants.
+            </p>
+          </div>
+
+          <div class="space-y-2.5 pt-2">
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Diagnostic d'écart sémantique</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Extraction automatique des compétences requises</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Suggestions de reformulation directes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-border flex items-center justify-between z-10">
+          <span class="text-xs font-semibold text-foreground group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+            Lancer une comparaison
+            <ArrowRight class="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </span>
+          <span class="text-xs font-mono text-muted-foreground">Module 01</span>
+        </div>
+      </Card>
+
+      <!-- Simulateur d'entretien Card -->
+      <Card class="glass-card p-8 rounded-2xl cursor-pointer hover:border-brand-500/50 transition-all flex flex-col justify-between group relative overflow-hidden" @click="goToInterviewSimulator">
+        <div class="space-y-6 z-10">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <MessageSquare class="h-6 w-6" />
+          </div>
+
+          <div class="space-y-2">
+            <h2 class="text-2xl font-bold tracking-tight text-foreground group-hover:text-brand-500 transition-colors">
+              Simulateur d'Entretien
+            </h2>
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              Préparez l'étape décisive avec des questions sur-mesure générées selon les spécificités de votre profil et de l'employeur.
+            </p>
+          </div>
+
+          <div class="space-y-2.5 pt-2">
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Questions prédictives ciblées</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Chronomètre d'entraînement en direct</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-medium text-foreground">
+              <CheckCircle class="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Évaluation détaillée de vos réponses</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-border flex items-center justify-between z-10">
+          <span class="text-xs font-semibold text-foreground group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+            Démarrer la simulation
+            <ArrowRight class="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </span>
+          <span class="text-xs font-mono text-muted-foreground">Module 02</span>
+        </div>
+      </Card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { FileText, MessageSquare, CheckCircle } from 'lucide-vue-next'
+import { Card } from '@/components/ui/card'
+import { FileText, MessageSquare, CheckCircle, ArrowRight } from 'lucide-vue-next'
 
 const router = useRouter()
 
 const goToComparator = () => {
-    router.push('/compare')
+  router.push('/compare')
 }
 
 const goToInterviewSimulator = () => {
-    router.push('/interview-simulator')
+  router.push('/interview-simulator')
 }
 </script>

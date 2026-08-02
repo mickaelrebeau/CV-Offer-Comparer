@@ -1,5 +1,6 @@
 import { defineComponent, h, ref, computed } from 'vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import { cn } from '@/lib/utils'
 
 export const Input = defineComponent({
   name: 'Input',
@@ -54,6 +55,7 @@ export const Input = defineComponent({
     }
 
     return () => {
+      const { class: extraClass, ...restAttrs } = attrs
       const inputElement = h('input', {
         type: inputType.value,
         value: props.modelValue,
@@ -61,14 +63,14 @@ export const Input = defineComponent({
         required: props.required,
         minlength: props.minlength,
         id: props.id,
-        class: 'w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        class: cn('w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-sm', extraClass as string),
         onInput: handleInput,
-        ...attrs
+        ...restAttrs
       })
 
       if (props.type === 'password' && props.showPasswordToggle) {
         return h('div', {
-          class: 'relative'
+          class: 'relative w-full'
         }, [
           inputElement,
           h('button', {
@@ -86,4 +88,4 @@ export const Input = defineComponent({
       return inputElement
     }
   }
-}) 
+})
