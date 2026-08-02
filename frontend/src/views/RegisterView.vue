@@ -103,8 +103,8 @@ async function handleRegister() {
     return
   }
 
-  if (password.value.length < 6) {
-    error.value = 'Le mot de passe doit contenir au moins 6 caractères'
+  if (password.value.length < 8) {
+    error.value = 'Le mot de passe doit contenir au moins 8 caractères'
     return
   }
 
@@ -115,12 +115,12 @@ async function handleRegister() {
   const { error: registerError } = await authStore.signUp(email.value, password.value)
 
   if (registerError) {
-    error.value = 'Erreur lors de la création du compte'
+    error.value = registerError.message || 'Erreur lors de la création du compte'
   } else {
-    success.value = 'Compte créé avec succès ! Vérifiez votre email pour confirmer votre compte.'
+    success.value = 'Compte créé avec succès !'
     setTimeout(() => {
-      router.push('/login')
-    }, 2000)
+      router.push('/dashboard')
+    }, 800)
   }
 
   loading.value = false

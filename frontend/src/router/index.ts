@@ -5,85 +5,96 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/",
-      name: "home",
-      component: () => import("@/views/HomeView.vue"),
+      path: '/',
+      name: 'home',
+      component: () => import('@/views/HomeView.vue'),
       meta: { requiresAuth: false },
     },
     {
-      path: "/dashboard",
-      name: "dashboard",
-      component: () => import("@/views/DashboardView.vue"),
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/DashboardView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: "/compare",
-      name: "compare",
-      component: () => import("@/views/CompareView.vue"),
+      path: '/compare',
+      name: 'compare',
+      component: () => import('@/views/CompareView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: "/interview-simulator",
-      name: "interview-simulator",
-      component: () => import("@/views/InterviewSimulatorView.vue"),
+      path: '/interview-simulator',
+      name: 'interview-simulator',
+      component: () => import('@/views/InterviewSimulatorView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: "/interview-results",
-      name: "interview-results",
-      component: () => import("@/views/InterviewResultsView.vue"),
+      path: '/interview-results',
+      name: 'interview-results',
+      component: () => import('@/views/InterviewResultsView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: "/free-trial",
-      name: "free-trial",
-      component: () => import("@/views/FreeTrialView.vue"),
+      path: '/free-trial',
+      name: 'free-trial',
+      component: () => import('@/views/FreeTrialView.vue'),
       meta: { requiresAuth: false },
     },
     {
-      path: "/profile",
-      name: "profile",
-      component: () => import("@/views/ProfileView.vue"),
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
     {
-      path: "/login",
-      name: "login",
-      component: () => import("@/views/LoginView.vue"),
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
       meta: { requiresAuth: false },
     },
     {
-      path: "/register",
-      name: "register",
-      component: () => import("@/views/RegisterView.vue"),
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/RegisterView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/auth/callback',
+      name: 'auth-callback',
+      component: () => import('@/views/AuthCallbackView.vue'),
       meta: { requiresAuth: false },
     },
   ],
-});
+})
 
-// Navigation guard
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
+async function waitForAuthReady() {
+  const authStore = useAuthStore()
+  if (!authStore.loading) return
 
-  // Si l'authentification est en cours de chargement, attendre
-  if (authStore.loading) {
-    // Attendre que l'initialisation soit terminée
-    await new Promise((resolve) => {
-      const unwatch = authStore.$subscribe(() => {
-        if (!authStore.loading) {
-          unwatch();
-          resolve(true);
-        }
-      });
-    });
-  }
+  await new Promise<void>((resolve) => {
+    const stop = authStore.$subscribe((_mutation, state) => {
+      if (!state.loading) {
+        stop()
+        resolve()
+      }
+    })
+    // Sécurité si loading est déjà false entre le check et le subscribe
+    if (!authStore.loading) {
+      stop()
+      resolve()
+    }
+  })
+}
 
-  // Rediriger les utilisateurs connectés vers le dashboard pour les routes protégées
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore()
+  await waitForAuthReady()
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next("/login");
-  } else {
-    next();
+    return '/login'
   }
-});
 
-export default router 
+  return true
+})
+
+export default router

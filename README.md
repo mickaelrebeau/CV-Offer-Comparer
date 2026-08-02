@@ -125,14 +125,16 @@ cp env.example .env
 
 #### **Frontend (.env.local)**
 ```env
-VITE_SUPABASE_URL=votre_url_supabase
-VITE_SUPABASE_ANON_KEY=votre_clé_anon_supabase
+VITE_API_URL=https://votre-backend.up.railway.app
 ```
 
 #### **Backend (.env)**
 ```env
-SUPABASE_URL=votre_url_supabase
-SUPABASE_SERVICE_KEY=votre_clé_service_supabase
+DATABASE_URL=postgresql://...
+GOOGLE_CLIENT_ID=votre_client_id_oauth
+GOOGLE_CLIENT_SECRET=votre_client_secret_oauth
+GOOGLE_REDIRECT_URI=https://votre-backend.up.railway.app/api/auth/google/callback
+FRONTEND_URL=https://votre-frontend.up.railway.app
 GOOGLE_API_KEY=votre_clé_api_google_gemini
 ```
 

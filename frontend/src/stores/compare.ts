@@ -6,8 +6,8 @@ import {
   streamFreeCompare,
   checkFreeAnalysisStatus,
 } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "./auth";
+
 
 export interface ComparisonItem {
   id: string;

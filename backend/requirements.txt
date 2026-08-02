@@ -9,20 +9,13 @@ pydantic>=2.5.0,<3.0.0
 pydantic-settings>=2.1.0
 
 # Database
-supabase>=2.0.0
+SQLAlchemy>=2.0.36
+psycopg[binary]>=3.2.0
+email-validator>=2.1.0
+bcrypt>=4.0.0
 
-# AI and ML - versions optimisées
-google-generativeai>=0.3.2
-sentence-transformers>=2.2.0
-transformers>=4.35.0
-# Utiliser torch CPU-only pour réduire la taille
-torch>=2.0.0
-scikit-learn>=1.3.0
-
-# Data processing - versions minimales
-numpy>=1.26.0,<2.0.0
-# Supprimer pandas si pas utilisé
-# pandas>=2.1.0,<3.0.0
+# AI — Gemini uniquement (plus de modèles locaux)
+google-genai>=1.0.0
 
 # Validation and HTTP
 httpx>=0.25.0
@@ -34,6 +27,6 @@ redis>=5.0.0
 PyPDF2>=3.0.1
 pdfplumber>=0.10.3
 
-# Build tools - versions minimales
+# Build tools
 setuptools>=65.0.0
 wheel>=0.38.0

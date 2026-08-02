@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
@@ -59,7 +60,8 @@ import { useRouter } from 'vue-router'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const { user, signOut, deleteAccount } = authStore
+const { user } = storeToRefs(authStore)
+const { signOut, deleteAccount } = authStore
 
 const showDeleteModal = ref(false)
 const showNotification = ref(false)

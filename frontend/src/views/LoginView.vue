@@ -68,8 +68,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -77,12 +77,28 @@ import { Loader2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+
+onMounted(() => {
+  if (route.query.error === 'google_oauth') {
+    const reason = typeof route.query.reason === 'string' ? route.query.reason : ''
+    const hints: Record<string, string> = {
+      no_code: 'Google n’a pas renvoyé de code. Vérifie les URI de redirection dans la console Google.',
+      exchange_failed: 'Échange du code Google échoué. Vérifie GOOGLE_CLIENT_SECRET et l’URI localhost dans Google Cloud.',
+      server_error: 'Erreur serveur pendant l’auth Google. Regarde les logs uvicorn.',
+    }
+    error.value =
+      hints[reason] ||
+      'Connexion Google impossible. Réessayez ou utilisez email / mot de passe.'
+  }
+})
+
 
 async function handleLogin() {
   loading.value = true

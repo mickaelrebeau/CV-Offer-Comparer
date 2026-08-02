@@ -1,24 +1,26 @@
 import axios from 'axios'
-import { supabase } from './supabase'
+import { getAccessToken, clearAccessToken } from './authToken'
 
-const getBaseURL = () => {
-  if ((import.meta as any).env?.DEV) {
-    return "http://localhost:8000/api";
+export const getApiBaseURL = () => {
+  const apiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined
+  if (apiUrl) {
+    return apiUrl.replace(/\/$/, "") + "/api"
   }
-  return "https://cv-offer-comparer-production.up.railway.app/api";
+  if ((import.meta as any).env?.DEV) {
+    return "http://localhost:8000/api"
+  }
+  return "/api"
 };
 
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: getApiBaseURL(),
   timeout: 30000,
 });
 
 api.interceptors.request.use(async (config) => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -26,7 +28,10 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = String(error.config?.url || "")
+    const isAuthRoute = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/me")
+    if (error.response?.status === 401 && !isAuthRoute) {
+      clearAccessToken()
       window.location.href = "/login";
     }
     return Promise.reject(error);
@@ -40,7 +45,7 @@ export async function testStream(
   onError: (error: string) => void
 ) {
   try {
-    const response = await fetch(`${getBaseURL()}/test-stream`, {
+    const response = await fetch(`${getApiBaseURL()}/test-stream`, {
       method: "GET",
       headers: {
         Accept: "text/event-stream",
@@ -108,12 +113,9 @@ export async function streamCompare(
   onError: (error: string) => void
 ) {
   try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const token = session?.access_token;
+    const token = getAccessToken();
 
-    const response = await fetch(`${getBaseURL()}/compare-stream`, {
+    const response = await fetch(`${getApiBaseURL()}/compare-stream`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -193,7 +195,7 @@ export async function streamFreeCompare(
   onError: (error: string) => void
 ) {
   try {
-    const response = await fetch(`${getBaseURL()}/free-compare-stream`, {
+    const response = await fetch(`${getApiBaseURL()}/free-compare-stream`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -266,7 +268,7 @@ export async function streamFreeCompare(
 
 export async function checkFreeAnalysisStatus() {
   try {
-    const response = await fetch(`${getBaseURL()}/free-analysis-status`, {
+    const response = await fetch(`${getApiBaseURL()}/free-analysis-status`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -290,7 +292,7 @@ export async function checkFreeAnalysisStatus() {
 
 export async function resetFreeAnalysis() {
   try {
-    const response = await fetch(`${getBaseURL()}/reset-free-analysis`, {
+    const response = await fetch(`${getApiBaseURL()}/reset-free-analysis`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -310,7 +312,7 @@ export async function resetFreeAnalysis() {
 
 export async function getFreeAnalysisStats() {
   try {
-    const response = await fetch(`${getBaseURL()}/free-analysis-stats`, {
+    const response = await fetch(`${getApiBaseURL()}/free-analysis-stats`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -337,7 +339,7 @@ export async function uploadFreeCV(file: File): Promise<{ success: boolean; text
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${getBaseURL()}/free-upload-cv`, {
+    const response = await fetch(`${getApiBaseURL()}/free-upload-cv`, {
       method: "POST",
       body: formData,
     });

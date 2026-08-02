@@ -1,14 +1,14 @@
-from typing import List, Dict, Any, Optional
-from app.services.ai_service import AIService
+from typing import Dict, Any
+from app.services.ai_service import ai_service
 from app.services.upload_service import UploadService
-import json
 import uuid
 from datetime import datetime
 
 class InterviewService:
     def __init__(self):
-        self.ai_service = AIService()
+        self.ai_service = ai_service
         self.upload_service = UploadService()
+
     
     async def generate_interview_questions(self, cv_file: bytes, job_text: str, num_questions: int = 10) -> Dict[str, Any]:
         """

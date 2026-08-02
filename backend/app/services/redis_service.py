@@ -8,19 +8,21 @@ from app.services.fallback_service import fallback_service
 class RedisService:
     def __init__(self):
         self.redis_available = False
-        redis_url = "redis://:2bD5L6pTEKkwtDyF08q7HuqtmojbgeIr@redis-12662.crce202.eu-west-3-1.ec2.redns.redis-cloud.com:12662"
-        redis_password = "2bD5L6pTEKkwtDyF08q7HuqtmojbgeIr"
-        redis_db = 0
+        self.redis_client = None
         try:
-            self.redis_client = redis.from_url(
-                redis_url,
-                password=redis_password,
-                db=redis_db,
-                decode_responses=True,
-                socket_connect_timeout=5,
-                socket_timeout=5
-            )
-            # Tester la connexion
+            # Prefer REDIS_URL from settings (Railway / Redis Cloud / local)
+            redis_kwargs = {
+                "decode_responses": True,
+                "socket_connect_timeout": 5,
+                "socket_timeout": 5,
+            }
+            # Only pass password separately if URL has no credentials
+            if settings.REDIS_PASSWORD and "@" not in settings.REDIS_URL.split("://", 1)[-1]:
+                redis_kwargs["password"] = settings.REDIS_PASSWORD
+            if settings.REDIS_DB:
+                redis_kwargs["db"] = settings.REDIS_DB
+
+            self.redis_client = redis.from_url(settings.REDIS_URL, **redis_kwargs)
             self.redis_client.ping()
             self.redis_available = True
             print("✅ Redis connecté avec succès")
@@ -151,7 +153,6 @@ class RedisService:
         """Nettoie les entrées expirées (appelé périodiquement)"""
         try:
             # Redis gère automatiquement l'expiration avec TTL
-            # Cette fonction peut être utilisée pour des nettoyages supplémentaires
             return 0
         except Exception as e:
             print(f"Erreur Redis lors du nettoyage: {e}")
@@ -170,4 +171,4 @@ class RedisService:
             return fallback_service.health_check()
 
 # Instance globale du service Redis
-redis_service = RedisService() 
+redis_service = RedisService()

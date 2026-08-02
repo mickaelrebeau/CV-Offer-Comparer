@@ -1,172 +1,61 @@
 import json
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
+
 from app.models.comparison import ComparisonRequest
-from app.services.comparison_service import ComparisonService
 from app.services.auth_service import AuthService
+from app.services.comparison_service import stream_comparison
 
 router = APIRouter()
 security = HTTPBearer()
 auth_service = AuthService()
-comparison_service = ComparisonService()
+
+
+def _sse_headers() -> dict[str, str]:
+    return {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "*",
+    }
+
 
 @router.get("/test-stream")
 async def test_stream():
-    """Route de test pour vérifier que les SSE fonctionnent"""
-    
     async def generate_test():
         try:
             for i in range(10):
                 yield f"data: {json.dumps({'type': 'status', 'message': f'Test message {i + 1}/10'})}\n\n"
                 yield f"data: {json.dumps({'type': 'progress', 'value': (i + 1) * 10, 'current': i + 1, 'total': 10})}\n\n"
                 await asyncio.sleep(0.5)
-            
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
-            
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-    
+
     return StreamingResponse(
         generate_test(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
+        headers=_sse_headers(),
     )
+
 
 @router.post("/compare-stream")
 async def compare_cv_offer_stream(
-    request: ComparisonRequest, 
-    user=Depends(auth_service.verify_token)
+    request: ComparisonRequest,
+    user=Depends(auth_service.verify_token),
 ):
-    """Compare un CV avec une offre d'emploi avec streaming des résultats"""
-    
-    async def generate_comparison():
-        try:
-            # Envoyer le statut initial
-            msg = {'type': 'status', 'message': 'Début de l\'analyse...'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            
-            # Extraire les compétences de l'offre
-            msg = {'type': 'status', 'message': 'Extraction des compétences de l\'offre...'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            offer_skills = comparison_service.ai_service.extract_skills(request.offer_text)
-            msg = {'type': 'status', 'message': f'Compétences de l\'offre trouvées: {len(offer_skills)}'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            
-            # Extraire les compétences du CV
-            msg = {'type': 'status', 'message': 'Extraction des compétences du CV...'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            cv_skills = comparison_service.ai_service.extract_skills(request.cv_text)
-            msg = {'type': 'status', 'message': f'Compétences du CV trouvées: {len(cv_skills)}'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            
-            comparison_items = []
-            total_items = len(offer_skills)
-            matches = 0
-            missing = 0
-            unclear = 0
-            
-            msg = {'type': 'status', 'message': f'Début de la comparaison de {total_items} éléments...'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            
-            # Traitement par batch pour optimiser les performances
-            batch_size = 5
-            for i in range(0, total_items, batch_size):
-                batch = offer_skills[i:i + batch_size]
-                
-                for j, skill in enumerate(batch):
-                    current_index = i + j
-                    
-                    # Envoyer le progrès
-                    progress = (current_index / total_items) * 100 if total_items > 0 else 0
-                    msg = {'type': 'progress', 'value': progress, 'current': current_index + 1, 'total': total_items}
-                    yield f"data: {json.dumps(msg)}\n\n"
-                    
-                    # Trouver la meilleure correspondance
-                    best_match = None
-                    best_similarity = 0.0
-                    
-                    for cv_skill in cv_skills:
-                        similarity = comparison_service.ai_service.compare_semantic(skill, cv_skill)
-                        if similarity > best_similarity:
-                            best_similarity = similarity
-                            best_match = cv_skill
-                    
-                    # Déterminer le statut
-                    if best_similarity > 0.6:
-                        status = "match"
-                        matches += 1
-                        cv_text = best_match
-                    elif best_similarity > 0.3:
-                        status = "unclear"
-                        unclear += 1
-                        cv_text = best_match if best_match else None
-                    else:
-                        status = "missing"
-                        missing += 1
-                        cv_text = None
-                    
-                    # Générer des suggestions si nécessaire
-                    suggestions = []
-                    if status in ["missing", "unclear"]:
-                        suggestions = comparison_service.ai_service.generate_suggestions(skill, status)
-                    
-                    from app.models.comparison import ComparisonItem
-                    item = ComparisonItem(
-                        id=str(current_index),
-                        category="compétences techniques",  # Simplifié pour l'exemple
-                        offerText=skill,
-                        cvText=cv_text,
-                        status=status,
-                        confidence=best_similarity,
-                        suggestions=suggestions if suggestions else None
-                    )
-                    comparison_items.append(item)
-                    
-                    # Envoyer l'élément immédiatement
-                    msg = {'type': 'item', 'item': item.dict()}
-                    yield f"data: {json.dumps(msg)}\n\n"
-                
-                # Pause plus courte entre les batches
-                await asyncio.sleep(0.05)
-            
-            # Calculer le pourcentage de correspondance
-            match_percentage = (matches / total_items) if total_items > 0 else 0.0
-            
-            from app.models.comparison import ComparisonSummary
-            summary = ComparisonSummary(
-                totalItems=total_items,
-                matches=matches,
-                missing=missing,
-                unclear=unclear,
-                matchPercentage=match_percentage
-            )
-            
-            # Envoyer le résumé final
-            msg = {'type': 'summary', 'summary': summary.dict()}
-            yield f"data: {json.dumps(msg)}\n\n"
-            msg = {'type': 'complete'}
-            yield f"data: {json.dumps(msg)}\n\n"
-            
-        except Exception as e:
-            msg = {'type': 'error', 'message': str(e)}
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-    
+    """Compare CV ↔ offre via un seul appel Gemini, puis stream SSE des items."""
     return StreamingResponse(
-        generate_comparison(),
+        stream_comparison(
+            request.offer_text,
+            request.cv_text,
+            intro_message="Début de l'analyse…",
+        ),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Methods": "*"
-        }
-    ) 
+        headers=_sse_headers(),
+    )

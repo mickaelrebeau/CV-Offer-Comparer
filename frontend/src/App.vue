@@ -5,15 +5,19 @@
       <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] rounded-full"></div>
     </div>
 
-    <!-- Global Loading Spinner -->
-    <div v-if="authStore.loading" class="flex items-center justify-center min-h-screen relative z-50">
+    <!-- Overlay only — never unmount RouterView (breaks /auth/callback) -->
+    <div
+      v-if="authStore.loading"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm"
+    >
       <div class="text-center space-y-4">
         <div class="w-10 h-10 border-2 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mx-auto"></div>
         <p class="text-sm text-muted-foreground font-medium tracking-wide">Chargement de votre session...</p>
       </div>
     </div>
 
-    <div v-else class="relative z-10 flex flex-col min-h-screen">
+    <div class="relative z-10 flex flex-col min-h-screen">
+
       <!-- Fixed Glass Navigation Header -->
       <header class="fixed top-0 w-full z-50 transition-all duration-300 glass-header border-b border-zinc-200/50 dark:border-zinc-800/50" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">

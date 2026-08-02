@@ -1,191 +1,89 @@
-import uuid
+"""Comparaison CV ↔ offre : 1 appel Gemini puis streaming progressif des items."""
+
+from __future__ import annotations
+
 import asyncio
-from typing import List, Dict, Any
-from app.models.comparison import ComparisonItem, ComparisonSummary, ComparisonResponse
-from app.services.ai_service import AIService
-from app.utils.categorization import (
-    categorize_requirement, 
-    get_category_description, 
-    get_category_color
-)
+import json
+from collections.abc import AsyncIterator
+from typing import Any
+
+from app.services.ai_service import ai_service
+
+
+def _sse(payload: dict[str, Any]) -> str:
+    return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+async def stream_comparison(
+    offer_text: str,
+    cv_text: str,
+    *,
+    intro_message: str = "Début de l'analyse…",
+) -> AsyncIterator[str]:
+    """
+    Flux SSE optimisé :
+    1) statuts pendant l'appel LLM unique
+    2) items diffusés un par un pour une UI progressive
+    3) summary + complete
+    """
+    try:
+        yield _sse({"type": "status", "message": intro_message})
+        yield _sse(
+            {
+                "type": "status",
+                "message": "Analyse ATS par Gemini (extraction + matching)…",
+            }
+        )
+        yield _sse({"type": "progress", "value": 12, "current": 0, "total": 1})
+
+        result = await asyncio.to_thread(
+            ai_service.compare_offer_and_cv,
+            offer_text,
+            cv_text,
+        )
+
+        items = result["items"]
+        summary = result["summary"]
+        total = len(items)
+
+        yield _sse(
+            {
+                "type": "status",
+                "message": f"{total} exigences analysées — diffusion des résultats…",
+            }
+        )
+        yield _sse({"type": "progress", "value": 35, "current": 0, "total": total})
+
+        for index, item in enumerate(items):
+            # Progress 35% → 95% pendant la diffusion
+            progress = 35 + ((index + 1) / max(total, 1)) * 60
+            yield _sse(
+                {
+                    "type": "progress",
+                    "value": progress,
+                    "current": index + 1,
+                    "total": total,
+                }
+            )
+            yield _sse({"type": "item", "item": item})
+            # Petite pause pour l'animation front (sans ralentir trop)
+            await asyncio.sleep(0.04)
+
+        yield _sse({"type": "progress", "value": 100, "current": total, "total": total})
+        yield _sse({"type": "summary", "summary": summary})
+        yield _sse({"type": "complete"})
+
+    except Exception as exc:
+        print(f"Erreur stream_comparison: {exc}")
+        yield _sse({"type": "error", "message": str(exc)})
+
 
 class ComparisonService:
-    def __init__(self):
-        self.ai_service = AIService()
-    
+    """Compatibilité avec les imports existants."""
+
+    def __init__(self) -> None:
+        self.ai_service = ai_service
+
     async def compare_cv_offer_stream(self, offer_text: str, cv_text: str, job_category: str = None):
-        """Compare un CV avec une offre d'emploi avec streaming des résultats"""
-        
-        try:
-            # Extraire les compétences de l'offre et du CV
-            offer_skills = self.ai_service.extract_skills(offer_text, job_category)
-            cv_skills = self.ai_service.extract_skills(cv_text, job_category)
-            
-            comparison_items = []
-            total_items = len(offer_skills)
-            matches = 0
-            missing = 0
-            unclear = 0
-            
-            # Statistiques par catégorie
-            category_stats = {}
-            
-            for i, skill in enumerate(offer_skills):
-                # Calculer le progrès
-                progress = (i / total_items) * 100 if total_items > 0 else 0
-                
-                item_id = str(uuid.uuid4())
-                category = categorize_requirement(skill)
-                category_description = get_category_description(category)
-                category_color = get_category_color(category)
-                
-                # Initialiser les stats de catégorie
-                if category not in category_stats:
-                    category_stats[category] = {
-                        "total": 0,
-                        "matches": 0,
-                        "missing": 0,
-                        "unclear": 0
-                    }
-                category_stats[category]["total"] += 1
-                
-                # Trouver la meilleure correspondance dans le CV
-                best_match = None
-                best_similarity = 0.0
-                
-                for cv_skill in cv_skills:
-                    similarity = self.ai_service.compare_semantic(skill, cv_skill)
-                    if similarity > best_similarity:
-                        best_similarity = similarity
-                        best_match = cv_skill
-                
-                # Déterminer le statut avec des seuils ajustés par catégorie
-                status = self._determine_status(best_similarity, category)
-                
-                if status == "match":
-                    matches += 1
-                    category_stats[category]["matches"] += 1
-                    cv_text = best_match
-                elif status == "unclear":
-                    unclear += 1
-                    category_stats[category]["unclear"] += 1
-                    cv_text = best_match if best_match else None
-                else:
-                    missing += 1
-                    category_stats[category]["missing"] += 1
-                    cv_text = None
-                
-                # Générer des suggestions si nécessaire
-                suggestions = []
-                if status in ["missing", "unclear"]:
-                    suggestions = self.ai_service.generate_suggestions(skill, status)
-                
-                item = ComparisonItem(
-                    id=item_id,
-                    category=category,
-                    offerText=skill,
-                    cvText=cv_text,
-                    status=status,
-                    confidence=best_similarity,
-                    suggestions=suggestions if suggestions else None
-                )
-                comparison_items.append(item)
-                
-                # Petite pause pour éviter de surcharger
-                await asyncio.sleep(0.1)
-            
-            # Calculer le pourcentage de correspondance
-            match_percentage = (matches / total_items) if total_items > 0 else 0.0
-            
-            # Ajouter les métadonnées de catégorie
-            category_metadata = {}
-            for category, stats in category_stats.items():
-                if stats["total"] > 0:
-                    category_metadata[category] = {
-                        "description": get_category_description(category),
-                        "color": get_category_color(category),
-                        "total": stats["total"],
-                        "matches": stats["matches"],
-                        "missing": stats["missing"],
-                        "unclear": stats["unclear"],
-                        "match_percentage": (stats["matches"] / stats["total"]) * 100
-                    }
-            
-            summary = ComparisonSummary(
-                totalItems=total_items,
-                matches=matches,
-                missing=missing,
-                unclear=unclear,
-                matchPercentage=match_percentage,
-                categoryStats=category_metadata
-            )
-            
-            return ComparisonResponse(items=comparison_items, summary=summary)
-            
-        except Exception as e:
-            print(f"Erreur lors de la comparaison: {e}")
-            raise e
-    
-    def _determine_status(self, similarity: float, category: str) -> str:
-        """Détermine le statut avec des seuils ajustés par catégorie"""
-        
-        # Seuils différents selon la catégorie
-        thresholds = {
-            "langues": {"match": 0.7, "unclear": 0.4},
-            "soft skills": {"match": 0.6, "unclear": 0.3},
-            "expérience et niveau": {"match": 0.8, "unclear": 0.5},
-            "formation et certification": {"match": 0.7, "unclear": 0.4},
-            "domaine métier": {"match": 0.6, "unclear": 0.3},
-            "compétences techniques": {"match": 0.6, "unclear": 0.3},
-            "autres": {"match": 0.5, "unclear": 0.3}
-        }
-        
-        # Seuils par défaut
-        default_thresholds = {"match": 0.6, "unclear": 0.3}
-        category_thresholds = thresholds.get(category, default_thresholds)
-        
-        if similarity >= category_thresholds["match"]:
-            return "match"
-        elif similarity >= category_thresholds["unclear"]:
-            return "unclear"
-        else:
-            return "missing"
-    
-    def get_category_breakdown(self, items: List[ComparisonItem]) -> Dict[str, Any]:
-        """Retourne une analyse détaillée par catégorie"""
-        
-        breakdown = {}
-        
-        for item in items:
-            category = item.category
-            if category not in breakdown:
-                breakdown[category] = {
-                    "total": 0,
-                    "matches": 0,
-                    "missing": 0,
-                    "unclear": 0,
-                    "avg_confidence": 0.0,
-                    "description": get_category_description(category),
-                    "color": get_category_color(category)
-                }
-            
-            breakdown[category]["total"] += 1
-            
-            if item.status == "match":
-                breakdown[category]["matches"] += 1
-            elif item.status == "missing":
-                breakdown[category]["missing"] += 1
-            else:
-                breakdown[category]["unclear"] += 1
-            
-            breakdown[category]["avg_confidence"] += item.confidence
-        
-        # Calculer les moyennes et pourcentages
-        for category, stats in breakdown.items():
-            if stats["total"] > 0:
-                stats["avg_confidence"] /= stats["total"]
-                stats["match_percentage"] = (stats["matches"] / stats["total"]) * 100
-                stats["missing_percentage"] = (stats["missing"] / stats["total"]) * 100
-                stats["unclear_percentage"] = (stats["unclear"] / stats["total"]) * 100
-        
-        return breakdown 
+        # Conservé pour compat éventuelle — préférer stream_comparison
+        return ai_service.compare_offer_and_cv(offer_text, cv_text)
