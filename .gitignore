@@ -57,5 +57,26 @@ build/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
 .cursorignore
+
+# AI / caches locaux
+embedding_cache.pkl
+*.pkl
+backend/data/
+
+# Coverage / tests
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Frontend
+frontend/dist/
+*.local
+
+# Secrets accidentels
+*.pem
+credentials.json
+service-account*.json

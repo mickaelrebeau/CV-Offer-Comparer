@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & discussions
+    url: https://github.com/mickaelrebeau/CV-Offer-Comparer/discussions
+    about: Posez vos questions d’usage ou d’architecture ici (si les Discussions sont activées).
+  - name: Signalement de sécurité
+    url: https://github.com/mickaelrebeau/CV-Offer-Comparer/blob/main/SECURITY.md
+    about: Ne pas ouvrir d’issue publique pour une vulnérabilité.

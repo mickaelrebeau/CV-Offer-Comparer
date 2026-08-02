@@ -1,101 +1,90 @@
-# 🚀 Guide de démarrage - Comparateur CV ↔ Offre d'emploi
+# Guide de démarrage local
 
-## ✅ Installation terminée !
+## 1. Prérequis
 
-Votre application est maintenant prête à être utilisée. Voici les étapes finales :
+- Node.js 20+ et pnpm
+- Python 3.11+
+- PostgreSQL + Redis (locaux ou hébergés, ex. Railway)
+- Clé API Gemini : [Google AI Studio](https://aistudio.google.com/apikey)
+- (Optionnel) OAuth Google Web Client pour la connexion Google
 
-## 🔧 Configuration des variables d'environnement
+## 2. Backend
 
-### 1. Frontend (.env à la racine)
 ```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 cp env.example .env
 ```
 
-Éditez `.env` avec vos clés Supabase :
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+Renseignez au minimum dans `backend/.env` :
+
+```env
+GOOGLE_API_KEY=...
+GEMINI_MODEL=gemini-flash-latest
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+SECRET_KEY=change-me
+FRONTEND_URL=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
-### 2. Backend (backend/.env)
+Pour Google OAuth en local, ajoutez aussi `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, et dans la console Google l’URI :
+
+`http://localhost:8000/api/auth/google/callback`
+
+Démarrez :
+
 ```bash
-cd backend
-cp env.example .env
-```
-
-Éditez `backend/.env` avec vos clés :
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-GOOGLE_API_KEY=your_google_api_key
-```
-
-## 🔑 Obtenir vos clés
-
-### Supabase
-1. Allez sur [supabase.com](https://supabase.com)
-2. Créez un nouveau projet
-3. Dans Settings > API, copiez :
-   - Project URL → `SUPABASE_URL`
-   - anon public → `VITE_SUPABASE_ANON_KEY`
-   - service_role → `SUPABASE_SERVICE_KEY`
-
-### Google AI
-1. Allez sur [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Créez une nouvelle clé API
-3. Copiez la clé → `GOOGLE_API_KEY`
-
-## 🚀 Démarrage de l'application
-
-### Terminal 1 - Frontend
-```bash
-npm run dev
-```
-→ http://localhost:3000
-
-### Terminal 2 - Backend
-```bash
-cd backend
-venv\Scripts\activate
 uvicorn main:app --reload
 ```
-→ http://localhost:8000
 
-## 🎯 Test de l'application
+- API : http://localhost:8000  
+- OpenAPI : http://localhost:8000/docs  
 
-1. **Ouvrez** http://localhost:3000
-2. **Créez un compte** ou connectez-vous
-3. **Allez sur** "Comparer CV et Offre"
-4. **Collez** une offre d'emploi et votre CV
-5. **Cliquez** sur "Comparer CV et Offre"
+Les tables (`users`, etc.) sont créées au démarrage via SQLAlchemy.
 
-## 📊 Fonctionnalités
+## 3. Frontend
 
-- **🟢 Vert** : Correspondances trouvées
-- **🔴 Rouge** : Éléments manquants
-- **🟡 Jaune** : Points confus/imprécis
-- **Suggestions** : Conseils pour améliorer votre CV
+```bash
+cd frontend
+pnpm install
+cp env.example .env
+```
 
-## 🆘 Dépannage
+```env
+VITE_API_URL=http://localhost:8000
+```
 
-### Erreur de connexion
-- Vérifiez vos clés Supabase dans `.env`
-- Assurez-vous que le backend tourne sur le port 8000
+```bash
+pnpm dev
+```
 
-### Erreur d'IA
-- Vérifiez votre clé Google AI
-- Assurez-vous d'avoir des crédits Google AI
+Ouvrez l’URL affichée (souvent http://localhost:3000 ou :5173).  
+Si le port n’est pas 3000, alignez `FRONTEND_URL` côté backend.
 
-### Erreur de serveur
-- Redémarrez avec `uvicorn main:app --reload`
-- Vérifiez que l'environnement virtuel est activé
+## 4. Test rapide
 
-## 📞 Support
+1. Créer un compte (email) ou Google OAuth
+2. Aller sur Comparateur
+3. Coller une offre + un CV (ou upload PDF)
+4. Lancer l’analyse (résultats en streaming)
 
-- **Documentation** : Voir `README.md`
-- **Guide rapide** : Voir `QUICKSTART.md`
-- **Issues** : Ouvrez une issue sur GitHub
+## 5. Déploiement Railway
 
----
+Le monorepo contient `frontend/Dockerfile`, `backend/Dockerfile` et `railway.json`.
 
-🎉 **Votre comparateur CV ↔ Offre d'emploi est prêt !** 
+- Service **backend** : `rootDirectory=/backend`, variables d’env (DB, Redis, Gemini, OAuth)
+- Service **frontend** : `rootDirectory=/frontend`, **`VITE_API_URL` au build** (ARG Dockerfile)
+
+Voir aussi `backend/env.example` et `frontend/env.production.example`.
+
+## Dépannage
+
+| Symptôme | Piste |
+|----------|--------|
+| Google OAuth → mauvais port | `FRONTEND_URL` doit matcher le port du front |
+| `API key not valid` | Nouvelle clé AI Studio dans `GOOGLE_API_KEY` |
+| CORS | Ajouter l’origine front dans `ALLOWED_ORIGINS` |
+| `/api/auth/google` sur le domaine front | Rebuild front avec `VITE_API_URL` pointant vers le backend |

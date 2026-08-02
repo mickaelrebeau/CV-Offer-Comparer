@@ -1,262 +1,143 @@
-# Comparateur CV ↔ Offre d'emploi
+# CV Offer Comparer
 
-Une application web intelligente qui compare automatiquement un CV avec une offre d'emploi en utilisant l'intelligence artificielle pour identifier les correspondances, les lacunes et fournir des suggestions d'amélioration.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Issues](https://img.shields.io/github/issues/mickaelrebeau/CV-Offer-Comparer)](https://github.com/mickaelrebeau/CV-Offer-Comparer/issues)
 
-## 🚀 Fonctionnalités
+Application web open source qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, et simulateur d’entretien.
 
-### ✨ **Analyse intelligente multi-métiers**
-- **Support de tous les métiers** : Développement, Design, Marketing, Vente, Finance, RH, Logistique, Santé, Éducation, etc.
-- **Extraction automatique** : Compétences techniques, soft skills, langues, expériences
-- **Comparaison sémantique** : Reconnaissance des synonymes et variations
-- **Suggestions personnalisées** : Conseils pour améliorer le CV
-
-### 🎯 **Interface moderne et intuitive**
-- **Upload PDF** : Extraction automatique du texte des CV
-- **Saisie manuelle** : Possibilité de coller directement le texte
-- **Résultats en temps réel** : Streaming des résultats avec progression
-- **Interface responsive** : Compatible desktop et mobile
-
-### 🔒 **Sécurité et authentification**
-- **Authentification Supabase** : Connexion sécurisée
-- **Persistance de session** : Reste connecté après rechargement
-- **Protection des données** : Chiffrement et sécurité
-
-## 🏗️ Architecture
-
-### **Frontend (Vue.js 3 + TypeScript)**
-```
-src/
-├── components/          # Composants réutilisables
-│   ├── ComparisonView.vue
-│   ├── PDFUpload.vue
-│   └── ui/             # Composants UI
-├── stores/             # Gestion d'état (Pinia)
-│   ├── auth.ts
-│   └── compare.ts
-├── views/              # Pages de l'application
-├── router/             # Configuration des routes
-└── lib/                # Utilitaires et configurations
-```
-
-### **Backend (FastAPI + Python)**
-```
-backend/
-├── app/
-│   ├── models/         # Modèles Pydantic
-│   ├── services/       # Logique métier
-│   │   ├── ai_service.py      # Service IA
-│   │   ├── comparison_service.py
-│   │   ├── upload_service.py
-│   │   └── auth_service.py
-│   ├── routers/        # Endpoints API
-│   └── utils/          # Utilitaires
-├── main.py         # Point d'entrée
-└── requirements.txt
-```
-
-## 🛠️ Technologies utilisées
-
-### **Frontend**
-- **Vue.js 3** : Framework progressif
-- **TypeScript** : Typage statique
-- **Pinia** : Gestion d'état
-- **Vue Router** : Navigation
-- **Tailwind CSS** : Styling
-- **Lucide Icons** : Icônes
-- **Axios** : Client HTTP
-
-### **Backend**
-- **FastAPI** : Framework web moderne
-- **Python 3.11+** : Langage principal
-- **Google Gemini AI** : Intelligence artificielle
-- **Supabase** : Authentification et base de données
-- **PyPDF2/pdfplumber** : Extraction de texte PDF
-- **Pydantic** : Validation de données
-
-### **IA et ML**
-- **Google Gemini 2.5 Flash Lite** : Modèle de langage
-- **Comparaison sémantique** : Analyse de similarité
-- **Extraction de compétences** : Reconnaissance automatique
-- **Génération de suggestions** : Conseils personnalisés
-
-## 📦 Installation
-
-### **Prérequis**
-- Node.js 18+ et npm/pnpm
-- Python 3.11+
-- Compte Google Cloud (pour Gemini AI)
-- Compte Supabase
-
-### **1. Cloner le repository**
-```bash
-git clone https://github.com/votre-username/cv-offer-compare.git
-cd cv-offer-compare
-```
-
-### **2. Configuration Frontend**
-```bash
-# Installer les dépendances
-npm install
-# ou
-pnpm install
-
-# Copier le fichier d'environnement
-cp env.example .env.local
-```
-
-### **3. Configuration Backend**
-```bash
-cd backend
-
-# Créer un environnement virtuel
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-venv\Scripts\activate     # Windows
-
-# Installer les dépendances
-pip install -r requirements.txt
-
-# Copier le fichier d'environnement
-cp env.example .env
-```
-
-### **4. Configuration des variables d'environnement**
-
-#### **Frontend (.env.local)**
-```env
-VITE_API_URL=https://votre-backend.up.railway.app
-```
-
-#### **Backend (.env)**
-```env
-DATABASE_URL=postgresql://...
-GOOGLE_CLIENT_ID=votre_client_id_oauth
-GOOGLE_CLIENT_SECRET=votre_client_secret_oauth
-GOOGLE_REDIRECT_URI=https://votre-backend.up.railway.app/api/auth/google/callback
-FRONTEND_URL=https://votre-frontend.up.railway.app
-GOOGLE_API_KEY=votre_clé_api_google_gemini
-```
-
-### **5. Lancer l'application**
-
-#### **Développement**
-```bash
-# Terminal 1 - Frontend
-npm run dev
-
-# Terminal 2 - Backend
-cd backend
-python main.py
-```
-
-#### **Production**
-```bash
-# Build frontend
-npm run build
-
-# Lancer backend
-cd backend
-python main.py
-```
-
-## 🎯 Utilisation
-
-### **1. Connexion**
-- Créez un compte ou connectez-vous
-- L'authentification est gérée par Supabase
-
-### **2. Comparaison**
-- **Collez l'offre d'emploi** dans le champ dédié
-- **Uploadez votre CV** en PDF ou saisissez le texte manuellement
-- **Cliquez sur "Comparer"** pour lancer l'analyse
-
-### **3. Résultats**
-- **Correspondances** : Compétences trouvées (vert)
-- **Lacunes** : Compétences manquantes (rouge)
-- **Confus** : Correspondances partielles (jaune)
-- **Suggestions** : Conseils d'amélioration
-
-## 🔧 Métiers supportés
-
-### **Développement**
-- Langages : JavaScript, Python, Java, PHP, etc.
-- Frameworks : React, Vue, Angular, Node.js, etc.
-- Outils : Git, Docker, AWS, etc.
-
-### **Design**
-- Outils : Photoshop, Illustrator, Figma, Sketch
-- Compétences : UX/UI, Typographie, Branding
-- Domaines : Web, Print, Mobile
-
-### **Marketing**
-- Digital : Google Ads, Facebook Ads, SEO, SEM
-- Analytics : Google Analytics, Conversion
-- Content : Social Media, Email Marketing
-
-### **Vente**
-- Techniques : Prospection, Négociation, CRM
-- Soft skills : Relation client, Présentation
-- Outils : Salesforce, HubSpot, etc.
-
-### **Finance**
-- Domaines : Comptabilité, Analyse financière
-- Outils : Excel, SAP, Sage, Tableaux de bord
-- Compétences : Audit, Contrôle de gestion
-
-### **Ressources Humaines**
-- Fonctions : Recrutement, Formation, Paie
-- Outils : SIRH, ATS, Évaluation
-- Compétences : Droit social, Gestion des talents
-
-### **Autres métiers**
-- **Logistique** : Supply chain, Transport, Stocks
-- **Santé** : Médical, Soins, Paramédical
-- **Éducation** : Enseignement, Formation
-- **Consultant** : Conseil, Stratégie
-- **Manager** : Leadership, Gestion d'équipe
-- **Ingénieur** : Technique, Innovation
-
-## 🚀 Déploiement
-
-### **Frontend (Vercel/Netlify)**
-```bash
-npm run build
-# Déployer le dossier dist/
-```
-
-### **Backend (Railway/Heroku)**
-```bash
-# Configurer les variables d'environnement
-# Déployer le dossier backend/
-```
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## 📝 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 🙏 Remerciements
-
-- **Google Gemini** pour l'IA
-- **Supabase** pour l'authentification
-- **Vue.js** pour le framework frontend
-- **FastAPI** pour le framework backend
-- **Tailwind CSS** pour le styling
-
-## 📞 Support
-
-Pour toute question ou problème :
-- Ouvrir une issue sur GitHub
-- Contacter l'équipe de développement
+**Démo en ligne :** [cv-compare.up.railway.app](https://cv-compare.up.railway.app)
 
 ---
 
-**Développé avec ❤️ pour simplifier la recherche d'emploi** 
+## Fonctionnalités
+
+- Analyse ATS CV ↔ offre (streaming SSE progressif)
+- Suggestions concrètes pour renforcer le CV
+- Essai gratuit (limite Redis)
+- Auth email/mot de passe + **Google OAuth**
+- Simulateur d’entretien personnalisé
+- Upload PDF + saisie texte
+
+## Stack
+
+| Couche | Techno |
+|--------|--------|
+| Frontend | Vue 3, TypeScript, Pinia, Tailwind, Vite |
+| Backend | FastAPI, SQLAlchemy, Redis |
+| Auth | JWT maison + Google OAuth |
+| DB | PostgreSQL |
+| IA | Google Gemini (`google-genai`) |
+| Deploy | Railway (Docker) |
+
+## Architecture
+
+```
+CV-Offer-Comparer/
+├── frontend/          # SPA Vue 3
+├── backend/           # API FastAPI
+│   ├── app/
+│   │   ├── routers/   # auth, compare, interview, free-analysis…
+│   │   ├── services/  # Gemini, auth, Redis…
+│   │   └── models/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── documentation/     # Guides démarrage
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── SECURITY.md
+└── LICENSE            # MIT
+```
+
+## Prérequis
+
+- Node.js 20+ et [pnpm](https://pnpm.io)
+- Python 3.11+
+- PostgreSQL et Redis (local ou Railway)
+- Clé [Google AI Studio](https://aistudio.google.com/apikey)
+- (Optionnel) Client OAuth Google pour « Continuer avec Google »
+
+## Démarrage rapide
+
+### 1. Cloner
+
+```bash
+git clone https://github.com/mickaelrebeau/CV-Offer-Comparer.git
+cd CV-Offer-Comparer
+```
+
+### 2. Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp env.example .env
+# Éditer .env (GOOGLE_API_KEY, DATABASE_URL, REDIS_URL, SECRET_KEY…)
+uvicorn main:app --reload
+```
+
+API : http://localhost:8000 — docs : http://localhost:8000/docs
+
+### 3. Frontend
+
+```bash
+cd frontend
+pnpm install
+cp env.example .env
+# VITE_API_URL=http://localhost:8000
+pnpm dev
+```
+
+App : http://localhost:3000 (ou le port Vite affiché)
+
+### Variables essentielles
+
+**Backend** (`backend/.env`) — voir `backend/env.example` :
+
+- `GOOGLE_API_KEY`, `GEMINI_MODEL`
+- `DATABASE_URL`, `REDIS_URL`
+- `SECRET_KEY`
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (OAuth)
+- `GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback`
+- `FRONTEND_URL=http://localhost:3000`
+
+**Frontend** (`frontend/.env`) :
+
+- `VITE_API_URL=http://localhost:8000`
+
+Guide détaillé : [documentation/STARTUP.md](documentation/STARTUP.md)
+
+## Contribuer
+
+Les contributions sont les bienvenues — bugs, docs, features, UX.
+
+1. Lire [CONTRIBUTING.md](CONTRIBUTING.md)
+2. Respecter le [Code of Conduct](CODE_OF_CONDUCT.md)
+3. Ouvrir une [issue](https://github.com/mickaelrebeau/CV-Offer-Comparer/issues) ou une PR
+
+### Idées de contributions
+
+- Améliorer les prompts Gemini / qualité d’analyse
+- i18n (EN, etc.)
+- Tests (backend pytest, frontend Vitest)
+- CI GitHub Actions
+- Accessibilité et perf front
+- Historique des comparaisons en Postgres
+
+## Sécurité
+
+Ne committez **jamais** de `.env` ni de clés API.  
+Voir [SECURITY.md](SECURITY.md) pour signaler une vulnérabilité.
+
+## Licence
+
+Distribué sous licence [MIT](LICENSE).  
+Copyright © Mickael Rebeau et contributeurs.
+
+## Liens
+
+- Issues : https://github.com/mickaelrebeau/CV-Offer-Comparer/issues
+- Discussions : https://github.com/mickaelrebeau/CV-Offer-Comparer/discussions (si activées)
+- Auteur : [@mickaelrebeau](https://github.com/mickaelrebeau)
