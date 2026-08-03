@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
@@ -163,7 +163,5 @@ const handleSignOut = async () => {
   isMobileMenuOpen.value = false
 }
 
-onMounted(async () => {
-  await authStore.initializeAuth()
-})
+// Auth initialisée dans le beforeEach de main.ts (avant le mount).
 </script>

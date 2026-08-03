@@ -45,7 +45,10 @@ const visible = ref(false)
 
 onMounted(() => {
   if (!isAnalyticsConfigured) return
-  visible.value = getConsentStatus() === 'pending'
+  // Afficher dès qu’aucun choix explicite n’a été fait (pending).
+  // 'unavailable' ne devrait plus arriver après init dans main.ts.
+  const status = getConsentStatus()
+  visible.value = status === 'pending' || status === 'unavailable'
 })
 
 function accept() {

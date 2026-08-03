@@ -47,19 +47,11 @@ export const createApp = ViteSSG(
 
       const authStore = useAuthStore()
 
+      // Démarrer l’auth ici (pas seulement dans App.onMounted) : sinon
+      // router.isReady() attend loading=false avant le mount → deadlock,
+      // l’app ne s’hydrate jamais et la bannière cookies n’apparaît pas.
       if (authStore.loading) {
-        await new Promise<void>((resolve) => {
-          const stop = authStore.$subscribe((_mutation, state) => {
-            if (!state.loading) {
-              stop()
-              resolve()
-            }
-          })
-          if (!authStore.loading) {
-            stop()
-            resolve()
-          }
-        })
+        await authStore.initializeAuth()
       }
 
       if (to.meta.requiresAuth && !authStore.isAuthenticated) {
