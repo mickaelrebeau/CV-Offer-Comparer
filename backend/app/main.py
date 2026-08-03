@@ -6,7 +6,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.config import settings
 from app.db import init_db
-from app.routers import auth, compare, comparisons, free_analysis, health, interview, upload
+from app.routers import auth, compare, comparisons, free_analysis, health, interview, interviews, upload
 
 
 @asynccontextmanager
@@ -39,3 +39,4 @@ app.include_router(compare.router, prefix="/api", tags=["compare"])
 app.include_router(comparisons.router, prefix="/api", tags=["comparisons"])
 app.include_router(free_analysis.router, prefix="/api", tags=["free-analysis"])
 app.include_router(interview.router, prefix="/api", tags=["interview"])
+app.include_router(interviews.router, prefix="/api", tags=["interviews"])

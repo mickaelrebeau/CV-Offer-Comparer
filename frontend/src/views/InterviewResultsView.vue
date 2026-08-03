@@ -94,12 +94,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
+import { getInterview } from '@/lib/api'
 import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare, AlertCircle, Loader2 } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 
 const isLoading = ref(true)
 const error = ref('')
@@ -119,34 +121,60 @@ const getScoreMessage = (score: number | undefined) => {
   return 'À travailler'
 }
 
+function applySession(payload: {
+  questions: any[]
+  answers: any[]
+  analysis: any
+  duration: number
+}) {
+  interviewData.value = {
+    id: 'session',
+    num_questions: payload.questions?.length || payload.answers?.length || 0,
+    duration: payload.duration || 0,
+    answers: (payload.answers || []).map((answer: any) => ({
+      question: answer.question,
+      answer: answer.answer,
+      category: answer.category,
+      time: answer.time || 0,
+    })),
+  }
+  analysisResult.value = payload.analysis
+}
+
 const loadInterviewData = async () => {
   isLoading.value = true
   error.value = ''
 
   try {
-    const storedAnalysis = localStorage.getItem('interviewAnalysis')
+    const historyId = typeof route.query.history === 'string' ? route.query.history : null
+    if (historyId) {
+      const detail = await getInterview(historyId)
+      applySession({
+        questions: detail.questions as any[],
+        answers: detail.answers as any[],
+        analysis: detail.analysis,
+        duration: detail.duration_seconds,
+      })
+      localStorage.removeItem('interviewAnalysis')
+      return
+    }
 
+    const storedAnalysis = localStorage.getItem('interviewAnalysis')
     if (storedAnalysis) {
       const analysisData = JSON.parse(storedAnalysis)
-      interviewData.value = {
-        id: 'analysis-session',
-        num_questions: analysisData.questions.length,
+      applySession({
+        questions: analysisData.questions,
+        answers: analysisData.answers,
+        analysis: analysisData.analysis,
         duration: analysisData.duration,
-        answers: analysisData.answers.map((answer: any) => ({
-          question: answer.question,
-          answer: answer.answer,
-          category: answer.category,
-          time: answer.time || 0,
-        })),
-      }
-      analysisResult.value = analysisData.analysis
+      })
       localStorage.removeItem('interviewAnalysis')
       return
     }
 
     error.value = 'Aucune session récente trouvée.'
   } catch (err: any) {
-    error.value = err.message || 'Erreur lors du chargement'
+    error.value = err.response?.data?.detail || err.message || 'Erreur lors du chargement'
   } finally {
     isLoading.value = false
   }

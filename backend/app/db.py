@@ -43,6 +43,7 @@ def get_db() -> Generator[Session, None, None]:
 def init_db() -> None:
     """Crée les tables manquantes au démarrage."""
     from app.models.comparison_record import ComparisonRecord  # noqa: F401
+    from app.models.interview_record import InterviewRecord  # noqa: F401
     from app.models.user import User  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

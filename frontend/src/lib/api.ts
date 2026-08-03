@@ -141,6 +141,44 @@ export async function deleteComparison(id: string) {
   return data
 }
 
+export type InterviewHistoryItem = {
+  id: string
+  job_excerpt: string
+  cv_excerpt: string
+  score_global: number
+  num_questions: number
+  duration_seconds: number
+  created_at: string | null
+}
+
+export type InterviewHistoryDetail = InterviewHistoryItem & {
+  questions: unknown[]
+  answers: unknown[]
+  analysis: Record<string, unknown>
+  cv_text: string
+  job_text: string
+}
+
+export async function listInterviews(limit = 20, offset = 0) {
+  const { data } = await api.get<{
+    items: InterviewHistoryItem[]
+    total: number
+    limit: number
+    offset: number
+  }>('/interviews', { params: { limit, offset } })
+  return data
+}
+
+export async function getInterview(id: string) {
+  const { data } = await api.get<InterviewHistoryDetail>(`/interviews/${id}`)
+  return data
+}
+
+export async function deleteInterview(id: string) {
+  const { data } = await api.delete<{ success: boolean }>(`/interviews/${id}`)
+  return data
+}
+
 export async function streamCompare(
   offerText: string,
   cvText: string,
@@ -430,14 +468,16 @@ export async function analyzeInterviewResponses(
   questions: any[],
   answers: any[],
   cvText: string,
-  jobText: string
-): Promise<{ success: boolean; analysis?: any; message: string }> {
+  jobText: string,
+  durationSeconds: number = 0,
+): Promise<{ success: boolean; analysis?: any; interview_id?: string; message: string }> {
   try {
     const formData = new FormData();
     formData.append('questions', JSON.stringify(questions));
     formData.append('answers', JSON.stringify(answers));
     formData.append('cv_text', cvText);
     formData.append('job_text', jobText);
+    formData.append('duration_seconds', String(Math.max(0, Math.round(durationSeconds || 0))));
 
     const response = await api.post('/interview/analyze-responses', formData, {
       headers: {

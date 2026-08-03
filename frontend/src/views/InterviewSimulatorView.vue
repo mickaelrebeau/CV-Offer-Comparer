@@ -278,9 +278,16 @@ const finishInterview = async () => {
     try {
       isLoading.value = true
       error.value = ''
-      const result = await analyzeInterviewResponses(questions.value, answers.value, cvText.value, jobText.value)
+      const result = await analyzeInterviewResponses(
+        questions.value,
+        answers.value,
+        cvText.value,
+        jobText.value,
+        interviewTimer.value,
+      )
 
       if (result.success && result.analysis) {
+        // Fallback local si l’historique serveur n’est pas encore disponible
         localStorage.setItem('interviewAnalysis', JSON.stringify({
           questions: questions.value,
           answers: answers.value,
@@ -293,7 +300,11 @@ const finishInterview = async () => {
           answered_question_count: answers.value.length,
           duration_seconds: interviewTimer.value,
         })
-        router.push('/interview-results')
+        if (result.interview_id) {
+          router.push({ path: '/interview-results', query: { history: result.interview_id } })
+        } else {
+          router.push('/interview-results')
+        }
       } else {
         throw new Error(result.message || 'Erreur lors de l\'analyse')
       }

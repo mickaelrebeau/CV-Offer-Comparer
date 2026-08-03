@@ -28,6 +28,12 @@
         <li>Résumé JSON (scores, items match / missing / unclear)</li>
         <li>Date de l’analyse</li>
       </ul>
+      <h3>Historique des simulations d’entretien (comptes connectés)</h3>
+      <ul>
+        <li>Extraits et textes d’offre / CV associés à la simulation</li>
+        <li>Questions, réponses et analyse JSON (score, points forts, suggestions)</li>
+        <li>Durée de la session et date</li>
+      </ul>
       <h3>Essai gratuit (visiteurs)</h3>
       <ul>
         <li>Jeton / identifiant technique (Redis ou équivalent) pour limiter l’essai</li>
@@ -68,7 +74,7 @@
       <h2>5. Durées de conservation</h2>
       <ul>
         <li>Compte : jusqu’à suppression par l’utilisateur ou demande</li>
-        <li>Historique des comparaisons : jusqu’à suppression manuelle ou suppression du compte</li>
+        <li>Historique des comparaisons et des simulations d’entretien : jusqu’à suppression manuelle ou suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
         <li>Analytics PostHog : selon la politique de rétention du projet PostHog</li>
       </ul>
