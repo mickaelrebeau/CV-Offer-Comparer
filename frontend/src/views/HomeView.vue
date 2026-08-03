@@ -17,6 +17,7 @@
         <a href="#probleme" class="text-ink-soft transition-colors hover:text-ink">Problème</a>
         <a href="#methode" class="text-ink-soft transition-colors hover:text-ink">Méthode</a>
         <a href="#apercu" class="text-ink-soft transition-colors hover:text-ink">Aperçu</a>
+        <a href="#stats" class="text-ink-soft transition-colors hover:text-ink">Étapes</a>
         <a href="#acces" class="text-ink-soft transition-colors hover:text-ink">Accès</a>
         <a href="#faq" class="text-ink-soft transition-colors hover:text-ink">FAQ</a>
       </nav>
@@ -40,7 +41,7 @@
       </div>
     </header>
 
-    <main>
+    <div>
 
       <!-- ────────────────────────── 01 · HERO ────────────────────────── -->
       <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12" aria-label="Présentation Talento">
@@ -360,7 +361,7 @@
       </section>
 
       <!-- ────────────────────────── 05 · CHIFFRES + ÉTAPES (bande encre) ────────────────────────── -->
-      <section data-reveal="section" class="bg-ink py-20 text-paper lg:py-40" aria-label="Indicateurs et étapes">
+      <section id="stats" data-reveal="section" class="bg-ink py-20 text-paper lg:py-40" aria-label="Indicateurs et étapes">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-2 gap-8 border-b border-white/10 pb-16 lg:grid-cols-4">
             <div v-for="stat in stats" :key="stat.label" data-reveal-stat>
@@ -508,7 +509,7 @@
           </div>
         </div>
       </footer>
-    </main>
+    </div>
   </div>
 </template>
 
