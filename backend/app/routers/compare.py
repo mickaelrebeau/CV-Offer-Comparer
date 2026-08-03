@@ -4,8 +4,12 @@ import asyncio
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPBearer
+from sqlalchemy.orm import Session
 
+from app.db import get_db
 from app.models.comparison import ComparisonRequest
+from app.models.comparison_record import ComparisonRecord
+from app.models.user import User
 from app.services.auth_service import AuthService
 from app.services.comparison_service import stream_comparison
 
@@ -47,14 +51,28 @@ async def test_stream():
 @router.post("/compare-stream")
 async def compare_cv_offer_stream(
     request: ComparisonRequest,
-    user=Depends(auth_service.verify_token),
+    user: User = Depends(auth_service.verify_token),
+    db: Session = Depends(get_db),
 ):
     """Compare CV ↔ offre via un seul appel Gemini, puis stream SSE des items."""
+
+    def persist(items, summary) -> None:
+        record = ComparisonRecord.from_analysis(
+            user_id=user.id,
+            offer_text=request.offer_text,
+            cv_text=request.cv_text,
+            items=items,
+            summary=summary,
+        )
+        db.add(record)
+        db.commit()
+
     return StreamingResponse(
         stream_comparison(
             request.offer_text,
             request.cv_text,
             intro_message="Début de l'analyse…",
+            on_result=persist,
         ),
         media_type="text/event-stream",
         headers=_sse_headers(),

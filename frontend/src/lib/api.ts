@@ -102,6 +102,45 @@ export async function testStream(
   }
 }
 
+export type ComparisonHistoryItem = {
+  id: string
+  offer_excerpt: string
+  cv_excerpt: string
+  match_percentage: number
+  total_items: number
+  matches: number
+  missing: number
+  unclear: number
+  created_at: string | null
+}
+
+export type ComparisonHistoryDetail = ComparisonHistoryItem & {
+  summary: Record<string, unknown>
+  items: unknown[]
+  offer_text: string
+  cv_text: string
+}
+
+export async function listComparisons(limit = 20, offset = 0) {
+  const { data } = await api.get<{
+    items: ComparisonHistoryItem[]
+    total: number
+    limit: number
+    offset: number
+  }>("/comparisons", { params: { limit, offset } })
+  return data
+}
+
+export async function getComparison(id: string) {
+  const { data } = await api.get<ComparisonHistoryDetail>(`/comparisons/${id}`)
+  return data
+}
+
+export async function deleteComparison(id: string) {
+  const { data } = await api.delete<{ success: boolean }>(`/comparisons/${id}`)
+  return data
+}
+
 export async function streamCompare(
   offerText: string,
   cvText: string,

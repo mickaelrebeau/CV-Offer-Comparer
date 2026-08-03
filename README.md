@@ -20,6 +20,7 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Auth email/mot de passe + **Google OAuth**
 - Simulateur d’entretien personnalisé
 - Upload PDF + saisie texte
+- Historique des comparaisons (utilisateurs connectés, Postgres)
 
 ## Stack
 
@@ -108,6 +109,7 @@ App : http://localhost:3000 (ou le port Vite affiché)
 **Frontend** (`frontend/.env`) :
 
 - `VITE_API_URL=http://localhost:8000`
+- `VITE_POSTHOG_PROJECT_TOKEN` / `VITE_POSTHOG_HOST=https://eu.i.posthog.com` (optionnel)
 
 Guide détaillé : [documentation/STARTUP.md](documentation/STARTUP.md)
 
@@ -126,8 +128,6 @@ Les contributions sont les bienvenues — bugs, docs, features, UX.
 - Tests (backend pytest, frontend Vitest)
 - CI GitHub Actions
 - Accessibilité et perf front
-- Historique des comparaisons en Postgres
-
 ## Sécurité
 
 Ne committez **jamais** de `.env` ni de clés API.  

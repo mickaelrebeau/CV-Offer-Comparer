@@ -27,30 +27,46 @@ jobs:
       - run: pnpm build
         env:
           VITE_API_URL: http://localhost:8000
+          VITE_POSTHOG_PROJECT_TOKEN: phc_ci_dummy
+          VITE_POSTHOG_HOST: https://eu.i.posthog.com
 
   backend:
-    name: Backend (syntax + imports)
+    name: Backend (pytest)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: talento_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d talento_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: backend/requirements-dev.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Compile Python sources
         run: python -m compileall app main.py
-      - name: Import check (no runtime secrets)
+      - name: Run pytest
         env:
           GOOGLE_API_KEY: dummy
-          DATABASE_URL: postgresql://user:pass@localhost:5432/test
           SECRET_KEY: ci-secret
-        run: |
-          python -c "from app.config import settings; print(settings.GEMINI_MODEL)"
+          DATABASE_URL: postgresql://test:test@localhost:5432/talento_test
+          TEST_DATABASE_URL: postgresql://test:test@localhost:5432/talento_test
+        run: pytest -q

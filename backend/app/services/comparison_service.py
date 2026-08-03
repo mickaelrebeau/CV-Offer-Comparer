@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 from app.services.ai_service import ai_service
+
+PersistCallback = Callable[[list[Any], dict[str, Any]], None]
 
 
 def _sse(payload: dict[str, Any]) -> str:
@@ -19,6 +21,7 @@ async def stream_comparison(
     cv_text: str,
     *,
     intro_message: str = "Début de l'analyse…",
+    on_result: PersistCallback | None = None,
 ) -> AsyncIterator[str]:
     """
     Flux SSE optimisé :
@@ -45,6 +48,12 @@ async def stream_comparison(
         items = result["items"]
         summary = result["summary"]
         total = len(items)
+
+        if on_result is not None:
+            try:
+                on_result(items, summary)
+            except Exception as persist_exc:
+                print(f"Erreur persistance comparaison: {persist_exc}")
 
         yield _sse(
             {

@@ -4,7 +4,7 @@
       <AppPageHeader
         label="Accès"
         title="Connexion"
-        description="Accédez à votre espace de comparaison et à vos historiques."
+        description="Accédez à votre espace de comparaison et à l’historique de vos analyses."
       />
 
       <div class="panel p-6 sm:p-8 space-y-6">

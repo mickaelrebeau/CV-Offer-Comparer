@@ -5,6 +5,7 @@ import {
   streamCompare,
   streamFreeCompare,
   checkFreeAnalysisStatus,
+  getComparison,
 } from "@/lib/api";
 import { useAuthStore } from "./auth";
 import posthog from "posthog-js";
@@ -209,6 +210,35 @@ export const useCompareStore = defineStore("compare", () => {
     cvText.value = String(text || "");
   }
 
+  async function loadFromHistory(comparisonId: string) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const detail = await getComparison(comparisonId);
+      offerText.value = detail.offer_text || "";
+      cvText.value = detail.cv_text || "";
+      comparisonResult.value = {
+        items: (detail.items || []) as ComparisonItem[],
+        summary: {
+          totalItems: Number(detail.summary?.totalItems ?? detail.total_items ?? 0),
+          matches: Number(detail.summary?.matches ?? detail.matches ?? 0),
+          missing: Number(detail.summary?.missing ?? detail.missing ?? 0),
+          unclear: Number(detail.summary?.unclear ?? detail.unclear ?? 0),
+          matchPercentage: Number(
+            detail.summary?.matchPercentage ?? detail.match_percentage ?? 0,
+          ),
+        },
+      };
+      status.value = "Historique chargé";
+    } catch (err: any) {
+      error.value =
+        err.response?.data?.detail || "Impossible de charger cette comparaison";
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     offerText,
     cvText,
@@ -225,6 +255,7 @@ export const useCompareStore = defineStore("compare", () => {
     clearData,
     updateOfferText,
     updateCVText,
+    loadFromHistory,
     checkFreeAnalysisUsage,
     markFreeAnalysisAsUsed,
     resetFreeAnalysis,
