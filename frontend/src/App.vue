@@ -80,6 +80,8 @@
       <RouterView />
     </main>
 
+    <CookieConsentBanner />
+
     <footer v-if="!isLanding" class="border-t border-ink/10 py-8 font-mono text-micro uppercase">
       <div class="mx-auto flex max-w-[100rem] flex-col items-center justify-between gap-4 px-5 text-ink-soft sm:flex-row sm:px-8 lg:px-16">
         <span>Talento — analyse ATS de précision</span>
@@ -108,6 +110,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
+import CookieConsentBanner from '@/components/CookieConsentBanner.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageSeo } from '@/composables/usePageSeo'

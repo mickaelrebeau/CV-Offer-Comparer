@@ -1,41 +1,72 @@
-import { createApp } from 'vue'
+import { ViteSSG } from 'vite-ssg'
 import { createPinia } from 'pinia'
 import { createHead } from '@vueuse/head'
 import App from './App.vue'
-import router from './router'
-import posthog from 'posthog-js'
+import { routes } from './router'
+import { useAuthStore } from '@/stores/auth'
+import {
+  captureAnalyticsException,
+  initAnalytics,
+  isAnalyticsConfigured,
+} from './lib/analytics'
 import './style.css'
 
-const app = createApp(App)
-const pinia = createPinia()
-const head = createHead()
+export const createApp = ViteSSG(
+  App,
+  {
+    routes,
+    scrollBehavior(to) {
+      if (to.hash) {
+        return { el: to.hash, behavior: 'smooth' }
+      }
+      return { top: 0 }
+    },
+  },
+  ({ app, router, isClient }) => {
+    const pinia = createPinia()
+    const head = createHead()
+    app.use(pinia)
+    app.use(head)
 
-const posthogToken = import.meta.env.VITE_POSTHOG_PROJECT_TOKEN
-const posthogHost = import.meta.env.VITE_POSTHOG_HOST
+    if (isClient) {
+      initAnalytics()
 
-if (posthogToken && posthogHost) {
-  posthog.init(posthogToken, {
-    api_host: posthogHost,
-    person_profiles: 'identified_only',
-    capture_pageview: 'history_change',
-  })
-} else if (import.meta.env.DEV) {
-  const missingVariable = posthogToken
-    ? 'VITE_POSTHOG_HOST'
-    : 'VITE_POSTHOG_PROJECT_TOKEN'
-  throw new Error(
-    `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`,
-  )
-}
+      app.config.errorHandler = (error) => {
+        if (isAnalyticsConfigured) {
+          captureAnalyticsException(error)
+        }
+      }
+    }
 
-app.use(pinia)
-app.use(router)
-app.use(head)
+    router.beforeEach(async (to) => {
+      // Pendant le SSG, ne pas bloquer sur l’auth client
+      if (import.meta.env.SSR) {
+        if (to.meta.requiresAuth) return '/login'
+        return true
+      }
 
-app.config.errorHandler = (error) => {
-  if (posthogToken && posthogHost) {
-    posthog.captureException(error)
-  }
-}
+      const authStore = useAuthStore()
 
-app.mount('#app') 
+      if (authStore.loading) {
+        await new Promise<void>((resolve) => {
+          const stop = authStore.$subscribe((_mutation, state) => {
+            if (!state.loading) {
+              stop()
+              resolve()
+            }
+          })
+          if (!authStore.loading) {
+            stop()
+            resolve()
+          }
+        })
+      }
+
+      if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        return '/login'
+      }
+
+      return true
+    })
+  },
+)

@@ -87,8 +87,11 @@
       <h2>7. Cookies et traceurs</h2>
       <p>
         Le service utilise le stockage local du navigateur pour le jeton d’authentification JWT
-        et peut déposer des cookies / stockage liés à PostHog pour la mesure d’usage. L’essai
-        gratuit peut s’appuyer sur un identifiant technique côté serveur.
+        (nécessaire au fonctionnement du compte). Pour la mesure d’usage, une
+        <strong>bannière de consentement</strong> vous demande d’accepter ou de refuser les
+        cookies / le stockage PostHog. En cas de refus, PostHog peut continuer un suivi
+        anonymisé sans cookies (mode cookieless). L’essai gratuit peut s’appuyer sur un
+        identifiant technique côté serveur.
       </p>
     </section>
 

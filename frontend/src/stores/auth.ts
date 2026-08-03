@@ -7,7 +7,8 @@ import type { AuthResponse, AuthUser } from '@/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
-  const loading = ref(true)
+  // false pendant le SSG pour ne pas prerender l’overlay « session »
+  const loading = ref(typeof window !== 'undefined')
   let initPromise: Promise<void> | null = null
 
   const isAuthenticated = computed(() => !!user.value && !!getAccessToken())
@@ -16,7 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
   )
 
   function identifyUser(authUser: AuthUser) {
-    if (!isPostHogConfigured) return
+    if (!isPostHogConfigured || typeof window === 'undefined') return
 
     posthog.identify(authUser.id, {
       email: authUser.email,
@@ -25,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function resetPostHog() {
-    if (isPostHogConfigured) {
+    if (isPostHogConfigured && typeof window !== 'undefined') {
       posthog.reset()
     }
   }

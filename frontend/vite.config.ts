@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import { prerenderRoutes } from './prerender-routes'
 
 export default defineConfig({
   plugins: [vue()],
@@ -18,4 +19,13 @@ export default defineConfig({
       },
     },
   },
-}) 
+  ssgOptions: {
+    script: 'async',
+    formatting: 'minify',
+    dirStyle: 'nested',
+    beastiesOptions: false,
+    includedRoutes() {
+      return prerenderRoutes
+    },
+  },
+})
