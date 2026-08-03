@@ -11,7 +11,12 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
+import posthog from 'posthog-js'
 import { useAuthStore } from '@/stores/auth'
+
+const isPostHogConfigured = Boolean(
+  import.meta.env.VITE_POSTHOG_PROJECT_TOKEN && import.meta.env.VITE_POSTHOG_HOST,
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -38,6 +43,9 @@ onMounted(async () => {
   }
 
   const ok = await authStore.completeGoogleCallback(token)
+  if (ok && isPostHogConfigured) {
+    posthog.capture('account_signed_in', { sign_in_method: 'google' })
+  }
   router.replace(ok ? '/dashboard' : '/login?error=google_oauth')
 })
 </script>

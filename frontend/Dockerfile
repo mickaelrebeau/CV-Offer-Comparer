@@ -6,7 +6,11 @@ RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
 # Vite lit ces variables au build (pas au runtime)
 ARG VITE_API_URL
+ARG VITE_POSTHOG_PROJECT_TOKEN
+ARG VITE_POSTHOG_HOST
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_POSTHOG_PROJECT_TOKEN=$VITE_POSTHOG_PROJECT_TOKEN
+ENV VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile

@@ -16,6 +16,8 @@ const posthogHost = import.meta.env.VITE_POSTHOG_HOST
 if (posthogToken && posthogHost) {
   posthog.init(posthogToken, {
     api_host: posthogHost,
+    person_profiles: 'identified_only',
+    capture_pageview: 'history_change',
   })
 } else if (import.meta.env.DEV) {
   const missingVariable = posthogToken
