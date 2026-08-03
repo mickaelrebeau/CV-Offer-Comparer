@@ -1,10 +1,10 @@
-# CV Offer Comparer
+# Talento
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Issues](https://img.shields.io/github/issues/mickaelrebeau/CV-Offer-Comparer)](https://github.com/mickaelrebeau/CV-Offer-Comparer/issues)
 
-Application web open source qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, et simulateur d’entretien.
+Application web open source (**Talento**) qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, et simulateur d’entretien.
 
 **Démo en ligne :** [cv-compare.up.railway.app](https://cv-compare.up.railway.app)
 

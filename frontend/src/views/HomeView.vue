@@ -3,6 +3,12 @@
 
     <!-- ────────────────────────── NAVIGATION (fixe, centrée) ────────────────────────── -->
     <header class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-between items-start p-5 lg:justify-center lg:p-8">
+      <a
+        @click="handleLogoClick"
+        class="pointer-events-auto cursor-pointer lg:absolute lg:left-8"
+      >
+        <BrandLogo tag="span" size="sm" />
+      </a>
       <nav
         class="pointer-events-auto hidden lg:flex items-center gap-7 rounded-full border border-ink/12 bg-paper/80 px-6 py-2.5 font-mono text-caption uppercase backdrop-blur-md"
       >
@@ -12,13 +18,6 @@
         <a href="#acces" class="text-ink-soft transition-colors hover:text-ink">Accès</a>
         <a href="#faq" class="text-ink-soft transition-colors hover:text-ink">FAQ</a>
       </nav>
-
-      <a
-        @click="handleLogoClick"
-        class="pointer-events-auto cursor-pointer font-mono text-caption uppercase tracking-wide lg:hidden"
-      >
-        CV·Offer·Comparer
-      </a>
 
       <div
         class="pointer-events-auto flex items-center gap-1 rounded-full border border-ink/12 bg-paper/80 p-1 pl-1.5 backdrop-blur-md lg:absolute lg:right-8"
@@ -463,7 +462,7 @@
       <!-- ────────────────────────── FOOTER ────────────────────────── -->
       <footer class="px-5 py-16 sm:px-8 lg:px-16 lg:py-20">
         <div class="mx-auto max-w-[100rem]">
-          <p class="mb-12 font-mono text-caption uppercase text-ink-soft">CV Offer Comparer</p>
+          <BrandLogo tag="p" class="mb-12" size="md" />
 
           <div
             class="mb-14 select-none text-balance font-medium leading-[0.92] tracking-[-0.03em]"
@@ -489,6 +488,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import BrandLogo from '@/components/BrandLogo.vue'
 import { useAuthStore } from '@/stores/auth'
 import Lenis from 'lenis'
 

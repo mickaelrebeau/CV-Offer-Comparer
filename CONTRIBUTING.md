@@ -1,4 +1,4 @@
-# Contribuer à CV Offer Comparer
+# Contribuer à Talento
 
 Merci de vouloir contribuer ! Ce guide explique comment participer efficacement.
 

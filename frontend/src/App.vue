@@ -15,9 +15,8 @@
       class="sticky top-0 z-50 border-b border-ink/10 bg-paper/90 backdrop-blur-md"
     >
       <div class="mx-auto flex h-14 max-w-[100rem] items-center justify-between px-5 sm:px-8 lg:px-16">
-        <a @click="handleLogoClick" class="group flex cursor-pointer items-center gap-2 font-mono text-caption uppercase">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-          <span class="tracking-wide transition-opacity group-hover:opacity-70">CV Offer Comparer</span>
+        <a @click="handleLogoClick" class="group cursor-pointer transition-opacity hover:opacity-70">
+          <BrandLogo tag="span" size="sm" />
         </a>
 
         <nav class="hidden items-center gap-6 font-mono text-caption uppercase md:flex">
@@ -83,7 +82,7 @@
 
     <footer v-if="!isLanding" class="border-t border-ink/10 py-8 font-mono text-micro uppercase">
       <div class="mx-auto flex max-w-[100rem] flex-col items-center justify-between gap-4 px-5 text-ink-soft sm:flex-row sm:px-8 lg:px-16">
-        <span>CV Offer Comparer — analyse ATS de précision</span>
+        <span>Talento — analyse ATS de précision</span>
         <span>© 2026 — Licence MIT</span>
         <div class="flex gap-5">
           <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
@@ -105,6 +104,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
+import BrandLogo from '@/components/BrandLogo.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 
