@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -96,11 +96,17 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const acceptTerms = ref(false)
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
 
 async function handleRegister() {
+  if (!acceptTerms.value) {
+    error.value = 'Veuillez accepter les CGV et la politique de confidentialité'
+    return
+  }
+
   if (password.value !== confirmPassword.value) {
     error.value = 'Les mots de passe ne correspondent pas'
     return
@@ -131,6 +137,11 @@ async function handleRegister() {
 }
 
 async function handleGoogleRegister() {
+  if (!acceptTerms.value) {
+    error.value = 'Veuillez accepter les CGV et la politique de confidentialité'
+    return
+  }
+
   loading.value = true
   error.value = ''
   success.value = ''
