@@ -38,7 +38,11 @@ const router = createRouter({
       path: '/free-trial',
       name: 'free-trial',
       component: () => import('@/views/FreeTrialView.vue'),
-      meta: { requiresAuth: false },
+      meta: {
+        requiresAuth: false,
+        title: 'Essai gratuit',
+        description: 'Analysez gratuitement la compatibilité entre votre CV et une offre d’emploi avec Talento.',
+      },
     },
     {
       path: '/profile',
@@ -50,21 +54,65 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
-      meta: { requiresAuth: false },
+      meta: {
+        requiresAuth: false,
+        title: 'Connexion',
+        description: 'Connectez-vous à Talento pour accéder à vos analyses CV ↔ offre et à votre historique.',
+      },
     },
     {
       path: '/register',
       name: 'register',
       component: () => import('@/views/RegisterView.vue'),
-      meta: { requiresAuth: false },
+      meta: {
+        requiresAuth: false,
+        title: 'Créer un compte',
+        description: 'Créez un compte Talento gratuit pour analyser vos candidatures et préparer vos entretiens.',
+      },
     },
     {
       path: '/auth/callback',
       name: 'auth-callback',
       component: () => import('@/views/AuthCallbackView.vue'),
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: false, noindex: true },
+    },
+    {
+      path: '/mentions-legales',
+      name: 'mentions-legales',
+      component: () => import('@/views/MentionsLegalesView.vue'),
+      meta: {
+        requiresAuth: false,
+        title: 'Mentions légales',
+        description: 'Mentions légales de Talento : éditeur, hébergement et responsabilité.',
+      },
+    },
+    {
+      path: '/cgv',
+      name: 'cgv',
+      component: () => import('@/views/CgvView.vue'),
+      meta: {
+        requiresAuth: false,
+        title: 'CGV / CGU',
+        description: 'Conditions générales d’utilisation du service Talento.',
+      },
+    },
+    {
+      path: '/confidentialite',
+      name: 'confidentialite',
+      component: () => import('@/views/ConfidentialiteView.vue'),
+      meta: {
+        requiresAuth: false,
+        title: 'Politique de confidentialité',
+        description: 'Politique de confidentialité Talento : données, Gemini, PostHog et droits RGPD.',
+      },
     },
   ],
+  scrollBehavior(to) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
+    return { top: 0 }
+  },
 })
 
 async function waitForAuthReady() {

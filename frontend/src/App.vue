@@ -84,7 +84,10 @@
       <div class="mx-auto flex max-w-[100rem] flex-col items-center justify-between gap-4 px-5 text-ink-soft sm:flex-row sm:px-8 lg:px-16">
         <span>Talento — analyse ATS de précision</span>
         <span>© 2026 — Licence MIT</span>
-        <div class="flex gap-5">
+        <div class="flex flex-wrap justify-center gap-5">
+          <RouterLink to="/mentions-legales" class="transition-colors hover:text-ink">Mentions légales</RouterLink>
+          <RouterLink to="/cgv" class="transition-colors hover:text-ink">CGV</RouterLink>
+          <RouterLink to="/confidentialite" class="transition-colors hover:text-ink">Confidentialité</RouterLink>
           <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
           <a
             href="https://github.com/mickaelrebeau/CV-Offer-Comparer"
@@ -101,12 +104,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { RouterView, useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
+import { usePageSeo } from '@/composables/usePageSeo'
+import { SITE_DESCRIPTION } from '@/lib/site'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -114,6 +119,24 @@ const route = useRoute()
 
 const isMobileMenuOpen = ref(false)
 const isLanding = computed(() => route.path === '/')
+
+usePageSeo(
+  computed(() => ({
+    title: typeof route.meta.title === 'string' ? route.meta.title : undefined,
+    description:
+      typeof route.meta.description === 'string' ? route.meta.description : SITE_DESCRIPTION,
+    path: route.path,
+    // La home gère son propre JSON-LD ; les espaces connectés restent hors index.
+    noindex: Boolean(route.meta.noindex || route.meta.requiresAuth),
+  })),
+)
+
+watch(
+  () => route.path,
+  () => {
+    isMobileMenuOpen.value = false
+  },
+)
 
 const appLinks = [
   { path: '/dashboard', label: 'Tableau de bord' },

@@ -1,11 +1,13 @@
 <template>
-  <div class="bg-paper text-ink font-sans antialiased selection:bg-ink selection:text-paper">
+  <div ref="rootEl" class="bg-paper text-ink font-sans antialiased selection:bg-ink selection:text-paper">
 
     <!-- ────────────────────────── NAVIGATION (fixe, centrée) ────────────────────────── -->
     <header class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-between items-start p-5 lg:justify-center lg:p-8">
       <a
-        @click="handleLogoClick"
+        href="/"
+        @click.prevent="handleLogoClick"
         class="pointer-events-auto cursor-pointer lg:absolute lg:left-8"
+        aria-label="Talento — accueil"
       >
         <BrandLogo tag="span" size="sm" />
       </a>
@@ -41,30 +43,34 @@
     <main>
 
       <!-- ────────────────────────── 01 · HERO ────────────────────────── -->
-      <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12">
+      <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12" aria-label="Présentation Talento">
         <div class="flex flex-col justify-center px-5 pt-32 pb-16 sm:px-8 lg:col-span-6 lg:px-16 lg:py-24 xl:pl-20">
-          <p class="mb-5 font-mono text-caption uppercase text-ink-soft">
+          <p data-reveal="hero" class="mb-3 font-mono text-caption uppercase tracking-[0.14em] text-ink">
+            Talento
+          </p>
+          <p data-reveal="hero" class="mb-5 font-mono text-caption uppercase text-ink-soft">
             Conçu pour les candidatures ciblées.
           </p>
 
-          <h1 class="mb-8 max-w-[16ch] text-balance font-medium text-display">
+          <h1 data-reveal="hero" class="mb-8 max-w-[16ch] text-balance font-medium text-display">
             L'analyse ATS que vous ne referez plus à la main.
           </h1>
 
-          <p class="mb-6 max-w-[52ch] text-lead text-ink-soft">
+          <p data-reveal="hero" class="mb-6 max-w-[52ch] text-lead text-ink-soft">
             Chaque candidature repart de zéro : relire l'offre, deviner les mots-clés, réécrire les
-            mêmes phrases. Cette application fige les décisions — extraction, correspondance
+            mêmes phrases. Talento fige les décisions — extraction, correspondance
             sémantique, scoring, préparation d'entretien — et les rejoue sur chaque offre en une
             seule passe.
           </p>
 
-          <p class="mb-10 font-mono text-caption uppercase text-ink-soft">
+          <p data-reveal="hero" class="mb-10 font-mono text-caption uppercase text-ink-soft">
             Pour ceux qui visent un poste précis, pas cinquante.
           </p>
 
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div data-reveal="hero" class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
-              @click="primaryAction"
+              href="/free-trial"
+              @click.prevent="primaryAction"
               class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
             >
               Lancer une analyse gratuite
@@ -77,16 +83,16 @@
             </a>
           </div>
 
-          <div class="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft">
+          <div data-reveal="hero" class="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft">
             <span>Gemini · 1 appel</span>
             <span>Flux SSE · &lt; 2 s</span>
-            <span>Aucun document conservé</span>
+            <span>Historique compte</span>
             <span>Licence MIT</span>
           </div>
         </div>
 
         <!-- Panneau terminal -->
-        <div class="relative min-h-[70svh] bg-ink p-5 pt-24 sm:p-8 sm:pt-28 lg:col-span-6 lg:min-h-svh lg:p-12 lg:pt-28">
+        <div data-reveal="hero-panel" class="relative min-h-[70svh] bg-ink p-5 pt-24 sm:p-8 sm:pt-28 lg:col-span-6 lg:min-h-svh lg:p-12 lg:pt-28">
           <div class="flex h-full flex-col overflow-hidden rounded-xl bg-ink-deep font-mono text-caption text-paper/90 ring-1 ring-white/10">
             <div class="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-micro uppercase text-paper/40">
               <span>analyse — session en direct</span>
@@ -152,9 +158,9 @@
       </section>
 
       <!-- ────────────────────────── 02 · PROBLÈME ────────────────────────── -->
-      <section id="probleme" class="border-t border-paper-line py-20 lg:py-40">
+      <section id="probleme" data-reveal="section" class="border-t border-paper-line py-20 lg:py-40">
         <div class="mx-auto grid max-w-[100rem] grid-cols-1 gap-12 px-5 sm:px-8 lg:grid-cols-12 lg:gap-8 lg:px-16">
-          <div class="order-2 lg:order-1 lg:col-span-6">
+          <div data-reveal-item class="order-2 lg:order-1 lg:col-span-6">
             <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_24px_60px_-30px_rgba(35,35,35,0.6)]">
               <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
                 <div class="flex h-9 items-center border-b border-white/10 px-4 text-micro uppercase text-paper/40">
@@ -182,7 +188,7 @@
             </div>
           </div>
 
-          <div class="order-1 lg:order-2 lg:col-span-5 lg:col-start-8 lg:pt-4">
+          <div data-reveal-item class="order-1 lg:order-2 lg:col-span-5 lg:col-start-8 lg:pt-4">
             <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Problèmes courants</p>
             <h2 class="mb-7 max-w-[18ch] text-balance font-medium text-headline">
               Adapter un CV à une offre coûte une journée. À chaque fois.
@@ -204,16 +210,16 @@
       </section>
 
       <!-- ────────────────────────── 03 · MÉTHODE (bande encre) ────────────────────────── -->
-      <section id="methode" class="bg-ink py-20 text-paper lg:py-40">
+      <section id="methode" data-reveal="section" data-animate-rows class="bg-ink py-20 text-paper lg:py-40">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
-            <div class="lg:col-span-5">
+            <div data-reveal-item class="lg:col-span-5">
               <p class="mb-5 font-mono text-caption uppercase text-paper/45">Architecture</p>
               <h2 class="max-w-[16ch] text-balance font-medium text-headline">
                 Chaque décision déjà prise. Pour passer directement à l'entretien.
               </h2>
             </div>
-            <div class="lg:col-span-6 lg:col-start-7 lg:pt-2">
+            <div data-reveal-item class="lg:col-span-6 lg:col-start-7 lg:pt-2">
               <p class="text-lead text-paper/60">
                 Un générateur de CV vous donne des gabarits. Ici, ce sont des décisions : comment
                 l'offre est découpée, comment une compétence est reconnue comme équivalente, quels
@@ -229,6 +235,7 @@
             <div
               v-for="decision in decisions"
               :key="decision.id"
+              data-reveal-row
               class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
             >
               <div class="font-mono text-caption uppercase text-paper/35 lg:col-span-2">
@@ -242,17 +249,17 @@
       </section>
 
       <!-- ────────────────────────── 04 · APERÇU ────────────────────────── -->
-      <section id="apercu" class="py-20 lg:py-40">
+      <section id="apercu" data-reveal="section" class="py-20 lg:py-40">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="mb-12 flex flex-col gap-6 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
-            <div>
+            <div data-reveal-item>
               <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Aperçu réel</p>
               <h2 class="max-w-[14ch] text-balance font-medium text-headline">
                 Voici l'outil, pas une maquette.
               </h2>
             </div>
 
-            <div class="flex gap-1 rounded-lg border border-ink/15 p-1 font-mono text-caption uppercase">
+            <div data-reveal-item class="flex gap-1 rounded-lg border border-ink/15 p-1 font-mono text-caption uppercase">
               <button
                 v-for="tab in tabs"
                 :key="tab.id"
@@ -265,7 +272,7 @@
             </div>
           </div>
 
-          <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_40px_80px_-40px_rgba(35,35,35,0.55)]">
+          <div data-reveal-item class="rounded-xl bg-ink-deep p-1.5 shadow-[0_40px_80px_-40px_rgba(35,35,35,0.55)]">
             <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
               <div class="flex h-10 items-center gap-2 border-b border-white/10 px-4 text-micro uppercase text-paper/40">
                 <span class="h-2 w-2 rounded-full bg-white/15"></span>
@@ -353,17 +360,17 @@
       </section>
 
       <!-- ────────────────────────── 05 · CHIFFRES + ÉTAPES (bande encre) ────────────────────────── -->
-      <section class="bg-ink py-20 text-paper lg:py-40">
+      <section data-reveal="section" class="bg-ink py-20 text-paper lg:py-40" aria-label="Indicateurs et étapes">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-2 gap-8 border-b border-white/10 pb-16 lg:grid-cols-4">
-            <div v-for="stat in stats" :key="stat.label">
+            <div v-for="stat in stats" :key="stat.label" data-reveal-stat>
               <div class="mb-2 text-4xl font-medium tabular-nums lg:text-5xl">{{ stat.value }}</div>
               <div class="font-mono text-micro uppercase text-paper/40">{{ stat.label }}</div>
             </div>
           </div>
 
           <div class="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
-            <div v-for="step in steps" :key="step.id">
+            <div v-for="step in steps" :key="step.id" data-reveal-item>
               <div class="mb-4 font-mono text-caption uppercase text-paper/35">{{ step.id }}</div>
               <h3 class="mb-3 font-medium text-title">{{ step.title }}</h3>
               <p class="max-w-[42ch] text-lead text-paper/55">{{ step.body }}</p>
@@ -373,10 +380,10 @@
       </section>
 
       <!-- ────────────────────────── 06 · ACCÈS ────────────────────────── -->
-      <section id="acces" class="py-20 lg:py-40">
+      <section id="acces" data-reveal="section" class="py-20 lg:py-40">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
-            <div class="lg:col-span-5">
+            <div data-reveal-item class="lg:col-span-5">
               <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Accès</p>
               <h2 class="mb-6 max-w-[14ch] text-balance font-medium text-headline">
                 Gratuit à l'essai. Ouvert au code.
@@ -387,7 +394,7 @@
               </p>
             </div>
 
-            <div class="lg:col-span-6 lg:col-start-7">
+            <div data-reveal-item class="lg:col-span-6 lg:col-start-7">
               <div class="rounded-xl border border-ink/15 p-6 sm:p-8">
                 <div class="mb-6 flex items-baseline justify-between border-b border-paper-line pb-5">
                   <span class="font-mono text-caption uppercase">Compte gratuit</span>
@@ -424,9 +431,16 @@
       </section>
 
       <!-- ────────────────────────── 07 · FAQ (bande encre) ────────────────────────── -->
-      <section id="faq" class="bg-ink py-20 text-paper lg:py-40">
+      <section
+        id="faq"
+        data-reveal="section"
+        data-animate-rows
+        class="bg-ink py-20 text-paper lg:py-40"
+        itemscope
+        itemtype="https://schema.org/FAQPage"
+      >
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
-          <div class="mb-14 lg:mb-20">
+          <div data-reveal-item class="mb-14 lg:mb-20">
             <p class="mb-5 font-mono text-caption uppercase text-paper/45">Avant de commencer</p>
             <h2 class="max-w-[16ch] text-balance font-medium text-headline">
               Les questions qu'on nous pose.
@@ -437,20 +451,30 @@
             <div
               v-for="item in faq"
               :key="item.id"
+              data-reveal-row
+              itemscope
+              itemprop="mainEntity"
+              itemtype="https://schema.org/Question"
               class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
             >
-              <div class="font-mono text-caption uppercase text-paper/40 lg:col-span-4">
+              <div class="font-mono text-caption uppercase text-paper/40 lg:col-span-4" itemprop="name">
                 {{ item.id }} / {{ item.question }}
               </div>
-              <p class="max-w-[70ch] text-lead text-paper/60 lg:col-span-7 lg:col-start-6">
-                {{ item.answer }}
-              </p>
+              <div
+                itemscope
+                itemprop="acceptedAnswer"
+                itemtype="https://schema.org/Answer"
+                class="max-w-[70ch] text-lead text-paper/60 lg:col-span-7 lg:col-start-6"
+              >
+                <p itemprop="text">{{ item.answer }}</p>
+              </div>
             </div>
           </div>
 
-          <div class="mt-16">
+          <div data-reveal-item class="mt-16">
             <a
-              @click="primaryAction"
+              href="/free-trial"
+              @click.prevent="primaryAction"
               class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-paper px-6 font-mono text-caption uppercase text-ink transition-opacity hover:opacity-85"
             >
               Lancer une analyse gratuite
@@ -473,10 +497,13 @@
 
           <div class="flex flex-col gap-4 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft sm:flex-row sm:items-center sm:justify-between">
             <span>© 2026 — Licence MIT</span>
-            <div class="flex gap-6">
+            <div class="flex flex-wrap gap-x-6 gap-y-2">
+              <RouterLink to="/mentions-legales" class="transition-colors hover:text-ink">Mentions légales</RouterLink>
+              <RouterLink to="/cgv" class="transition-colors hover:text-ink">CGV</RouterLink>
+              <RouterLink to="/confidentialite" class="transition-colors hover:text-ink">Confidentialité</RouterLink>
               <a href="https://github.com/mickaelrebeau/CV-Offer-Comparer" target="_blank" rel="noopener" class="transition-colors hover:text-ink">GitHub</a>
               <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
-              <a @click="navigateTo('/login')" class="cursor-pointer transition-colors hover:text-ink">Connexion</a>
+              <a href="/login" @click.prevent="navigateTo('/login')" class="cursor-pointer transition-colors hover:text-ink">Connexion</a>
             </div>
           </div>
         </div>
@@ -487,13 +514,22 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import BrandLogo from '@/components/BrandLogo.vue'
 import { useAuthStore } from '@/stores/auth'
-import Lenis from 'lenis'
+import { useLandingScroll } from '@/composables/useLandingScroll'
+import {
+  buildFaqJsonLd,
+  buildSoftwareJsonLd,
+  buildWebSiteJsonLd,
+  usePageSeo,
+} from '@/composables/usePageSeo'
+import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const rootEl = ref<HTMLElement | null>(null)
+useLandingScroll({ root: rootEl })
 
 const activeTab = ref<'analyse' | 'simulateur'>('analyse')
 
@@ -546,8 +582,8 @@ const decisions = [
   },
   {
     id: '007',
-    title: 'Rien à stocker',
-    body: "Les documents sont traités en mémoire pendant la session. Authentification JWT, base PostgreSQL pour votre compte uniquement. Aucun CV revendu, aucun profil constitué.",
+    title: 'Contrôle des données',
+    body: "Les fichiers ne sont pas archivés hors session. Gemini reçoit le texte pour l'analyse ; les comptes connectés peuvent conserver un historique. Aucun CV revendu, suppression possible depuis le profil.",
   },
 ]
 
@@ -599,7 +635,12 @@ const faq = [
   {
     id: 'Q.003',
     question: 'Mes documents sont-ils conservés ?',
-    answer: "Non. Le CV et l'offre sont traités en mémoire le temps de l'analyse. Seul votre compte est stocké, et vous pouvez le supprimer depuis votre profil.",
+    answer: "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique des analyses peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité.",
+  },
+  {
+    id: 'Q.007',
+    question: 'Utilisez-vous des outils d’analytics ?',
+    answer: "Oui. PostHog (région UE) mesure l'usage produit et les erreurs. Après connexion, votre compte peut être associé aux événements. Voir la politique de confidentialité.",
   },
   {
     id: 'Q.004',
@@ -644,23 +685,30 @@ const streamRows = [
 const animatedScore = ref(0)
 const visibleRows = ref(0)
 
-let lenis: Lenis | null = null
+usePageSeo({
+  title: undefined,
+  description: SITE_DESCRIPTION,
+  path: '/',
+  jsonLd: [
+    buildWebSiteJsonLd(),
+    buildSoftwareJsonLd(),
+    buildFaqJsonLd(faq.map(({ question, answer }) => ({ question, answer }))),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: 'https://cv-compare.up.railway.app',
+      logo: 'https://cv-compare.up.railway.app/logo.png',
+      email: 'rebeau.mickael@gmail.com',
+      sameAs: ['https://github.com/mickaelrebeau/CV-Offer-Comparer'],
+    },
+  ],
+})
+
 let scoreTimer: number | undefined
 let rowTimer: number | undefined
 
 onMounted(() => {
-  lenis = new Lenis({
-    duration: 1.1,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true,
-  })
-
-  const raf = (time: number) => {
-    lenis?.raf(time)
-    requestAnimationFrame(raf)
-  }
-  requestAnimationFrame(raf)
-
   scoreTimer = window.setInterval(() => {
     if (animatedScore.value >= 88) {
       window.clearInterval(scoreTimer)
@@ -679,8 +727,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  lenis?.destroy()
-  lenis = null
   window.clearInterval(scoreTimer)
   window.clearInterval(rowTimer)
 })

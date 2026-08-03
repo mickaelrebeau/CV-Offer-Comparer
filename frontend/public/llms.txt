@@ -1,0 +1,34 @@
+# Talento
+
+> Open-source web app that compares a résumé (CV) with a job offer using Google Gemini: ATS-oriented match analysis, gap detection, rewrite suggestions, and an interview simulator.
+
+## Product
+- Name: Talento
+- Live demo: https://cv-compare.up.railway.app
+- Repository: https://github.com/mickaelrebeau/CV-Offer-Comparer
+- License: MIT
+- Language: French UI (primary)
+- Author: Mickael Rébeau
+
+## What it does
+1. Extracts requirements from a job offer
+2. Compares them semantically with a CV (Gemini)
+3. Streams match / missing / unclear criteria via SSE
+4. Suggests ATS-friendly reformulations
+5. Generates interview questions from real gaps
+6. Stores comparison history for authenticated users (Postgres)
+7. Does not permanently store CV/offer documents (processed in memory for the session; content is sent to Google Gemini for analysis)
+
+## Key pages
+- https://cv-compare.up.railway.app/ — Landing & product explanation
+- https://cv-compare.up.railway.app/free-trial — Free analysis trial
+- https://cv-compare.up.railway.app/confidentialite — Privacy policy
+- https://cv-compare.up.railway.app/mentions-legales — Legal notice
+- https://cv-compare.up.railway.app/cgv — Terms of use / service
+- https://github.com/mickaelrebeau/CV-Offer-Comparer — Source code
+
+## Stack
+Vue 3, TypeScript, Pinia, Tailwind, FastAPI, PostgreSQL, Redis, Google Gemini, PostHog (product analytics), Railway.
+
+## Contact
+rebeau.mickael@gmail.com

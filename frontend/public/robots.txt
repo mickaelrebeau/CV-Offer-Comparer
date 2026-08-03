@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Pages d’auth / session : peu utiles pour l’indexation
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /compare
+Disallow: /interview-simulator
+Disallow: /interview-results
+Disallow: /profile
+
+Sitemap: https://cv-compare.up.railway.app/sitemap.xml
