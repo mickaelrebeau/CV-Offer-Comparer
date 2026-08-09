@@ -2,17 +2,18 @@
   <div class="h-full w-full overflow-hidden bg-ink">
     <video
       ref="videoEl"
-      class="absolute inset-0 h-full w-full object-cover"
+      class="h-full w-full object-cover"
       muted
+      autoplay
       loop
       playsinline
-      preload="none"
+      preload="auto"
       :poster="posterSrc"
       :aria-label="label"
-      @canplay="playWhenReady"
     >
-      <source :src="webmSrc" type="video/webm" />
+      <!-- MP4 first: Safari ignores WebM and needs a compatible H.264 baseline. -->
       <source :src="mp4Src" type="video/mp4" />
+      <source :src="webmSrc" type="video/webm" />
     </video>
   </div>
 </template>
@@ -23,7 +24,6 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 const props = defineProps<{
   variant: 'analyse' | 'entretien'
   label: string
-  active?: boolean
   inView?: boolean
 }>()
 
@@ -36,78 +36,55 @@ const mp4Src = computed(() => `${basePath.value}.mp4`)
 const posterSrc = computed(() => `/videos/${props.variant}-poster.webp`)
 
 const shouldPlay = computed(
-  () =>
-    props.active !== false
-    && props.inView !== false
-    && !prefersReducedMotion.value,
+  () => props.inView !== false && !prefersReducedMotion.value,
 )
 
 let motionQuery: MediaQueryList | null = null
 
-const stopPlayback = () => {
-  const video = videoEl.value
-  if (!video) return
-  video.pause()
-  if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
-    video.currentTime = 0
-  }
-}
-
-const playWhenReady = () => {
+const play = async () => {
   const video = videoEl.value
   if (!video || !shouldPlay.value) return
 
-  void video.play().catch(() => {
-    // The browser keeps the poster visible if autoplay is unavailable.
-  })
+  video.muted = true
+  video.defaultMuted = true
+  video.playsInline = true
+
+  try {
+    await video.play()
+  } catch {
+    // Autoplay can still be blocked; poster remains visible.
+  }
 }
 
-const restartAndPlay = async () => {
-  await nextTick()
-
-  const video = videoEl.value
-  if (!video || !shouldPlay.value) {
-    stopPlayback()
-    return
-  }
-
-  video.pause()
-  if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
-    video.currentTime = 0
-    playWhenReady()
-    return
-  }
-
-  // `canplay` invokes playWhenReady once the browser has loaded this source.
-  video.load()
+const pause = () => {
+  videoEl.value?.pause()
 }
 
 const handleMotionChange = (event: MediaQueryListEvent) => {
   prefersReducedMotion.value = event.matches
-  if (shouldPlay.value) restartAndPlay()
-  else stopPlayback()
+  if (shouldPlay.value) play()
+  else pause()
 }
 
-onMounted(() => {
+onMounted(async () => {
   motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
   prefersReducedMotion.value = motionQuery.matches
   motionQuery.addEventListener('change', handleMotionChange)
-  if (shouldPlay.value) restartAndPlay()
+
+  await nextTick()
+  if (shouldPlay.value) play()
 })
 
 onUnmounted(() => {
-  stopPlayback()
+  pause()
   motionQuery?.removeEventListener('change', handleMotionChange)
 })
 
 watch(
-  () => [props.active, props.inView] as const,
-  () => {
-    if (shouldPlay.value) {
-      restartAndPlay()
-    } else {
-      stopPlayback()
-    }
+  () => props.inView,
+  (visible) => {
+    if (visible && shouldPlay.value) play()
+    else pause()
   },
 )
 </script>

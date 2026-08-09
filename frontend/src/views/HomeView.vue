@@ -284,18 +284,16 @@
 
               <div ref="demoVideoEl" class="relative aspect-video w-full">
                 <ProductDemoVideo
-                  class="absolute inset-0 transition-opacity duration-200"
-                  :class="activeTab === 'analyse' ? 'z-10 opacity-100' : 'z-0 opacity-0 pointer-events-none'"
+                  v-if="activeTab === 'analyse'"
+                  class="absolute inset-0"
                   variant="analyse"
-                  :active="activeTab === 'analyse'"
                   :in-view="demoVideoInView"
                   label="Démonstration de l'analyse CV et offre d'emploi Talento"
                 />
                 <ProductDemoVideo
-                  class="absolute inset-0 transition-opacity duration-200"
-                  :class="activeTab === 'simulateur' ? 'z-10 opacity-100' : 'z-0 opacity-0 pointer-events-none'"
+                  v-else
+                  class="absolute inset-0"
                   variant="entretien"
-                  :active="activeTab === 'simulateur'"
                   :in-view="demoVideoInView"
                   label="Démonstration du simulateur d'entretien Talento"
                 />

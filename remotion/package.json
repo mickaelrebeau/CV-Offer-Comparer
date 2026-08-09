@@ -27,11 +27,9 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "render:analyse": "remotion render AnalysisDemo ../frontend/public/videos/analyse.mp4 --codec=h264 --crf=28",
-    "render:analyse:webm": "remotion render AnalysisDemo ../frontend/public/videos/analyse.webm --codec=vp9 --crf=32",
     "render:entretien": "remotion render InterviewDemo ../frontend/public/videos/entretien.mp4 --codec=h264 --crf=28",
-    "render:entretien:webm": "remotion render InterviewDemo ../frontend/public/videos/entretien.webm --codec=vp9 --crf=32",
     "render:posters": "remotion still AnalysisDemo ../frontend/public/videos/analyse-poster.webp --frame=360 && remotion still InterviewDemo ../frontend/public/videos/entretien-poster.webp --frame=380",
-    "render:landing": "npm run render:analyse && npm run render:analyse:webm && npm run render:entretien && npm run render:entretien:webm && npm run render:posters"
+    "render:landing": "./scripts/render-landing.sh"
   },
   "sideEffects": [
     "*.css"
