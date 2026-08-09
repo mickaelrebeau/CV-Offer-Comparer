@@ -282,78 +282,23 @@
                 <span class="ml-3">{{ activeTab === 'analyse' ? 'comparateur — résultat' : 'simulateur — session' }}</span>
               </div>
 
-              <!-- Onglet analyse -->
-              <div v-if="activeTab === 'analyse'" class="grid grid-cols-1 lg:grid-cols-12">
-                <div class="border-b border-white/10 p-6 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-8">
-                  <div class="mb-2 text-micro uppercase text-paper/40">Score global</div>
-                  <div class="mb-6 text-6xl font-medium tabular-nums">88%</div>
-
-                  <div class="space-y-3">
-                    <div v-for="cat in categories" :key="cat.label">
-                      <div class="mb-1.5 flex items-baseline justify-between text-micro uppercase">
-                        <span class="text-paper/60">{{ cat.label }}</span>
-                        <span class="tabular-nums text-paper/40">{{ cat.value }}%</span>
-                      </div>
-                      <div class="h-px w-full bg-white/10">
-                        <div class="h-px bg-paper/70" :style="{ width: cat.value + '%' }"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="p-6 lg:col-span-8 lg:p-8">
-                  <div class="mb-3 text-micro uppercase text-paper/40">Détail des critères</div>
-                  <div class="space-y-0">
-                    <div
-                      v-for="crit in criteria"
-                      :key="crit.label"
-                      class="flex items-baseline justify-between gap-6 border-b border-white/5 py-2.5"
-                    >
-                      <span class="text-paper/85">{{ crit.label }}</span>
-                      <span class="shrink-0 text-micro uppercase" :class="crit.tone">{{ crit.status }}</span>
-                    </div>
-                  </div>
-
-                  <div class="mt-6 rounded-lg border border-white/10 p-4">
-                    <div class="mb-2 text-micro uppercase text-paper/40">Reformulation proposée</div>
-                    <p class="font-sans text-sm leading-relaxed text-paper/80">
-                      « Conteneurisation des services applicatifs avec Docker et déploiement continu
-                      via GitHub Actions, réduisant le temps de mise en production de 40 %. »
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Onglet simulateur -->
-              <div v-else class="grid grid-cols-1 lg:grid-cols-12">
-                <div class="border-b border-white/10 p-6 lg:col-span-7 lg:border-b-0 lg:border-r lg:p-8">
-                  <div class="mb-3 text-micro uppercase text-paper/40">Question 01 / 10 — technique</div>
-                  <p class="mb-6 font-sans text-lg font-medium leading-snug text-paper">
-                    Votre CV mentionne Vue 3 et TypeScript. Comment gérez-vous le rendu d'une liste
-                    de plusieurs milliers d'éléments sans dégrader l'interface ?
-                  </p>
-                  <div class="rounded-lg border border-white/10 p-4">
-                    <div class="mb-2 text-micro uppercase text-paper/40">Axes attendus</div>
-                    <ul class="space-y-1.5 text-paper/70">
-                      <li>— virtualisation de liste</li>
-                      <li>— chargement différé des composants</li>
-                      <li>— mémoïsation via <span class="text-paper">computed</span></li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div class="p-6 lg:col-span-5 lg:p-8">
-                  <div class="mb-3 text-micro uppercase text-paper/40">Origine de la question</div>
-                  <p class="mb-6 text-paper/60">
-                    Générée depuis l'écart réel entre votre profil et l'offre, pas depuis une banque
-                    de questions générique.
-                  </p>
-                  <div class="space-y-2 border-t border-white/10 pt-4 text-micro uppercase text-paper/40">
-                    <div class="flex justify-between"><span>Questions</span><span class="text-paper/70">10</span></div>
-                    <div class="flex justify-between"><span>Retour par réponse</span><span class="text-paper/70">immédiat</span></div>
-                    <div class="flex justify-between"><span>Durée moyenne</span><span class="text-paper/70">12 min</span></div>
-                  </div>
-                </div>
+              <div ref="demoVideoEl" class="relative aspect-video w-full">
+                <ProductDemoVideo
+                  class="absolute inset-0 transition-opacity duration-200"
+                  :class="activeTab === 'analyse' ? 'z-10 opacity-100' : 'z-0 opacity-0 pointer-events-none'"
+                  variant="analyse"
+                  :active="activeTab === 'analyse'"
+                  :in-view="demoVideoInView"
+                  label="Démonstration de l'analyse CV et offre d'emploi Talento"
+                />
+                <ProductDemoVideo
+                  class="absolute inset-0 transition-opacity duration-200"
+                  :class="activeTab === 'simulateur' ? 'z-10 opacity-100' : 'z-0 opacity-0 pointer-events-none'"
+                  variant="entretien"
+                  :active="activeTab === 'simulateur'"
+                  :in-view="demoVideoInView"
+                  label="Démonstration du simulateur d'entretien Talento"
+                />
               </div>
             </div>
           </div>
@@ -517,6 +462,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import BrandLogo from '@/components/BrandLogo.vue'
+import ProductDemoVideo from '@/components/ProductDemoVideo.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useLandingScroll } from '@/composables/useLandingScroll'
 import {
@@ -530,6 +476,8 @@ import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site'
 const router = useRouter()
 const authStore = useAuthStore()
 const rootEl = ref<HTMLElement | null>(null)
+const demoVideoEl = ref<HTMLElement | null>(null)
+const demoVideoInView = ref(false)
 useLandingScroll({ root: rootEl })
 
 const activeTab = ref<'analyse' | 'simulateur'>('analyse')
@@ -668,14 +616,6 @@ const categories = [
   { label: 'Diplômes', value: 90 },
 ]
 
-const criteria = [
-  { label: 'TypeScript — 3 ans minimum', status: 'couvert', tone: 'text-emerald-400' },
-  { label: 'Vue 3 / Composition API', status: 'couvert', tone: 'text-emerald-400' },
-  { label: 'Tests unitaires (Vitest)', status: 'partiel', tone: 'text-amber-400' },
-  { label: 'Docker / conteneurisation', status: 'manquant', tone: 'text-rose-400' },
-  { label: 'Anglais professionnel', status: 'couvert', tone: 'text-emerald-400' },
-]
-
 const streamRows = [
   { id: '001', label: 'TypeScript', status: 'couvert', tone: 'text-emerald-400' },
   { id: '002', label: 'Vue 3', status: 'couvert', tone: 'text-emerald-400' },
@@ -708,6 +648,7 @@ usePageSeo({
 
 let scoreTimer: number | undefined
 let rowTimer: number | undefined
+let demoVideoObserver: IntersectionObserver | undefined
 
 onMounted(() => {
   scoreTimer = window.setInterval(() => {
@@ -725,11 +666,23 @@ onMounted(() => {
     }
     visibleRows.value += 1
   }, 420)
+
+  demoVideoObserver = new IntersectionObserver(
+    ([entry]) => {
+      demoVideoInView.value = entry?.isIntersecting ?? false
+    },
+    { threshold: 0.35 },
+  )
+
+  if (demoVideoEl.value) {
+    demoVideoObserver.observe(demoVideoEl.value)
+  }
 })
 
 onUnmounted(() => {
   window.clearInterval(scoreTimer)
   window.clearInterval(rowTimer)
+  demoVideoObserver?.disconnect()
 })
 
 const navigateTo = (path: string) => router.push(path)

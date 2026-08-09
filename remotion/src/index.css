@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f1eee7;
+  --color-paper-dim: #e6e2d8;
+  --color-paper-line: #d5d0c4;
+  --color-ink: #232323;
+  --color-ink-deep: #141414;
+  --color-ink-soft: #5e5c57;
+  --font-sans: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Geist Mono", "SF Mono", Menlo, monospace;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2")
+    format("woff2");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
