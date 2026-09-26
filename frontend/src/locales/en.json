@@ -383,7 +383,8 @@
       "missingInput": "Please provide your resume and the job offer",
       "generate": "Error while generating the questions",
       "analyze": "Error while analyzing your answers"
-    }
+    },
+    "leaveConfirm": "A simulation is in progress. Leaving this page will discard your unsent answers. Continue?"
   },
   "results": {
     "label": "Report",
@@ -427,7 +428,8 @@
     },
     "deleted": "Your account has been deleted.",
     "deleteError": "Error: {message}",
-    "deleteFailed": "Something went wrong while deleting your account."
+    "deleteFailed": "Something went wrong while deleting your account.",
+    "app": "App"
   },
   "ui": {
     "close": "Close",
@@ -667,5 +669,11 @@
       "contact": "Contact",
       "login": "Sign in"
     }
+  },
+  "pwa": {
+    "install": "Install the app",
+    "installHint": "Install Talento as an app on this device",
+    "offline": "Offline — analyses will resume when you are back online",
+    "retryWhenOnline": "Automatic retry once you are back online"
   }
 }

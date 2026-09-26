@@ -107,7 +107,8 @@
       <p>The service uses the following strictly necessary storage, which does not require consent:</p>
       <ul>
         <li>browser local storage: authentication token (<code>talento_access_token</code>), interface language preference (<code>talento_locale</code>), free trial marker (<code>talento_free_analysis_used</code>), and a temporary copy of the latest interview report (<code>interviewAnalysis</code>, including the resume and job offer texts), deleted as soon as the results are displayed;</li>
-        <li>an <code>oauth_state</code> cookie (httpOnly, 10 min), set only during Google sign-in to protect it against forgery.</li>
+        <li>an <code>oauth_state</code> cookie (httpOnly, 10 min), set only during Google sign-in to protect it against forgery;</li>
+        <li>the app’s cache (service worker, Cache Storage): only the application’s files (pages, scripts, styles, icons, fonts), to make it load faster and keep it available offline — never API responses or your documents.</li>
       </ul>
       <p>
         For usage analytics, a <strong>consent banner</strong> asks you to accept or decline
@@ -254,7 +255,8 @@
       <p>Le service utilise les stockages strictement nécessaires suivants, qui ne requièrent pas de consentement :</p>
       <ul>
         <li>stockage local du navigateur : jeton d’authentification (<code>talento_access_token</code>), préférence de langue de l’interface (<code>talento_locale</code>), indicateur d’essai gratuit (<code>talento_free_analysis_used</code>) et copie temporaire du dernier rapport d’entretien (<code>interviewAnalysis</code>, qui contient les textes du CV et de l’offre), effacée dès l’affichage des résultats ;</li>
-        <li>un cookie <code>oauth_state</code> (httpOnly, 10 min), posé uniquement pendant la connexion Google pour la protéger contre la falsification.</li>
+        <li>un cookie <code>oauth_state</code> (httpOnly, 10 min), posé uniquement pendant la connexion Google pour la protéger contre la falsification ;</li>
+        <li>le cache de l’application (service worker, Cache Storage) : uniquement les fichiers de l’application (pages, scripts, styles, icônes, polices), pour accélérer le chargement et la rendre disponible hors ligne — jamais les réponses de l’API ni vos documents.</li>
       </ul>
       <p>
         Pour la mesure d’usage, une <strong>bannière de consentement</strong> vous demande

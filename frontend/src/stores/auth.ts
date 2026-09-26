@@ -12,7 +12,12 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(typeof window !== 'undefined')
   let initPromise: Promise<void> | null = null
 
-  const isAuthenticated = computed(() => !!user.value && !!getAccessToken())
+  // Jeton présent mais /auth/me injoignable (hors ligne) : session conservée, revérifiée au retour du réseau
+  const sessionUnverified = ref(false)
+  // Ordre important : pas d'accès à localStorage pendant le SSG (user null → court-circuit)
+  const isAuthenticated = computed(
+    () => (!!user.value || sessionUnverified.value) && !!getAccessToken(),
+  )
   const isPostHogConfigured = Boolean(
     import.meta.env.VITE_POSTHOG_PROJECT_TOKEN && import.meta.env.VITE_POSTHOG_HOST,
   )
@@ -41,11 +46,19 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { data } = await api.get<AuthUser>('/auth/me')
       user.value = data
+      sessionUnverified.value = false
       identifyUser(data)
       return data
-    } catch {
+    } catch (error: any) {
+      if (!error?.response) {
+        // Erreur réseau : ne pas déconnecter l'utilisateur pour une coupure
+        sessionUnverified.value = true
+        return null
+      }
+      // Réponse du serveur (401…) : session invalide
       clearAccessToken()
       user.value = null
+      sessionUnverified.value = false
       resetPostHog()
       return null
     }
@@ -167,6 +180,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function signOut() {
     clearAccessToken()
     user.value = null
+    sessionUnverified.value = false
     resetPostHog()
     return { error: null }
   }
@@ -196,6 +210,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     isAuthenticated,
+    sessionUnverified,
     signUp,
     signIn,
     signInWithGoogle,

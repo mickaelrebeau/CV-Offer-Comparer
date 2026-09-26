@@ -50,25 +50,21 @@
         </button>
       </div>
 
-      <div v-if="historyLoading" class="panel p-6 font-mono text-micro uppercase text-ink-soft">
-        {{ t('dashboard.comparisons.loading') }}
-      </div>
-
-      <div role="alert"
+      <AppStatus v-if="historyLoading" kind="loading" :message="t('dashboard.comparisons.loading')" />
+      <AppStatus
         v-else-if="historyError"
-        class="panel border-rose-500/25 bg-rose-500/5 p-6 font-mono text-micro text-rose-700"
-      >
-        {{ historyError }}
-      </div>
-
-      <div v-else-if="!history.length" class="panel p-6 sm:p-8">
-        <p class="text-lead text-ink-soft">
-          {{ t('dashboard.comparisons.empty') }}
-        </p>
-        <button type="button" class="btn-primary mt-6" @click="push('/compare')">
-          {{ t('dashboard.comparisons.cta') }}
-        </button>
-      </div>
+        kind="error"
+        :message="historyError"
+        :action-label="t('common.retry')"
+        @action="loadHistory"
+      />
+      <AppStatus
+        v-else-if="!history.length"
+        kind="empty"
+        :message="t('dashboard.comparisons.empty')"
+        :action-label="t('dashboard.comparisons.cta')"
+        @action="push('/compare')"
+      />
 
       <ul v-else class="space-y-3">
         <li
@@ -125,25 +121,21 @@
         </button>
       </div>
 
-      <div v-if="interviewLoading" class="panel p-6 font-mono text-micro uppercase text-ink-soft">
-        {{ t('dashboard.interviews.loading') }}
-      </div>
-
-      <div role="alert"
+      <AppStatus v-if="interviewLoading" kind="loading" :message="t('dashboard.interviews.loading')" />
+      <AppStatus
         v-else-if="interviewError"
-        class="panel border-rose-500/25 bg-rose-500/5 p-6 font-mono text-micro text-rose-700"
-      >
-        {{ interviewError }}
-      </div>
-
-      <div v-else-if="!interviewHistory.length" class="panel p-6 sm:p-8">
-        <p class="text-lead text-ink-soft">
-          {{ t('dashboard.interviews.empty') }}
-        </p>
-        <button type="button" class="btn-primary mt-6" @click="push('/interview-simulator')">
-          {{ t('dashboard.interviews.cta') }}
-        </button>
-      </div>
+        kind="error"
+        :message="interviewError"
+        :action-label="t('common.retry')"
+        @action="loadInterviewHistory"
+      />
+      <AppStatus
+        v-else-if="!interviewHistory.length"
+        kind="empty"
+        :message="t('dashboard.interviews.empty')"
+        :action-label="t('dashboard.interviews.cta')"
+        @action="push('/interview-simulator')"
+      />
 
       <ul v-else class="space-y-3">
         <li
@@ -187,11 +179,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from 'lucide-vue-next'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import AppStatus from '@/components/AppStatus.vue'
 import { useLocale } from '@/i18n/useLocale'
+import { isOnline } from '@/lib/pwa'
 import {
   deleteComparison,
   deleteInterview,
@@ -295,5 +289,12 @@ async function removeInterviewHistory(id: string) {
 onMounted(() => {
   loadHistory()
   loadInterviewHistory()
+})
+
+// Retour du réseau : relancer les listes en erreur
+watch(isOnline, (online) => {
+  if (!online) return
+  if (historyError.value) loadHistory()
+  if (interviewError.value) loadInterviewHistory()
 })
 </script>

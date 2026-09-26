@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test:locales": "node scripts/check-locales.mjs",
     "test:prerender": "node scripts/check-prerender.mjs",
+    "test:pwa": "node scripts/pwa-smoke.mjs",
     "test:a11y": "node scripts/a11y-smoke.mjs",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },

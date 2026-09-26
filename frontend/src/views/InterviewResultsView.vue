@@ -6,18 +6,22 @@
       :description="t('results.description')"
     />
 
-    <div v-if="isLoading" class="py-16 text-center">
-      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
-      <p class="mt-4 font-mono text-micro uppercase text-ink-soft">{{ t('results.loading') }}</p>
-    </div>
+    <AppStatus v-if="isLoading" kind="loading" centered :message="t('results.loading')" />
 
-    <div v-else-if="error" class="py-16 text-center space-y-6">
-      <AlertCircle class="mx-auto h-10 w-10 text-rose-500" aria-hidden="true" />
-      <p class="text-lead text-ink-soft">{{ error }}</p>
-      <Button @click="startNewInterview">
-        <MessageSquare class="mr-2 h-4 w-4" aria-hidden="true" />
-        {{ t('results.newSimulator') }}
-      </Button>
+    <div v-else-if="error" class="space-y-4">
+      <AppStatus
+        kind="error"
+        centered
+        :message="error"
+        :action-label="canRetry ? t('common.retry') : undefined"
+        @action="loadInterviewData"
+      />
+      <div class="flex justify-center">
+        <Button variant="outline" @click="startNewInterview">
+          <MessageSquare class="mr-2 h-4 w-4" aria-hidden="true" />
+          {{ t('results.newSimulator') }}
+        </Button>
+      </div>
     </div>
 
     <div v-else-if="interviewData" class="space-y-8">
@@ -93,14 +97,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import AppStatus from '@/components/AppStatus.vue'
 import { Button } from '@/components/ui/button'
 import { useLocale } from '@/i18n/useLocale'
 import { getInterview } from '@/lib/api'
-import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare, AlertCircle, Loader2 } from 'lucide-vue-next'
+import { isOnline } from '@/lib/pwa'
+import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const { push } = useLocale()
@@ -186,7 +192,14 @@ const loadInterviewData = async () => {
 const goToDashboard = () => push('/dashboard')
 const startNewInterview = () => push('/interview-simulator')
 
+// Deep link /interview-results?history=… : relance possible (bouton, retour du réseau)
+const canRetry = computed(() => typeof route.query.history === 'string')
+
 onMounted(() => {
   loadInterviewData()
+})
+
+watch(isOnline, (online) => {
+  if (online && error.value && canRetry.value) loadInterviewData()
 })
 </script>

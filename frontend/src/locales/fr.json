@@ -383,7 +383,8 @@
       "missingInput": "Veuillez renseigner le CV et l'offre d'emploi",
       "generate": "Erreur lors de la génération des questions",
       "analyze": "Erreur lors de l'analyse des réponses"
-    }
+    },
+    "leaveConfirm": "Une simulation est en cours. Quitter cette page effacera vos réponses non envoyées. Continuer ?"
   },
   "results": {
     "label": "Rapport",
@@ -427,7 +428,8 @@
     },
     "deleted": "Votre compte a été supprimé.",
     "deleteError": "Erreur : {message}",
-    "deleteFailed": "Une erreur est survenue lors de la suppression."
+    "deleteFailed": "Une erreur est survenue lors de la suppression.",
+    "app": "Application"
   },
   "ui": {
     "close": "Fermer",
@@ -667,5 +669,11 @@
       "contact": "Contact",
       "login": "Connexion"
     }
+  },
+  "pwa": {
+    "install": "Installer l'app",
+    "installHint": "Installer Talento comme une application sur cet appareil",
+    "offline": "Hors ligne — les analyses reprendront au retour du réseau",
+    "retryWhenOnline": "Nouvel essai automatique au retour du réseau"
   }
 }

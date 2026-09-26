@@ -173,8 +173,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { onBeforeRouteLeave } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -302,6 +303,26 @@ const saveCurrentAnswer = () => {
   }
 }
 
+// Simulation en cours : réponses uniquement en mémoire → confirmer avant de quitter
+// (liens, retour navigateur, geste retour mobile, fermeture de l'onglet)
+const leavingToResults = ref(false)
+const hasUnsavedSession = computed(
+  () => currentStep.value === 2 && isInterviewStarted.value && !leavingToResults.value,
+)
+
+onBeforeRouteLeave(() => {
+  if (!hasUnsavedSession.value) return true
+  return window.confirm(t('interview.leaveConfirm'))
+})
+
+const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (!hasUnsavedSession.value) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+onMounted(() => window.addEventListener('beforeunload', warnBeforeUnload))
+
 const finishInterview = async () => {
   saveCurrentAnswer()
 
@@ -331,6 +352,7 @@ const finishInterview = async () => {
           answered_question_count: answers.value.length,
           duration_seconds: interviewTimer.value,
         })
+        leavingToResults.value = true
         if (result.interview_id) {
           push({ path: '/interview-results', query: { history: result.interview_id } })
         } else {
@@ -345,6 +367,7 @@ const finishInterview = async () => {
       isLoading.value = false
     }
   } else {
+    leavingToResults.value = true
     push('/interview-results')
   }
 }
@@ -379,5 +402,6 @@ const resetSimulator = () => {
 
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
+  window.removeEventListener('beforeunload', warnBeforeUnload)
 })
 </script>

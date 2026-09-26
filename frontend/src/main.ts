@@ -4,6 +4,7 @@ import App from './App.vue'
 import { routes } from './router'
 import { createAppI18n, isLocale, type Locale } from './i18n'
 import { hasEnglishVersion, localizePath } from './i18n/routing'
+import { initPwa } from './lib/pwa'
 import { STORAGE_KEYS } from './lib/storageKeys'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -32,6 +33,7 @@ export const createApp = ViteSSG(
     app.use(i18n)
 
     if (isClient) {
+      initPwa()
       initAnalytics()
 
       app.config.errorHandler = (error) => {

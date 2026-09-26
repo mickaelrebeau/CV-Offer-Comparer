@@ -17,6 +17,7 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Analyse ATS CV ↔ offre (streaming SSE progressif)
 - Suggestions concrètes pour renforcer le CV
 - Essai gratuit (limite Redis)
+- Webapp installable (PWA) : manifeste, service worker, pages disponibles hors ligne
 - Auth email/mot de passe + **Google OAuth**
 - Simulateur d’entretien personnalisé
 - Upload PDF + saisie texte
