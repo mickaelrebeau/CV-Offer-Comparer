@@ -11,8 +11,15 @@ from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user
 from app.services.interview_service import InterviewService
+from app.services.upload_service import (
+    NO_TEXT_PDF_MESSAGE,
+    PDFExtractionError,
+    UploadService,
+    read_upload,
+)
 
 router = APIRouter(prefix="/interview", tags=["interview"])
+upload_service = UploadService()
 
 
 @router.get("/test", dependencies=[Depends(require_debug_endpoints)], include_in_schema=False)
@@ -33,10 +40,21 @@ async def generate_interview_questions(
         if not cv_file.filename or not cv_file.filename.lower().endswith((".pdf", ".txt")):
             raise HTTPException(status_code=400, detail="Le CV doit être au format PDF ou TXT")
 
-        cv_content = await cv_file.read()
+        cv_content = await read_upload(cv_file)
+        try:
+            cv_text = upload_service.extract_cv_text(cv_file.filename, cv_content)
+        except PDFExtractionError as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
+        if not cv_text:
+            is_pdf = cv_file.filename.lower().endswith(".pdf")
+            raise HTTPException(
+                status_code=400,
+                detail=NO_TEXT_PDF_MESSAGE if is_pdf else "Le fichier CV est vide",
+            )
+
         interview_service = InterviewService()
         result = await interview_service.generate_interview_questions(
-            cv_content,
+            cv_text,
             job_text,
             num_questions or 10,
         )
