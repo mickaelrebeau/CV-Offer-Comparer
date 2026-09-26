@@ -15,7 +15,12 @@
           </div>
 
           <div class="space-y-1.5">
-            <label for="password" class="field-label">Mot de passe</label>
+            <div class="flex items-baseline justify-between">
+              <label for="password" class="field-label">Mot de passe</label>
+              <router-link to="/forgot-password" class="font-mono text-micro text-ink-soft hover:text-ink hover:underline">
+                Mot de passe oublié ?
+              </router-link>
+            </div>
             <Input id="password" v-model="password" type="password" required placeholder="••••••••" :show-password-toggle="true" />
           </div>
 

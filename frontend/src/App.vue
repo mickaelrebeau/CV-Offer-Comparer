@@ -76,6 +76,8 @@
       </div>
     </header>
 
+    <EmailVerificationBanner />
+
     <main class="flex-grow">
       <RouterView />
     </main>
@@ -111,6 +113,7 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
 import CookieConsentBanner from '@/components/CookieConsentBanner.vue'
+import EmailVerificationBanner from '@/components/EmailVerificationBanner.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageSeo } from '@/composables/usePageSeo'

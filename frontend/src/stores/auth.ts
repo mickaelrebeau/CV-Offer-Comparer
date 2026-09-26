@@ -125,6 +125,44 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function verifyEmail(token: string) {
+    try {
+      const { data } = await api.post<AuthUser>('/auth/verify-email', { token })
+      if (user.value?.id === data.id) user.value = data
+      return { error: null }
+    } catch (error: any) {
+      return { error: new Error(error.response?.data?.detail || 'Lien de vérification invalide ou expiré') }
+    }
+  }
+
+  async function resendVerification() {
+    try {
+      const { data } = await api.post<{ message: string }>('/auth/resend-verification')
+      return { message: data.message, error: null }
+    } catch (error: any) {
+      return { message: null, error: new Error(error.response?.data?.detail || 'Envoi impossible, réessayez plus tard') }
+    }
+  }
+
+  async function requestPasswordReset(email: string) {
+    try {
+      const { data } = await api.post<{ message: string }>('/auth/forgot-password', { email })
+      return { message: data.message, error: null }
+    } catch (error: any) {
+      return { message: null, error: new Error(error.response?.data?.detail || 'Envoi impossible, réessayez plus tard') }
+    }
+  }
+
+  async function resetPassword(token: string, password: string) {
+    try {
+      const { data } = await api.post<AuthResponse>('/auth/reset-password', { token, password })
+      applyAuth(data)
+      return { error: null }
+    } catch (error: any) {
+      return { error: new Error(error.response?.data?.detail || 'Lien de réinitialisation invalide ou expiré') }
+    }
+  }
+
   async function signOut() {
     clearAccessToken()
     user.value = null
@@ -161,6 +199,10 @@ export const useAuthStore = defineStore('auth', () => {
     signIn,
     signInWithGoogle,
     completeGoogleCallback,
+    verifyEmail,
+    resendVerification,
+    requestPasswordReset,
+    resetPassword,
     signOut,
     deleteAccount,
     getCurrentUser,

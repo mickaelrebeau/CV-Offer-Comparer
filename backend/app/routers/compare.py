@@ -11,7 +11,7 @@ from app.dependencies import require_debug_endpoints
 from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
-from app.services.auth_service import AuthService
+from app.services.auth_service import AuthService, require_verified_user
 from app.services.comparison_service import stream_comparison
 from app.services.rate_limit_service import rate_limit
 
@@ -50,7 +50,10 @@ async def test_stream():
     )
 
 
-@router.post("/compare-stream", dependencies=[Depends(rate_limit("compare", "DAILY_QUOTA_COMPARE"))])
+@router.post(
+    "/compare-stream",
+    dependencies=[Depends(require_verified_user), Depends(rate_limit("compare", "DAILY_QUOTA_COMPARE"))],
+)
 async def compare_cv_offer_stream(
     request: ComparisonRequest,
     user: User = Depends(auth_service.verify_token),

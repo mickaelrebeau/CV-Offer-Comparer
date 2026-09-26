@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
@@ -42,8 +42,23 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """Crée les tables manquantes au démarrage."""
+    from app.models.auth_token import AuthToken  # noqa: F401
     from app.models.comparison_record import ComparisonRecord  # noqa: F401
     from app.models.interview_record import InterviewRecord  # noqa: F401
     from app.models.user import User  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    _migrate_email_verification()
+
+
+def _migrate_email_verification() -> None:
+    """Ajoute users.email_verified_at (create_all ne modifie pas les tables existantes).
+
+    Les comptes créés avant la vérification e-mail sont considérés comme vérifiés.
+    """
+    columns = {c["name"] for c in inspect(engine).get_columns("users")}
+    if "email_verified_at" in columns:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ"))
+        conn.execute(text("UPDATE users SET email_verified_at = created_at WHERE email_verified_at IS NULL"))

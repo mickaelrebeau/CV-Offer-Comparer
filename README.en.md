@@ -110,6 +110,14 @@ App: http://localhost:3000 (or the Vite port shown)
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (OAuth)
 - `GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback`
 - `FRONTEND_URL=http://localhost:3000`
+- `EMAIL_PROVIDER` (`console` in dev: links printed in logs; `resend` in production with `RESEND_API_KEY` and `EMAIL_FROM`)
+
+### Accounts and email verification
+
+- Email sign-ups receive a verification link (valid 48 h, single use).
+- Until the address is verified, the account can sign in and see its history, but AI routes (`compare-stream`, `interview/*`) answer `403`. A banner lets the user resend the link.
+- Google accounts and accounts created before this feature are considered verified.
+- Forgot password: `/forgot-password` sends a link (valid 60 min, single use). The response is identical whether the account exists or not.
 
 **Frontend** (`frontend/.env`):
 
