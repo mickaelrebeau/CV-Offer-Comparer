@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 jours
 
+    # E-mails transactionnels (vérification, reset). "console" = liens affichés dans les logs (dev)
+    EMAIL_PROVIDER: str = "console"  # console | resend
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "Talento <no-reply@talento.app>"
+    EMAIL_VERIFICATION_TTL_HOURS: int = 48
+    PASSWORD_RESET_TTL_MINUTES: int = 60
+
     # Production settings
     ENVIRONMENT: str = "development"
     # Endpoints de debug (test-stream, reset free-trial, stats…) : jamais exposés en production

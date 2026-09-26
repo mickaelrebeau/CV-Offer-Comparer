@@ -127,10 +127,10 @@ async function handleRegister() {
     error.value = registerError.message || 'Erreur lors de la création du compte'
   } else {
     posthog.capture('account_registered', { registration_method: 'password' })
-    success.value = 'Compte créé avec succès !'
+    success.value = 'Compte créé ! Un lien de confirmation vient d’être envoyé à votre adresse e-mail.'
     setTimeout(() => {
       router.push('/dashboard')
-    }, 800)
+    }, 1500)
   }
 
   loading.value = false

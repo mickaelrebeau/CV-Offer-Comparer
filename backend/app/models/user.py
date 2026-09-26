@@ -19,6 +19,7 @@ class User(Base):
     google_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -29,11 +30,16 @@ class User(Base):
         nullable=False,
     )
 
+    @property
+    def email_verified(self) -> bool:
+        return self.email_verified_at is not None
+
     def to_public_dict(self) -> dict:
         return {
             "id": str(self.id),
             "email": self.email,
             "full_name": self.full_name,
             "avatar_url": self.avatar_url,
+            "email_verified": self.email_verified,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

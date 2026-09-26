@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime, timezone
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,6 +22,7 @@ os.environ.setdefault(
 
 from app.db import Base, get_db, _normalize_database_url  # noqa: E402
 from app.main import app  # noqa: E402
+from app.models.auth_token import AuthToken  # noqa: F401,E402
 from app.models.comparison_record import ComparisonRecord  # noqa: F401,E402
 from app.models.interview_record import InterviewRecord  # noqa: F401,E402
 from app.models.user import User  # noqa: F401,E402
@@ -38,6 +40,14 @@ def isolated_rate_limits(monkeypatch):
     rate_limiter.reset()
     yield
     rate_limiter.reset()
+
+
+@pytest.fixture(autouse=True)
+def sent_emails(monkeypatch):
+    """Capture les e-mails au lieu de les envoyer."""
+    outbox = []
+    monkeypatch.setattr("app.routers.auth.send_email", outbox.append)
+    return outbox
 
 
 @pytest.fixture(scope="session")
@@ -79,8 +89,7 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def registered_user(client):
+def _register(client):
     email = f"user-{uuid.uuid4().hex[:10]}@example.com"
     password = "password123"
     response = client.post(
@@ -95,6 +104,21 @@ def registered_user(client):
         "token": payload["access_token"],
         "user": payload["user"],
     }
+
+
+@pytest.fixture
+def unverified_user(client):
+    return _register(client)
+
+
+@pytest.fixture
+def registered_user(client, db_session):
+    """Utilisateur à l'adresse vérifiée (accès aux fonctionnalités IA)."""
+    data = _register(client)
+    user = db_session.get(User, uuid.UUID(data["user"]["id"]))
+    user.email_verified_at = datetime.now(timezone.utc)
+    db_session.commit()
+    return data
 
 
 @pytest.fixture

@@ -105,6 +105,14 @@ App : http://localhost:3000 (ou le port Vite affiché)
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (OAuth)
 - `GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback`
 - `FRONTEND_URL=http://localhost:3000`
+- `EMAIL_PROVIDER` (`console` en dev : liens dans les logs ; `resend` en prod avec `RESEND_API_KEY` et `EMAIL_FROM`)
+
+### Comptes et vérification e-mail
+
+- À l’inscription par e-mail, un lien de vérification est envoyé (valable 48 h, usage unique).
+- Tant que l’adresse n’est pas vérifiée, le compte peut se connecter et consulter son historique, mais les routes IA (`compare-stream`, `interview/*`) répondent `403`. Une bannière permet de renvoyer le lien.
+- Les comptes Google et les comptes créés avant cette fonctionnalité sont considérés comme vérifiés.
+- Mot de passe oublié : `/forgot-password` envoie un lien (valable 60 min, usage unique). La réponse est identique que le compte existe ou non.
 
 **Frontend** (`frontend/.env`) :
 

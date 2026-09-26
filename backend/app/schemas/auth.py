@@ -11,6 +11,19 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=1, max_length=128)
+    password: str = Field(min_length=8, max_length=128)
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(min_length=1, max_length=128)
+
+
 class GoogleCodeExchangeRequest(BaseModel):
     """Code à usage unique reçu sur /auth/callback."""
     code: str = Field(min_length=1, max_length=128)
@@ -26,6 +39,7 @@ class UserResponse(BaseModel):
     email: str
     full_name: str | None = None
     avatar_url: str | None = None
+    email_verified: bool = False
     created_at: str | None = None
 
 

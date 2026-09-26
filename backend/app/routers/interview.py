@@ -9,7 +9,7 @@ from app.db import get_db
 from app.dependencies import require_debug_endpoints
 from app.models.interview_record import InterviewRecord
 from app.models.user import User
-from app.services.auth_service import get_current_user
+from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
 from app.services.rate_limit_service import rate_limit
 
@@ -24,7 +24,10 @@ async def test_interview_endpoint():
 
 @router.post(
     "/generate-questions",
-    dependencies=[Depends(rate_limit("interview_generate", "DAILY_QUOTA_INTERVIEW_GENERATE"))],
+    dependencies=[
+        Depends(require_verified_user),
+        Depends(rate_limit("interview_generate", "DAILY_QUOTA_INTERVIEW_GENERATE")),
+    ],
 )
 async def generate_interview_questions(
     cv_file: UploadFile = File(...),
@@ -60,7 +63,10 @@ async def generate_interview_questions(
 
 @router.post(
     "/analyze-responses",
-    dependencies=[Depends(rate_limit("interview_analyze", "DAILY_QUOTA_INTERVIEW_ANALYZE"))],
+    dependencies=[
+        Depends(require_verified_user),
+        Depends(rate_limit("interview_analyze", "DAILY_QUOTA_INTERVIEW_ANALYZE")),
+    ],
 )
 async def analyze_interview_responses(
     questions: str = Form(...),

@@ -197,7 +197,13 @@ def upsert_google_user(db: Session, profile: dict[str, Any]) -> User:
     if not user:
         user = get_user_by_email(db, email)
 
+    now = datetime.now(timezone.utc)
     if user:
+        if not user.email_verified_at:
+            # Google prouve la possession de l'adresse : un mot de passe posé sans vérification
+            # (éventuellement par un tiers) ne doit pas garder l'accès au compte
+            user.password_hash = None
+            user.email_verified_at = now
         user.google_id = str(google_id)
         user.full_name = profile.get("name") or user.full_name
         user.avatar_url = profile.get("picture") or user.avatar_url
@@ -209,6 +215,7 @@ def upsert_google_user(db: Session, profile: dict[str, Any]) -> User:
             google_id=str(google_id),
             full_name=profile.get("name"),
             avatar_url=profile.get("picture"),
+            email_verified_at=now,
         )
         db.add(user)
 
@@ -233,6 +240,16 @@ async def get_current_user(
     user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=401, detail="Utilisateur non trouvé")
+    return user
+
+
+async def require_verified_user(user: User = Depends(get_current_user)) -> User:
+    """Comptes non vérifiés : connexion possible, mais pas d'accès aux fonctionnalités IA."""
+    if not user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Confirmez votre adresse e-mail pour utiliser cette fonctionnalité.",
+        )
     return user
 
 

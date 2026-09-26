@@ -1,19 +1,30 @@
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Cookie, Depends, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import get_db
+from app.models.auth_token import PURPOSE_RESET_PASSWORD, PURPOSE_VERIFY_EMAIL
 from app.models.user import User
 from app.schemas.auth import (
     AuthResponse,
+    ForgotPasswordRequest,
     GoogleCodeExchangeRequest,
     GoogleTokenRequest,
     LoginRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     UserResponse,
+    VerifyEmailRequest,
+)
+from app.services.account_service import (
+    build_password_reset_email,
+    build_verification_email,
+    consume_token,
+    mark_email_verified,
+    reset_password,
 )
 from app.services.auth_service import (
     authenticate_user,
@@ -21,12 +32,14 @@ from app.services.auth_service import (
     delete_user,
     exchange_google_code,
     get_current_user,
+    get_user_by_email,
     get_user_by_id,
     google_authorize_url,
     register_user,
     upsert_google_user,
     verify_google_id_token,
 )
+from app.services.email_service import send_email
 from app.services.oauth_service import (
     OAUTH_STATE_COOKIE,
     OAUTH_STATE_MAX_AGE,
@@ -34,6 +47,7 @@ from app.services.oauth_service import (
     is_valid_state,
     oauth_code_store,
 )
+from app.services.rate_limit_service import ip_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -46,8 +60,9 @@ def _auth_payload(user: User) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+def register(payload: RegisterRequest, background: BackgroundTasks, db: Session = Depends(get_db)):
     user = register_user(db, payload.email, payload.password)
+    background.add_task(send_email, build_verification_email(db, user))
     return _auth_payload(user)
 
 
@@ -75,6 +90,52 @@ def _login_error_redirect(reason: str) -> RedirectResponse:
     )
     response.delete_cookie(OAUTH_STATE_COOKIE, **_state_cookie_kwargs())
     return response
+
+
+FORGOT_PASSWORD_MESSAGE = (
+    "Si un compte existe pour cette adresse, un e-mail de réinitialisation vient d'être envoyé."
+)
+
+
+@router.post("/forgot-password", dependencies=[Depends(ip_rate_limit("forgot_password"))])
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """Réponse identique que le compte existe ou non (pas d'énumération d'adresses)."""
+    user = get_user_by_email(db, payload.email)
+    if user:
+        background.add_task(send_email, build_password_reset_email(db, user))
+    return {"success": True, "message": FORGOT_PASSWORD_MESSAGE}
+
+
+@router.post("/reset-password", response_model=AuthResponse)
+def reset_password_route(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = consume_token(db, payload.token, PURPOSE_RESET_PASSWORD)
+    if not user:
+        raise HTTPException(status_code=400, detail="Lien de réinitialisation invalide ou expiré")
+    return _auth_payload(reset_password(db, user, payload.password))
+
+
+@router.post("/verify-email", response_model=UserResponse)
+def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
+    user = consume_token(db, payload.token, PURPOSE_VERIFY_EMAIL)
+    if not user:
+        raise HTTPException(status_code=400, detail="Lien de vérification invalide ou expiré")
+    return UserResponse(**mark_email_verified(db, user).to_public_dict())
+
+
+@router.post("/resend-verification", dependencies=[Depends(ip_rate_limit("resend_verification"))])
+def resend_verification(
+    background: BackgroundTasks,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.email_verified:
+        return {"success": True, "message": "Adresse e-mail déjà vérifiée"}
+    background.add_task(send_email, build_verification_email(db, user))
+    return {"success": True, "message": "E-mail de vérification envoyé"}
 
 
 @router.get("/google")
