@@ -38,70 +38,6 @@ api.interceptors.response.use(
   }
 );
 
-export async function testStream(
-  onStatus: (message: string) => void,
-  onProgress: (progress: number, current: number, total: number) => void,
-  onComplete: () => void,
-  onError: (error: string) => void
-) {
-  try {
-    const response = await fetch(`${getApiBaseURL()}/test-stream`, {
-      method: "GET",
-      headers: {
-        Accept: "text/event-stream",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error("Impossible de lire la réponse");
-    }
-
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || ""; 
-
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          try {
-            const data = JSON.parse(line.slice(6));
-
-            switch (data.type) {
-              case "status":
-                onStatus(data.message);
-                break;
-              case "progress":
-                onProgress(data.value, data.current, data.total);
-                break;
-              case "complete":
-                onComplete();
-                break;
-              case "error":
-                onError(data.message);
-                break;
-            }
-          } catch (e) {
-            console.error("Erreur parsing SSE:", e);
-          }
-        }
-      }
-    }
-  } catch (error: any) {
-    onError(error.message || "Erreur lors du test");
-  }
-}
-
 export type ComparisonHistoryItem = {
   id: string
   offer_excerpt: string
@@ -363,50 +299,6 @@ export async function checkFreeAnalysisStatus() {
       can_use_free_analysis: false, 
       message: "Erreur de vérification - Essai offert utilisé",
       error: error.message 
-    };
-  }
-}
-
-export async function resetFreeAnalysis() {
-  try {
-    const response = await fetch(`${getApiBaseURL()}/reset-free-analysis`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    console.error("Erreur lors de la réinitialisation:", error);
-    throw error;
-  }
-}
-
-export async function getFreeAnalysisStats() {
-  try {
-    const response = await fetch(`${getApiBaseURL()}/free-analysis-stats`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    console.error("Erreur lors de la récupération des statistiques:", error);
-    return {
-      stats: { total_free_analyses: 0, today_free_analyses: 0, date: new Date().toISOString().split('T')[0] },
-      redis_health: false,
-      timestamp: new Date().toISOString()
     };
   }
 }

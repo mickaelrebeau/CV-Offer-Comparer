@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.dependencies import require_debug_endpoints
 from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user
@@ -14,7 +15,7 @@ from app.services.interview_service import InterviewService
 router = APIRouter(prefix="/interview", tags=["interview"])
 
 
-@router.get("/test")
+@router.get("/test", dependencies=[Depends(require_debug_endpoints)], include_in_schema=False)
 async def test_interview_endpoint():
     """Endpoint de test pour vérifier que le router fonctionne."""
     return JSONResponse(content={"message": "Interview router is working!"}, status_code=200)
