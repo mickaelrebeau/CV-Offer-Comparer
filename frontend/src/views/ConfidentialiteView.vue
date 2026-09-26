@@ -4,7 +4,7 @@
     label="Privacy"
     title="Privacy policy"
     description="Data collected, purposes, processors and your rights."
-    updated-at="2026-08-03"
+    updated-at="2026-09-26"
   >
     <section>
       <h2>1. Data controller</h2>
@@ -35,12 +35,19 @@
         <li>Questions, answers and JSON analysis (score, strengths, suggestions)</li>
         <li>Session duration and date</li>
       </ul>
+      <h3>Email verification and password reset</h3>
+      <ul>
+        <li>Email address verification date</li>
+        <li>Single-use tokens sent by email, stored only as a fingerprint (SHA-256 hash) with their expiry date</li>
+      </ul>
       <h3>Free trial (visitors)</h3>
       <ul>
-        <li>Technical token / identifier (Redis or equivalent) used to limit the trial</li>
+        <li>Technical identifier derived from the IP address and the browser (user agent), used to limit the trial</li>
       </ul>
       <h3>Technical data &amp; analytics</h3>
       <ul>
+        <li>IP address and account identifier, used as rate-limiting counters (anti-abuse)</li>
+        <li>Temporary Google sign-in data: anti-forgery value (<code>oauth_state</code> cookie) and single-use sign-in code</li>
         <li>Hosting technical logs (Railway)</li>
         <li>Product events and errors via <strong>PostHog</strong> (EU), including the user identifier once signed in</li>
       </ul>
@@ -51,7 +58,8 @@
       <ul>
         <li>Provide the analysis service and the interview simulator</li>
         <li>Authenticate users and keep the requested history</li>
-        <li>Prevent abuse (free trial, security)</li>
+        <li>Verify email addresses and allow password resets</li>
+        <li>Prevent abuse (free trial, rate limiting, security)</li>
         <li>Improve the product and diagnose errors (PostHog)</li>
       </ul>
       <p>Main legal basis: performance of the requested service and legitimate interest in security / improvement, in compliance with the GDPR.</p>
@@ -76,7 +84,10 @@
       <ul>
         <li>Account: until deleted by the user or upon request</li>
         <li>Comparison and interview simulation history: until manually deleted or until the account is deleted</li>
+        <li>Email verification and password reset tokens: valid for 48 h and 60 min respectively; deleted once used, when a new link is sent or when the account is deleted</li>
         <li>Free trial (Redis): short duration (around 24 h depending on configuration)</li>
+        <li>Rate-limiting counters (Redis): one minute, or until midnight UTC for daily quotas</li>
+        <li>Google sign-in: <code>oauth_state</code> cookie 10 min, sign-in code 60 s</li>
         <li>PostHog analytics: according to the PostHog project’s retention policy</li>
       </ul>
     </section>
@@ -87,17 +98,21 @@
         <li><strong>Railway</strong> — application hosting and databases</li>
         <li><strong>Google</strong> — Gemini (analysis) and OAuth (if you sign in with Google)</li>
         <li><strong>PostHog</strong> — product analytics / errors (EU region)</li>
+        <li><strong>Resend</strong> (United States) — sending transactional emails (email verification, password reset): email address and message content, when email sending is enabled</li>
       </ul>
     </section>
 
     <section>
       <h2>7. Cookies and trackers</h2>
+      <p>The service uses the following strictly necessary storage, which does not require consent:</p>
+      <ul>
+        <li>browser local storage: authentication token (<code>talento_access_token</code>), interface language preference (<code>talento_locale</code>), free trial marker (<code>talento_free_analysis_used</code>), and a temporary copy of the latest interview report (<code>interviewAnalysis</code>, including the resume and job offer texts), deleted as soon as the results are displayed;</li>
+        <li>an <code>oauth_state</code> cookie (httpOnly, 10 min), set only during Google sign-in to protect it against forgery.</li>
+      </ul>
       <p>
-        The service uses the browser’s local storage for the JWT authentication token (required
-        for your account to work). For usage analytics, a <strong>consent banner</strong> asks you
-        to accept or decline PostHog cookies / storage. If you decline, PostHog may keep
-        anonymized, cookieless tracking. The free trial may rely on a server-side technical
-        identifier.
+        For usage analytics, a <strong>consent banner</strong> asks you to accept or decline
+        PostHog cookies / storage. If you decline, PostHog may keep anonymized, cookieless
+        tracking. The free trial may rely on a server-side technical identifier.
       </p>
     </section>
 
@@ -116,8 +131,8 @@
     <section>
       <h2>9. Security</h2>
       <p>
-        Reasonable measures: HTTPS, hashed passwords, authenticated API access for protected
-        routes. As no system is infallible, we recommend not uploading unnecessary secrets in
+        Reasonable measures: HTTPS, hashed passwords, email links stored only as a fingerprint,
+        authenticated API access for protected routes, rate limiting. As no system is infallible, we recommend not uploading unnecessary secrets in
         your resume.
       </p>
     </section>
@@ -136,7 +151,7 @@
     label="Vie privée"
     title="Politique de confidentialité"
     description="Données collectées, finalités, sous-traitants et vos droits."
-    updated-at="2026-08-03"
+    updated-at="2026-09-26"
   >
     <section>
       <h2>1. Responsable du traitement</h2>
@@ -167,12 +182,19 @@
         <li>Questions, réponses et analyse JSON (score, points forts, suggestions)</li>
         <li>Durée de la session et date</li>
       </ul>
+      <h3>Vérification de l’adresse e-mail et réinitialisation du mot de passe</h3>
+      <ul>
+        <li>Date de vérification de l’adresse e-mail</li>
+        <li>Jetons à usage unique envoyés par e-mail, conservés uniquement sous forme d’empreinte (hash SHA-256) avec leur date d’expiration</li>
+      </ul>
       <h3>Essai gratuit (visiteurs)</h3>
       <ul>
-        <li>Jeton / identifiant technique (Redis ou équivalent) pour limiter l’essai</li>
+        <li>Identifiant technique dérivé de l’adresse IP et du navigateur (user agent), pour limiter l’essai</li>
       </ul>
       <h3>Données techniques &amp; analytics</h3>
       <ul>
+        <li>Adresse IP et identifiant de compte, utilisés comme compteurs de limitation de débit (anti-abus)</li>
+        <li>Données temporaires de connexion Google : valeur anti-falsification (cookie <code>oauth_state</code>) et code de connexion à usage unique</li>
         <li>Journaux techniques d’hébergement (Railway)</li>
         <li>Événements produit et erreurs via <strong>PostHog</strong> (UE), y compris identifiant utilisateur après connexion</li>
       </ul>
@@ -183,7 +205,8 @@
       <ul>
         <li>Fournir le service d’analyse et le simulateur d’entretien</li>
         <li>Authentifier les utilisateurs et conserver l’historique demandé</li>
-        <li>Limiter les abus (essai gratuit, sécurité)</li>
+        <li>Vérifier les adresses e-mail et permettre la réinitialisation du mot de passe</li>
+        <li>Limiter les abus (essai gratuit, limitation de débit, sécurité)</li>
         <li>Améliorer le produit et diagnostiquer les erreurs (PostHog)</li>
       </ul>
       <p>Base légale principale : exécution du service demandé et intérêt légitime pour la sécurité / amélioration, dans le respect du RGPD.</p>
@@ -208,7 +231,10 @@
       <ul>
         <li>Compte : jusqu’à suppression par l’utilisateur ou demande</li>
         <li>Historique des comparaisons et des simulations d’entretien : jusqu’à suppression manuelle ou suppression du compte</li>
+        <li>Jetons de vérification d’e-mail et de réinitialisation : valables respectivement 48 h et 60 min ; supprimés à l’utilisation, à l’envoi d’un nouveau lien ou à la suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
+        <li>Compteurs de limitation de débit (Redis) : une minute, ou jusqu’à minuit UTC pour les quotas journaliers</li>
+        <li>Connexion Google : cookie <code>oauth_state</code> 10 min, code de connexion 60 s</li>
         <li>Analytics PostHog : selon la politique de rétention du projet PostHog</li>
       </ul>
     </section>
@@ -219,18 +245,22 @@
         <li><strong>Railway</strong> — hébergement applicatif et bases</li>
         <li><strong>Google</strong> — Gemini (analyse) et OAuth (si connexion Google)</li>
         <li><strong>PostHog</strong> — analytics produit / erreurs (région UE)</li>
+        <li><strong>Resend</strong> (États-Unis) — envoi des e-mails transactionnels (vérification d’adresse, réinitialisation du mot de passe) : adresse e-mail et contenu du message, lorsque l’envoi d’e-mails est activé</li>
       </ul>
     </section>
 
     <section>
       <h2>7. Cookies et traceurs</h2>
+      <p>Le service utilise les stockages strictement nécessaires suivants, qui ne requièrent pas de consentement :</p>
+      <ul>
+        <li>stockage local du navigateur : jeton d’authentification (<code>talento_access_token</code>), préférence de langue de l’interface (<code>talento_locale</code>), indicateur d’essai gratuit (<code>talento_free_analysis_used</code>) et copie temporaire du dernier rapport d’entretien (<code>interviewAnalysis</code>, qui contient les textes du CV et de l’offre), effacée dès l’affichage des résultats ;</li>
+        <li>un cookie <code>oauth_state</code> (httpOnly, 10 min), posé uniquement pendant la connexion Google pour la protéger contre la falsification.</li>
+      </ul>
       <p>
-        Le service utilise le stockage local du navigateur pour le jeton d’authentification JWT
-        (nécessaire au fonctionnement du compte). Pour la mesure d’usage, une
-        <strong>bannière de consentement</strong> vous demande d’accepter ou de refuser les
-        cookies / le stockage PostHog. En cas de refus, PostHog peut continuer un suivi
-        anonymisé sans cookies (mode cookieless). L’essai gratuit peut s’appuyer sur un
-        identifiant technique côté serveur.
+        Pour la mesure d’usage, une <strong>bannière de consentement</strong> vous demande
+        d’accepter ou de refuser les cookies / le stockage PostHog. En cas de refus, PostHog peut
+        continuer un suivi anonymisé sans cookies (mode cookieless). L’essai gratuit peut
+        s’appuyer sur un identifiant technique côté serveur.
       </p>
     </section>
 
@@ -248,8 +278,9 @@
     <section>
       <h2>9. Sécurité</h2>
       <p>
-        Mesures raisonnables : HTTPS, mots de passe hashés, accès API authentifié pour les
-        routes protégées. Aucun système n’étant infaillible, nous vous invitons à ne pas
+        Mesures raisonnables : HTTPS, mots de passe hashés, liens envoyés par e-mail conservés
+        uniquement sous forme d’empreinte, accès API authentifié pour les routes protégées,
+        limitation de débit. Aucun système n’étant infaillible, nous vous invitons à ne pas
         téléverser de secrets inutiles dans vos CV.
       </p>
     </section>
