@@ -1,9 +1,10 @@
 import hashlib
 from datetime import datetime
 
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
+from app.dependencies import require_debug_endpoints
 from app.models.comparison import ComparisonRequest
 from app.models.upload import PDFUploadResponse
 from app.services.comparison_service import stream_comparison
@@ -84,7 +85,7 @@ async def get_free_analysis_status(http_request: Request):
     }
 
 
-@router.post("/reset-free-analysis")
+@router.post("/reset-free-analysis", dependencies=[Depends(require_debug_endpoints)], include_in_schema=False)
 async def reset_free_analysis(http_request: Request):
     client_id = get_client_identifier(http_request)
     success = redis_service.reset_free_analysis(client_id)
@@ -95,7 +96,7 @@ async def reset_free_analysis(http_request: Request):
     }
 
 
-@router.get("/free-analysis-stats")
+@router.get("/free-analysis-stats", dependencies=[Depends(require_debug_endpoints)], include_in_schema=False)
 async def get_free_analysis_stats():
     stats = redis_service.get_stats()
     redis_health = redis_service.health_check()

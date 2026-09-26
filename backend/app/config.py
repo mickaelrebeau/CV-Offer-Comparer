@@ -35,6 +35,8 @@ class Settings(BaseSettings):
 
     # Production settings
     ENVIRONMENT: str = "development"
+    # Endpoints de debug (test-stream, reset free-trial, stats…) : jamais exposés en production
+    ENABLE_DEBUG_ENDPOINTS: bool = False
 
     # Redis (Railway / local)
     REDIS_URL: str = "redis://localhost:6379"
@@ -48,6 +50,10 @@ class Settings(BaseSettings):
         env_file=".env",
         extra="ignore",
     )
+
+    @property
+    def debug_endpoints_enabled(self) -> bool:
+        return self.ENABLE_DEBUG_ENDPOINTS and self.ENVIRONMENT.lower() != "production"
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod

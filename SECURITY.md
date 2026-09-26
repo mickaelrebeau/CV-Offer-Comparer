@@ -22,6 +22,17 @@ Incluez si possible :
 
 Nous accuserons réception sous 72 h ouvrées et travaillerons à un correctif ou une mitigation.
 
+## Endpoints de debug
+
+Les routes suivantes servent uniquement au développement local :
+
+- `POST /api/reset-free-analysis` (réinitialise l’essai gratuit)
+- `GET /api/free-analysis-stats`
+- `GET /api/test-stream`
+- `GET /api/interview/test`
+
+Elles répondent `404` et sont absentes du schéma OpenAPI, sauf si `ENABLE_DEBUG_ENDPOINTS=true` **et** `ENVIRONMENT` ≠ `production`. En production, elles restent désactivées même si le flag est activé par erreur.
+
 ## Bonnes pratiques pour les contributeurs
 
 - Ne jamais committer `.env`, clés API, tokens OAuth, dumps DB
