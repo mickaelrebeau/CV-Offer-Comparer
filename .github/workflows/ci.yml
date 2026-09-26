@@ -31,24 +31,25 @@ jobs:
           VITE_API_URL: http://localhost:8000
           VITE_POSTHOG_PROJECT_TOKEN: phc_ci_dummy
           VITE_POSTHOG_HOST: https://eu.i.posthog.com
-      - name: Smoke test (vite preview)
+      - name: Prerender head check
+        run: pnpm test:prerender
+      # Même serveur et même config qu'en production (frontend/start.sh + dist/serve.json)
+      - name: Start static server (serve)
         run: |
-          pnpm preview --port 4173 --strictPort &
-          for i in $(seq 1 20); do
-            curl -sf http://localhost:4173/ > /dev/null && break
+          npx -y serve@14 dist -l tcp://127.0.0.1:4173 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4173/ > /dev/null && break
             sleep 1
           done
-          curl -fsS http://localhost:4173/ | grep -q "Talento"
+      - name: Smoke test
+        run: |
+          curl -fsS http://127.0.0.1:4173/ | grep -q "Talento"
+          curl -fsS http://127.0.0.1:4173/login | grep -q "<title>Connexion · Talento</title>"
+          curl -fsS http://127.0.0.1:4173/dashboard | grep -q '<div id="app"></div>'
       - name: Install Chromium (axe-core)
         run: pnpm exec playwright install --with-deps chromium
       - name: Accessibility smoke test (axe-core)
-        run: |
-          pnpm preview --port 4174 --strictPort &
-          for i in $(seq 1 20); do
-            curl -sf http://localhost:4174/ > /dev/null && break
-            sleep 1
-          done
-          A11Y_BASE_URL=http://localhost:4174 pnpm test:a11y
+        run: A11Y_BASE_URL=http://127.0.0.1:4173 pnpm test:a11y
 
   backend:
     name: Backend (pytest)
