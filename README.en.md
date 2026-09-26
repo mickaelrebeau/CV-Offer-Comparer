@@ -19,6 +19,7 @@ Open-source web app (**Talento**) that compares a résumé (CV) with a job offer
 - ATS-style CV ↔ job analysis (progressive SSE streaming)
 - Concrete suggestions to strengthen the CV
 - Free trial (Redis-backed limit)
+- Installable web app (PWA): manifest, service worker, pages available offline
 - Email/password auth + **Google OAuth**
 - Personalized interview simulator
 - PDF upload and plain-text input

@@ -24,6 +24,10 @@
             <span class="field-label">{{ t('profile.language') }}</span>
             <LanguageSwitcher />
           </div>
+          <div v-if="canInstall" class="space-y-1">
+            <span class="field-label">{{ t('profile.app') }}</span>
+            <InstallAppButton />
+          </div>
         </div>
       </div>
 
@@ -62,11 +66,13 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import InstallAppButton from '@/components/InstallAppButton.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { Notification } from '@/components/ui/notification'
 import { useLocale } from '@/i18n/useLocale'
+import { canInstall } from '@/lib/pwa'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()

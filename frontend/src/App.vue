@@ -58,6 +58,7 @@
             </RouterLink>
           </template>
           <UserMenu v-else />
+          <InstallAppButton class="hidden md:inline-flex" />
           <LanguageSwitcher class="hidden md:flex" />
           <button
             type="button"
@@ -95,6 +96,7 @@
           <RouterLink :to="localePath('/profile')" class="text-ink-soft">{{ t('nav.profile') }}</RouterLink>
           <button type="button" class="uppercase text-rose-700" @click="handleSignOut">{{ t('nav.signOut') }}</button>
         </template>
+        <InstallAppButton />
         <LanguageSwitcher />
       </nav>
     </header>
@@ -106,6 +108,7 @@
     </main>
 
     <CookieConsentBanner />
+    <OfflineBanner />
 
     <footer v-if="!isLanding" class="border-t border-ink/10 py-8 font-mono text-micro uppercase">
       <div class="mx-auto flex max-w-[100rem] flex-col items-center justify-between gap-4 px-5 text-ink-soft sm:flex-row sm:px-8 lg:px-16">
@@ -138,12 +141,15 @@ import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
 import CookieConsentBanner from '@/components/CookieConsentBanner.vue'
 import EmailVerificationBanner from '@/components/EmailVerificationBanner.vue'
+import InstallAppButton from '@/components/InstallAppButton.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import OfflineBanner from '@/components/OfflineBanner.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { stripLocale } from '@/i18n/routing'
 import { useLocale } from '@/i18n/useLocale'
+import { isOnline } from '@/lib/pwa'
 
 const { t } = useI18n()
 const { localePath, push } = useLocale()
@@ -171,6 +177,11 @@ watch(
     isMobileMenuOpen.value = false
   },
 )
+
+// Session gardée hors ligne : la revérifier dès le retour du réseau
+watch(isOnline, (online) => {
+  if (online && authStore.sessionUnverified) authStore.getCurrentUser()
+})
 
 const appLinks = [
   { path: '/dashboard', label: 'nav.dashboard' },

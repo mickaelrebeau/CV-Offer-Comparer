@@ -427,6 +427,7 @@
               <a href="https://github.com/mickaelrebeau/CV-Offer-Comparer" target="_blank" rel="noopener" class="transition-colors hover:text-ink">{{ t('landing.footer.github') }}</a>
               <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">{{ t('landing.footer.contact') }}</a>
               <RouterLink :to="localePath('/login')" class="transition-colors hover:text-ink">{{ t('landing.footer.login') }}</RouterLink>
+              <InstallAppButton />
             </div>
           </div>
         </div>
@@ -440,6 +441,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import BrandLogo from '@/components/BrandLogo.vue'
+import InstallAppButton from '@/components/InstallAppButton.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import ProductDemoVideo from '@/components/ProductDemoVideo.vue'
 import { useAuthStore } from '@/stores/auth'

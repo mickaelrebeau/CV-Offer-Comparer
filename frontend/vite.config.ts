@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { copyFileSync, writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { createHash } from 'crypto'
+import { copyFileSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs'
+import { join, relative, resolve } from 'path'
 import { prerenderRoutes } from './prerender-routes'
 
 const SITE_URL = 'https://cv-compare.up.railway.app'
@@ -14,6 +15,46 @@ const SITEMAP_META: Record<string, [string, string]> = {
   '/confidentialite': ['yearly', '0.4'],
   '/mentions-legales': ['yearly', '0.3'],
   '/cgv': ['yearly', '0.3'],
+}
+
+/** Fichiers du build à précacher par le service worker (URL propres pour les pages HTML). */
+function precacheEntries(): { url: string; file: string }[] {
+  const root = resolve(__dirname, 'dist')
+  const entries: { url: string; file: string }[] = []
+  const walk = (dir: string) => {
+    for (const name of readdirSync(dir)) {
+      const file = join(dir, name)
+      if (statSync(file).isDirectory()) {
+        walk(file)
+        continue
+      }
+      const path = `/${relative(root, file).split('\\').join('/')}`
+      if (path.endsWith('.html')) {
+        // /index.html → /, /login.html → /login, /en.html → /en, /_spa.html → /_spa
+        entries.push({ url: path === '/index.html' ? '/' : path.replace(/\.html$/, ''), file })
+      } else if (
+        path.startsWith('/assets/') ||
+        path.startsWith('/icons/') ||
+        path === '/manifest.webmanifest' ||
+        path === '/logo.png'
+      ) {
+        entries.push({ url: path, file })
+      }
+    }
+  }
+  walk(root)
+  return entries.sort((a, b) => a.url.localeCompare(b.url))
+}
+
+/** dist/sw.js : modèle pwa/sw.template.js + liste de précache + version (empreinte du contenu). */
+function buildServiceWorker(): string {
+  const entries = precacheEntries()
+  const hash = createHash('sha256')
+  for (const { url, file } of entries) hash.update(url).update(readFileSync(file))
+  const template = readFileSync(resolve(__dirname, 'pwa/sw.template.js'), 'utf-8')
+  return template
+    .replace('__VERSION__', hash.digest('hex').slice(0, 12))
+    .replace('__PRECACHE_URLS__', JSON.stringify(entries.map((entry) => entry.url)))
 }
 
 /** Sitemap des pages prégénérées, avec alternates hreflang quand les deux langues existent. */
@@ -94,6 +135,8 @@ export default defineConfig({
       }
       writeFileSync(dist('serve.json'), JSON.stringify(config, null, 2))
       writeFileSync(dist('sitemap.xml'), buildSitemap(prerenderRoutes))
+      // En dernier : le précache doit inclure toutes les pages rendues
+      writeFileSync(dist('sw.js'), buildServiceWorker())
     },
   },
 })

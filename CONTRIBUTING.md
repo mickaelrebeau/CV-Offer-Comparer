@@ -126,6 +126,20 @@ Contrat de locale : **aucun texte visible en dur**, côté front comme côté AP
 - Messages de réponse (`message`, statuts SSE, e-mails) : dépendance `locale: str = Depends(request_locale)` puis `t(code, locale)`.
 - Ne jamais renvoyer `str(exception)` au client : journaliser le détail, renvoyer un code générique.
 
+## PWA (webapp installable)
+
+- Manifeste : `frontend/public/manifest.webmanifest` ; icônes dans `frontend/public/icons/` (192/512 `any` + `maskable`, `apple-touch-icon` 180).
+- Service worker : modèle `frontend/pwa/sw.template.js`, généré au build dans `dist/sw.js` (liste de précache + version calculée sur le contenu). Pages : réseau d’abord, repli cache puis shell SPA hors ligne ; assets versionnés : cache d’abord ; Google Fonts : stale-while-revalidate. **Jamais** de cache pour l’API, les vidéos ou les documents utilisateur.
+- Actif uniquement en production (`pnpm build` + `serve dist`), pas avec `pnpm dev`.
+- `pnpm test:pwa` (CI) vérifie manifeste, icônes, service worker actif, précache sans API et navigation hors ligne.
+
+**Smoke Lighthouse / installabilité (manuel, avant une release touchant la PWA)**
+
+1. `pnpm build && npx serve@14 dist -l 4173` (localhost compte comme contexte sécurisé ; en production, HTTPS est fourni par Railway).
+2. Chrome DevTools → **Application** → *Manifest* : aucune erreur d’installabilité, icônes maskables correctes (aperçu « Show only the minimum safe area »). *Service workers* : `sw.js` activé ; cocher *Offline* puis recharger `/`, `/en/login` et `/compare?history=…` (shell + bandeau hors ligne).
+3. Lighthouse : la catégorie PWA a été retirée de Lighthouse 12 ; utiliser `npx lighthouse@11 http://localhost:4173 --only-categories=pwa --view` (attendu : *Installable* et *PWA Optimized* au vert), ou l’onglet Application ci-dessus.
+4. Android / Chrome desktop : le bouton « Installer l’app » apparaît (en-tête, profil, pied de page de la landing) quand `beforeinstallprompt` est émis. iOS : partage → « Sur l’écran d’accueil ».
+
 ## Pull Requests
 
 Une bonne PR :

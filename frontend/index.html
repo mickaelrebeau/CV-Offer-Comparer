@@ -4,7 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Talento" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Talento — Analyse ATS CV ↔ offre & préparation d'entretien</title>
   <!-- Description, canonical, Open Graph, hreflang… : générés par usePageSeo (@unhead/vue) pour chaque page -->
@@ -12,10 +17,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Démarrage : fond papier immédiat, splash tant que l'app n'est pas montée (#app vide = shell SPA) */
+    html, body { background: #F1EEE7; }
+    #splash { position: fixed; inset: 0; display: grid; place-items: center; background: #F1EEE7; z-index: 200; }
+    #splash img { width: 72px; height: 72px; animation: splash-pulse 1.4s ease-in-out infinite; }
+    #app:not(:empty) ~ #splash { display: none; }
+    @keyframes splash-pulse { 50% { opacity: 0.45; } }
+    @media (prefers-reduced-motion: reduce) { #splash img { animation: none; } }
+  </style>
 </head>
 
 <body class="bg-background text-foreground antialiased min-h-screen">
   <div id="app"></div>
+  <div id="splash" aria-hidden="true"><img src="/icons/icon-192.png" alt="" width="72" height="72" /></div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 

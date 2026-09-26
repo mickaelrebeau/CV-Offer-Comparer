@@ -54,6 +54,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Accessibility smoke test (axe-core)
         run: A11Y_BASE_URL=http://127.0.0.1:4173 pnpm test:a11y
+      - name: PWA smoke test (manifest, service worker, offline)
+        run: PWA_BASE_URL=http://127.0.0.1:4173 pnpm test:pwa
 
   backend:
     name: Backend (pytest)
