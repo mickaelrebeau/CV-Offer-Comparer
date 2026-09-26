@@ -1,7 +1,7 @@
 {
   "name": "talento",
   "version": "1.0.0",
-  "description": "Comparateur CV ↔ Offre d'emploi avec IA",
+  "description": "Talento — analyse ATS CV ↔ offre d'emploi et simulateur d'entretien avec IA",
   "type": "module",
   "scripts": {
     "dev": "vite",

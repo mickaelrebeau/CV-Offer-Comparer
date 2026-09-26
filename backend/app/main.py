@@ -16,9 +16,9 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="Comparateur CV ↔ Offre d'emploi",
+    title="Talento API",
     version="1.0.0",
-    description="API pour comparer intelligemment un CV avec une offre d'emploi",
+    description="API de Talento : analyse ATS d'un CV face à une offre d'emploi et simulateur d'entretien.",
     lifespan=lifespan,
 )
 

@@ -9,6 +9,7 @@ import {
 } from "@/lib/api";
 import { useAuthStore } from "./auth";
 import posthog from "posthog-js";
+import { STORAGE_KEYS, readStorage, removeStorage } from "@/lib/storageKeys";
 
 
 export interface ComparisonItem {
@@ -56,19 +57,19 @@ export const useCompareStore = defineStore("compare", () => {
       return hasUsedFreeAnalysis.value;
     } catch (error) {
       console.error("Erreur lors de la vérification du statut:", error);
-      const used = localStorage.getItem("cv-offer-compare-free-analysis-used");
+      const used = readStorage(STORAGE_KEYS.freeAnalysisUsed);
       hasUsedFreeAnalysis.value = used === "true";
       return hasUsedFreeAnalysis.value;
     }
   };
 
   const markFreeAnalysisAsUsed = () => {
-    localStorage.setItem("cv-offer-compare-free-analysis-used", "true");
+    localStorage.setItem(STORAGE_KEYS.freeAnalysisUsed, "true");
     hasUsedFreeAnalysis.value = true;
   };
 
   const resetFreeAnalysis = () => {
-    localStorage.removeItem("cv-offer-compare-free-analysis-used");
+    removeStorage(STORAGE_KEYS.freeAnalysisUsed);
     hasUsedFreeAnalysis.value = false;
   };
 

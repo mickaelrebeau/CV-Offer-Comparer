@@ -20,9 +20,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: Annotated[List[str], NoDecode] = [
         "http://localhost:3000",
         "http://localhost:5173",
-        "https://frontend-production-5bcc.up.railway.app",
         "https://cv-compare.up.railway.app",
-        "https://cv-offer-comparer-mike-dreeman.vercel.app",
     ]
 
     # Upload
