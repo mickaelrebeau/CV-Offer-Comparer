@@ -63,7 +63,7 @@ export const Input = defineComponent({
         required: props.required,
         minlength: props.minlength,
         id: props.id,
-        class: cn('w-full rounded-lg border border-ink/20 bg-paper px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-ink/20', extraClass as string),
+        class: cn('w-full rounded-lg border border-ink/20 bg-paper px-3 py-2.5 font-sans text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none focus:ring-2 focus:ring-ink/60', extraClass as string),
         onInput: handleInput,
         ...restAttrs
       })
@@ -75,11 +75,14 @@ export const Input = defineComponent({
           inputElement,
           h('button', {
             type: 'button',
+            'aria-label': showPassword.value ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+            'aria-pressed': showPassword.value,
             class: 'absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground',
             onClick: togglePasswordVisibility
           }, [
             h(showPassword.value ? EyeOff : Eye, {
-              class: 'h-4 w-4'
+              class: 'h-4 w-4',
+              'aria-hidden': 'true'
             })
           ])
         ])

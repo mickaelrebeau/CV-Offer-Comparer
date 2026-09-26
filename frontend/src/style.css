@@ -53,6 +53,16 @@
     overflow: hidden;
   }
 
+  /* Focus clavier visible partout (les composants avec leur propre ring le surchargent) */
+  :focus-visible {
+    outline: 2px solid theme('colors.ink.DEFAULT');
+    outline-offset: 2px;
+  }
+
+  .panel-dark :focus-visible {
+    outline-color: theme('colors.paper.DEFAULT');
+  }
+
   body {
     @apply bg-paper text-ink antialiased selection:bg-ink selection:text-paper;
     font-feature-settings: 'rlig' 1, 'calt' 1, 'cv02' 1, 'cv03' 1, 'cv04' 1;
@@ -81,7 +91,7 @@
   }
 
   .panel-dark-header {
-    @apply flex h-10 items-center border-b border-white/10 px-4 font-mono text-micro uppercase text-paper/40;
+    @apply flex h-10 items-center border-b border-white/10 px-4 font-mono text-micro uppercase text-paper/60;
   }
 
   .field-label {

@@ -20,23 +20,23 @@
               <Input id="confirm-password" v-model="confirmPassword" type="password" required placeholder="••••••••" :show-password-toggle="true" />
             </div>
 
-            <div v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
+            <div role="alert" v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
               {{ error }}
             </div>
 
             <Button type="submit" variant="full" size="lg" :disabled="loading">
-              <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
               Enregistrer le mot de passe
             </Button>
           </form>
         </template>
 
-        <div v-else class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
+        <div role="alert" v-else class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
           Lien de réinitialisation incomplet. Demandez un nouveau lien.
         </div>
 
         <p class="text-center font-mono text-micro uppercase text-ink-soft">
-          <router-link to="/forgot-password" class="text-ink hover:underline">Demander un nouveau lien</router-link>
+          <router-link to="/forgot-password" class="text-ink underline underline-offset-2">Demander un nouveau lien</router-link>
         </p>
       </div>
     </div>

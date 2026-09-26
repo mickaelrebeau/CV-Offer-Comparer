@@ -10,23 +10,25 @@
       <article
         v-for="module in modules"
         :key="module.path"
-        class="panel group cursor-pointer p-6 transition-colors hover:border-ink/30 sm:p-8"
-        @click="router.push(module.path)"
+        class="panel group relative cursor-pointer p-6 transition-colors focus-within:ring-2 focus-within:ring-ink/60 hover:border-ink/30 sm:p-8"
       >
         <div class="mb-6 font-mono text-micro uppercase text-ink-soft">{{ module.id }}</div>
         <h2 class="mb-3 font-medium text-title transition-colors group-hover:text-ink-soft">
-          {{ module.title }}
+          <!-- Lien étiré : toute la carte est cliquable, un seul arrêt clavier -->
+          <RouterLink :to="module.path" class="after:absolute after:inset-0 after:content-[''] focus:outline-none">
+            {{ module.title }}
+          </RouterLink>
         </h2>
         <p class="mb-6 max-w-[42ch] text-lead text-ink-soft">{{ module.description }}</p>
         <ul class="mb-8 space-y-2 font-mono text-micro uppercase text-ink-soft">
           <li v-for="feature in module.features" :key="feature" class="flex gap-2">
-            <span class="text-ink/30">—</span>
+            <span class="text-ink/30" aria-hidden="true">—</span>
             <span>{{ feature }}</span>
           </li>
         </ul>
         <div class="flex items-center justify-between border-t border-ink/10 pt-5 font-mono text-micro uppercase">
           <span class="text-ink transition-opacity group-hover:opacity-70">{{ module.cta }}</span>
-          <ArrowRight class="h-4 w-4 text-ink-soft transition-transform group-hover:translate-x-1" />
+          <ArrowRight class="h-4 w-4 text-ink-soft transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </div>
       </article>
     </div>
@@ -52,7 +54,7 @@
         Chargement de l'historique…
       </div>
 
-      <div
+      <div role="alert"
         v-else-if="historyError"
         class="panel border-rose-500/25 bg-rose-500/5 p-6 font-mono text-micro text-rose-700"
       >
@@ -85,13 +87,19 @@
             <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || 'CV sans extrait' }}</p>
           </div>
           <div class="flex shrink-0 gap-2">
-            <button type="button" class="btn-secondary h-9 px-4 text-micro" @click="openHistory(item.id)">
+            <button
+              type="button"
+              class="btn-secondary h-9 px-4 text-micro"
+              :aria-label="`Voir la comparaison du ${formatDate(item.created_at)}`"
+              @click="openHistory(item.id)"
+            >
               Voir
             </button>
             <button
               type="button"
               class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
               :disabled="deletingId === item.id"
+              :aria-label="`Supprimer la comparaison du ${formatDate(item.created_at)}`"
               @click="removeHistory(item.id)"
             >
               Supprimer
@@ -122,7 +130,7 @@
         Chargement des simulations…
       </div>
 
-      <div
+      <div role="alert"
         v-else-if="interviewError"
         class="panel border-rose-500/25 bg-rose-500/5 p-6 font-mono text-micro text-rose-700"
       >
@@ -159,6 +167,7 @@
             <button
               type="button"
               class="btn-secondary h-9 px-4 text-micro"
+              :aria-label="`Voir la simulation du ${formatDate(item.created_at)}`"
               @click="openInterviewHistory(item.id)"
             >
               Voir
@@ -167,6 +176,7 @@
               type="button"
               class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
               :disabled="deletingInterviewId === item.id"
+              :aria-label="`Supprimer la simulation du ${formatDate(item.created_at)}`"
               @click="removeInterviewHistory(item.id)"
             >
               Supprimer

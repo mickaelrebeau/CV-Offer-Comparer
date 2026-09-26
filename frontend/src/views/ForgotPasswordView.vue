@@ -8,7 +8,7 @@
       />
 
       <div class="panel p-6 sm:p-8 space-y-6">
-        <div v-if="sent" class="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 font-mono text-micro text-emerald-700">
+        <div role="status" v-if="sent" class="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 font-mono text-micro text-emerald-700">
           {{ sent }}
         </div>
 
@@ -18,18 +18,18 @@
             <Input id="email" v-model="email" type="email" required placeholder="nom@exemple.com" />
           </div>
 
-          <div v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
+          <div role="alert" v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
             {{ error }}
           </div>
 
           <Button type="submit" variant="full" size="lg" :disabled="loading">
-            <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             Envoyer le lien
           </Button>
         </form>
 
         <p class="text-center font-mono text-micro uppercase text-ink-soft">
-          <router-link to="/login" class="text-ink hover:underline">Retour à la connexion</router-link>
+          <router-link to="/login" class="text-ink underline underline-offset-2">Retour à la connexion</router-link>
         </p>
       </div>
     </div>

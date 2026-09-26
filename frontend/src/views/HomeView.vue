@@ -12,7 +12,8 @@
         <BrandLogo tag="span" size="sm" />
       </a>
       <nav
-        class="pointer-events-auto hidden lg:flex items-center gap-7 rounded-full border border-ink/12 bg-paper/80 px-6 py-2.5 font-mono text-caption uppercase backdrop-blur-md"
+        aria-label="Sections de la page"
+        class="pointer-events-auto hidden lg:flex items-center gap-7 rounded-full border border-ink/12 bg-paper/95 px-6 py-2.5 font-mono text-caption uppercase backdrop-blur-md"
       >
         <a href="#probleme" class="text-ink-soft transition-colors hover:text-ink">Problème</a>
         <a href="#methode" class="text-ink-soft transition-colors hover:text-ink">Méthode</a>
@@ -23,7 +24,7 @@
       </nav>
 
       <div
-        class="pointer-events-auto flex items-center gap-1 rounded-full border border-ink/12 bg-paper/80 p-1 pl-1.5 backdrop-blur-md lg:absolute lg:right-8"
+        class="pointer-events-auto flex items-center gap-1 rounded-full border border-ink/12 bg-paper/95 p-1 pl-1.5 backdrop-blur-md lg:absolute lg:right-8"
       >
         <a
           v-if="!authStore.isAuthenticated"
@@ -95,7 +96,7 @@
         <!-- Panneau terminal -->
         <div data-reveal="hero-panel" class="relative min-h-[70svh] bg-ink p-5 pt-24 sm:p-8 sm:pt-28 lg:col-span-6 lg:min-h-svh lg:p-12 lg:pt-28">
           <div class="flex h-full flex-col overflow-hidden rounded-xl bg-ink-deep font-mono text-caption text-paper/90 ring-1 ring-white/10">
-            <div class="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+            <div class="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-micro uppercase text-paper/60">
               <span>analyse — session en direct</span>
               <span class="flex items-center gap-1.5">
                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
@@ -106,18 +107,18 @@
             <div class="relative flex flex-1 flex-col overflow-hidden p-4 sm:p-6">
               <div class="pointer-events-none absolute inset-x-0 top-0 h-px animate-scan bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
 
-              <div class="space-y-1.5 text-paper/50">
-                <p><span class="text-paper/30">$</span> lecture offre.pdf … <span class="text-emerald-400">ok</span></p>
-                <p><span class="text-paper/30">$</span> lecture cv.pdf … <span class="text-emerald-400">ok</span></p>
-                <p><span class="text-paper/30">$</span> extraction des critères … <span class="text-emerald-400">18 trouvés</span></p>
+              <div class="space-y-1.5 text-paper/60">
+                <p><span class="text-paper/30" aria-hidden="true">$</span> lecture offre.pdf … <span class="text-emerald-400">ok</span></p>
+                <p><span class="text-paper/30" aria-hidden="true">$</span> lecture cv.pdf … <span class="text-emerald-400">ok</span></p>
+                <p><span class="text-paper/30" aria-hidden="true">$</span> extraction des critères … <span class="text-emerald-400">18 trouvés</span></p>
               </div>
 
               <div class="my-5 flex items-end justify-between border-y border-white/10 py-5">
                 <div>
-                  <div class="mb-1 text-micro uppercase text-paper/40">Score de correspondance</div>
+                  <div class="mb-1 text-micro uppercase text-paper/60">Score de correspondance</div>
                   <div class="text-5xl font-medium tabular-nums text-paper">{{ animatedScore }}%</div>
                 </div>
-                <div class="text-right text-micro uppercase text-paper/40">
+                <div class="text-right text-micro uppercase text-paper/60">
                   <div>18 critères</div>
                   <div>14 couverts</div>
                   <div>4 manquants</div>
@@ -131,7 +132,7 @@
                   class="flex items-baseline justify-between gap-4 border-b border-white/5 py-1.5"
                 >
                   <span class="flex items-baseline gap-4">
-                    <span class="tabular-nums text-paper/30">{{ row.id }}</span>
+                    <span class="tabular-nums text-paper/60">{{ row.id }}</span>
                     <span class="text-paper/80">{{ row.label }}</span>
                   </span>
                   <span :class="row.tone">{{ row.status }}</span>
@@ -139,18 +140,18 @@
               </div>
 
               <div class="mt-7 space-y-2.5">
-                <div class="text-micro uppercase text-paper/40">Couverture par catégorie</div>
+                <div class="text-micro uppercase text-paper/60">Couverture par catégorie</div>
                 <div v-for="cat in categories" :key="cat.label" class="flex items-center gap-4">
                   <span class="w-28 shrink-0 text-paper/55">{{ cat.label }}</span>
                   <span class="h-px flex-1 bg-white/10">
                     <span class="block h-px bg-paper/60" :style="{ width: cat.value + '%' }"></span>
                   </span>
-                  <span class="w-10 shrink-0 text-right tabular-nums text-paper/40">{{ cat.value }}%</span>
+                  <span class="w-10 shrink-0 text-right tabular-nums text-paper/60">{{ cat.value }}%</span>
                 </div>
               </div>
 
-              <p class="mt-auto pt-6 text-paper/30">
-                <span class="text-paper/20">$</span> génération des reformulations
+              <p class="mt-auto pt-6 text-paper/60">
+                <span class="text-paper/20" aria-hidden="true">$</span> génération des reformulations
                 <span class="animate-caret">▍</span>
               </p>
             </div>
@@ -164,7 +165,7 @@
           <div data-reveal-item class="order-2 lg:order-1 lg:col-span-6">
             <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_24px_60px_-30px_rgba(35,35,35,0.6)]">
               <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
-                <div class="flex h-9 items-center border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+                <div class="flex h-9 items-center border-b border-white/10 px-4 text-micro uppercase text-paper/60">
                   temps-perdu.log
                 </div>
                 <div class="overflow-x-auto p-4 sm:p-6">
@@ -175,14 +176,14 @@
                       class="flex items-baseline justify-between gap-8"
                     >
                       <span class="flex items-baseline gap-5">
-                        <span class="tabular-nums text-paper/35">{{ item.id }}</span>
+                        <span class="tabular-nums text-paper/60">{{ item.id }}</span>
                         <span class="text-paper/85">{{ item.label }}</span>
                       </span>
-                      <span class="tabular-nums text-paper/45">{{ item.cost }}</span>
+                      <span class="tabular-nums text-paper/60">{{ item.cost }}</span>
                     </div>
                   </div>
                 </div>
-                <div class="border-t border-white/10 px-4 py-3 text-micro uppercase text-paper/50 sm:px-6">
+                <div class="border-t border-white/10 px-4 py-3 text-micro uppercase text-paper/60 sm:px-6">
                   Temps perdu estimé : ~12 heures par candidature (1,5 jour)
                 </div>
               </div>
@@ -215,7 +216,7 @@
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
             <div data-reveal-item class="lg:col-span-5">
-              <p class="mb-5 font-mono text-caption uppercase text-paper/45">Architecture</p>
+              <p class="mb-5 font-mono text-caption uppercase text-paper/60">Architecture</p>
               <h2 class="max-w-[16ch] text-balance font-medium text-headline">
                 Chaque décision déjà prise. Pour passer directement à l'entretien.
               </h2>
@@ -239,7 +240,7 @@
               data-reveal-row
               class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
             >
-              <div class="font-mono text-caption uppercase text-paper/35 lg:col-span-2">
+              <div class="font-mono text-caption uppercase text-paper/60 lg:col-span-2">
                 {{ decision.id }}
               </div>
               <h3 class="font-medium text-title lg:col-span-4">{{ decision.title }}</h3>
@@ -275,7 +276,7 @@
 
           <div data-reveal-item class="rounded-xl bg-ink-deep p-1.5 shadow-[0_40px_80px_-40px_rgba(35,35,35,0.55)]">
             <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
-              <div class="flex h-10 items-center gap-2 border-b border-white/10 px-4 text-micro uppercase text-paper/40">
+              <div class="flex h-10 items-center gap-2 border-b border-white/10 px-4 text-micro uppercase text-paper/60">
                 <span class="h-2 w-2 rounded-full bg-white/15"></span>
                 <span class="h-2 w-2 rounded-full bg-white/15"></span>
                 <span class="h-2 w-2 rounded-full bg-white/15"></span>
@@ -309,13 +310,13 @@
           <div class="grid grid-cols-2 gap-8 border-b border-white/10 pb-16 lg:grid-cols-4">
             <div v-for="stat in stats" :key="stat.label" data-reveal-stat>
               <div class="mb-2 text-4xl font-medium tabular-nums lg:text-5xl">{{ stat.value }}</div>
-              <div class="font-mono text-micro uppercase text-paper/40">{{ stat.label }}</div>
+              <div class="font-mono text-micro uppercase text-paper/60">{{ stat.label }}</div>
             </div>
           </div>
 
           <div class="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
             <div v-for="step in steps" :key="step.id" data-reveal-item>
-              <div class="mb-4 font-mono text-caption uppercase text-paper/35">{{ step.id }}</div>
+              <div class="mb-4 font-mono text-caption uppercase text-paper/60">{{ step.id }}</div>
               <h3 class="mb-3 font-medium text-title">{{ step.title }}</h3>
               <p class="max-w-[42ch] text-lead text-paper/55">{{ step.body }}</p>
             </div>
@@ -347,7 +348,7 @@
 
                 <ul class="mb-8 space-y-2.5 font-mono text-caption uppercase text-ink-soft">
                   <li v-for="perk in perks" :key="perk" class="flex gap-3">
-                    <span class="text-ink/30">—</span>
+                    <span class="text-ink/30" aria-hidden="true">—</span>
                     <span>{{ perk }}</span>
                   </li>
                 </ul>
@@ -385,7 +386,7 @@
       >
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div data-reveal-item class="mb-14 lg:mb-20">
-            <p class="mb-5 font-mono text-caption uppercase text-paper/45">Avant de commencer</p>
+            <p class="mb-5 font-mono text-caption uppercase text-paper/60">Avant de commencer</p>
             <h2 class="max-w-[16ch] text-balance font-medium text-headline">
               Les questions qu'on nous pose.
             </h2>
@@ -401,7 +402,7 @@
               itemtype="https://schema.org/Question"
               class="grid grid-cols-1 gap-3 border-b border-white/10 py-7 lg:grid-cols-12 lg:gap-8"
             >
-              <div class="font-mono text-caption uppercase text-paper/40 lg:col-span-4" itemprop="name">
+              <div class="font-mono text-caption uppercase text-paper/60 lg:col-span-4" itemprop="name">
                 {{ item.id }} / {{ item.question }}
               </div>
               <div

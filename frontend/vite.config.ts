@@ -27,5 +27,9 @@ export default defineConfig({
     includedRoutes() {
       return prerenderRoutes
     },
+    // Le rendu du head SSG sort <html lang="en"> : forcer la langue du site (lecteurs d'écran)
+    onPageRendered(_route, html) {
+      return html.replace(/<html lang="[^"]*"/, '<html lang="fr"')
+    },
   },
 })

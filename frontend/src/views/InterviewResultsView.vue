@@ -7,15 +7,15 @@
     />
 
     <div v-if="isLoading" class="py-16 text-center">
-      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" />
+      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
       <p class="mt-4 font-mono text-micro uppercase text-ink-soft">Récupération des résultats...</p>
     </div>
 
     <div v-else-if="error" class="py-16 text-center space-y-6">
-      <AlertCircle class="mx-auto h-10 w-10 text-rose-500" />
+      <AlertCircle class="mx-auto h-10 w-10 text-rose-500" aria-hidden="true" />
       <p class="text-lead text-ink-soft">{{ error }}</p>
       <Button @click="startNewInterview">
-        <MessageSquare class="mr-2 h-4 w-4" />
+        <MessageSquare class="mr-2 h-4 w-4" aria-hidden="true" />
         Nouveau simulateur
       </Button>
     </div>
@@ -39,7 +39,7 @@
 
       <div v-if="analysisResult?.points_forts?.length" class="panel p-6 space-y-4">
         <h3 class="flex items-center gap-2 font-mono text-caption uppercase">
-          <CheckCircle class="h-4 w-4 text-emerald-500" />
+          <CheckCircle class="h-4 w-4 text-emerald-500" aria-hidden="true" />
           Points forts
         </h3>
         <div class="space-y-2">
@@ -51,7 +51,7 @@
 
       <div v-if="analysisResult?.points_amelioration?.length" class="panel p-6 space-y-4">
         <h3 class="flex items-center gap-2 font-mono text-caption uppercase">
-          <MessageSquare class="h-4 w-4 text-amber-600" />
+          <MessageSquare class="h-4 w-4 text-amber-600" aria-hidden="true" />
           Pistes d'amélioration
         </h3>
         <div class="space-y-2">
@@ -66,7 +66,7 @@
           <div class="panel-dark-header">Détail des réponses</div>
           <div class="space-y-0 p-4 sm:p-6">
             <div v-for="(ans, idx) in interviewData.answers" :key="idx" class="border-b border-white/5 py-4 last:border-0">
-              <div class="mb-2 font-mono text-micro uppercase text-paper/40">
+              <div class="mb-2 font-mono text-micro uppercase text-paper/60">
                 Question {{ idx + 1 }} · {{ ans.category }}
               </div>
               <p class="mb-3 text-sm font-medium text-paper/90">{{ ans.question }}</p>
@@ -80,11 +80,11 @@
 
       <div class="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button variant="outline" @click="goToDashboard">
-          <ArrowLeft class="mr-2 h-4 w-4" />
+          <ArrowLeft class="mr-2 h-4 w-4" aria-hidden="true" />
           Tableau de bord
         </Button>
         <Button @click="startNewInterview">
-          <RotateCcw class="mr-2 h-4 w-4" />
+          <RotateCcw class="mr-2 h-4 w-4" aria-hidden="true" />
           Nouvelle simulation
         </Button>
       </div>

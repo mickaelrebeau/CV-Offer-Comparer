@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-[50vh] items-center justify-center px-6">
     <div class="space-y-3 text-center font-mono">
-      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" />
+      <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
       <p class="text-caption uppercase text-ink-soft">Connexion en cours</p>
     </div>
   </div>

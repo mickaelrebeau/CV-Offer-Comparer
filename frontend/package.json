@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite-ssg build",
     "preview": "vite preview",
+    "test:a11y": "node scripts/a11y-smoke.mjs",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
@@ -23,16 +24,18 @@
     "radix-vue": "^1.4.0",
     "tailwind-merge": "^2.2.0",
     "vite-ssg": "^28.3.0",
-    "vue": "^3.4.0",
+    "vue": "^3.5.0",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@types/node": "^20.10.5",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vue/eslint-config-typescript": "^12.0.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.19.2",
+    "playwright": "^1.63.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3",

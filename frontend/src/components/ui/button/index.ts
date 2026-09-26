@@ -8,7 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "rounded-lg bg-ink text-paper hover:opacity-85",
-        destructive: "rounded-lg bg-rose-600 text-paper hover:opacity-85",
+        destructive: "rounded-lg bg-rose-700 text-paper hover:bg-rose-800",
         outline: "rounded-lg border border-ink/20 bg-transparent text-ink hover:border-ink/50",
         secondary: "rounded-lg bg-paper-dim text-ink hover:bg-paper-line/60",
         ghost: "rounded-lg text-ink-soft hover:bg-ink/5 hover:text-ink",
