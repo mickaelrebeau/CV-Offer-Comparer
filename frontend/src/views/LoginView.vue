@@ -82,6 +82,7 @@ onMounted(() => {
       no_code: 'Google n’a pas renvoyé de code. Vérifie les URI de redirection dans la console Google.',
       exchange_failed: 'Échange du code Google échoué. Vérifie GOOGLE_CLIENT_SECRET et l’URI localhost dans Google Cloud.',
       server_error: 'Erreur serveur pendant l’auth Google. Regarde les logs uvicorn.',
+      invalid_state: 'Session de connexion Google expirée ou invalide. Relancez la connexion.',
     }
     error.value =
       hints[reason] ||
