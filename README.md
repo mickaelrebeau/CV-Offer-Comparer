@@ -113,6 +113,23 @@ App : http://localhost:3000 (ou le port Vite affiché)
 
 Guide détaillé : [documentation/STARTUP.md](documentation/STARTUP.md)
 
+### Limites d’usage (rate limiting)
+
+Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par IP. Au-delà, l’API répond `429 Too Many Requests` avec un header `Retry-After` (en secondes).
+
+| Route | Limite par minute | Quota journalier (UTC, par utilisateur) |
+|---|---|---|
+| `POST /api/compare-stream` | user + IP | `DAILY_QUOTA_COMPARE` (50) |
+| `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
+| `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
+| `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
+| `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 analyse gratuite par client |
+
+- Par minute (fenêtre glissante Redis) : `RATE_LIMIT_USER_PER_MINUTE` (10) et `RATE_LIMIT_IP_PER_MINUTE` (30), par route.
+- `0` = illimité ; `RATE_LIMIT_ENABLED=false` désactive tout.
+- IP réelle lue dans `CLIENT_IP_HEADER` (`X-Real-IP`, posé par Railway). Derrière un autre proxy, adapter ; sans proxy, laisser vide pour utiliser l’IP de la socket.
+- Sans Redis, les compteurs sont gardés en mémoire (par instance).
+
 ## Contribuer
 
 Les contributions sont les bienvenues — bugs, docs, features, UX.

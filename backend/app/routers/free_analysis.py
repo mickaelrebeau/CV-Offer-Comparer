@@ -8,6 +8,7 @@ from app.dependencies import require_debug_endpoints
 from app.models.comparison import ComparisonRequest
 from app.models.upload import PDFUploadResponse
 from app.services.comparison_service import stream_comparison
+from app.services.rate_limit_service import get_client_ip, ip_rate_limit
 from app.services.redis_service import redis_service
 from app.services.upload_service import UploadService
 
@@ -16,7 +17,7 @@ upload_service = UploadService()
 
 
 def get_client_identifier(request: Request) -> str:
-    client_ip = request.client.host
+    client_ip = get_client_ip(request)
     user_agent = request.headers.get("user-agent", "")
     identifier = f"{client_ip}:{user_agent}"
     return hashlib.md5(identifier.encode()).hexdigest()
@@ -30,7 +31,7 @@ def mark_free_analysis_used(client_id: str):
     redis_service.mark_free_analysis_used(client_id)
 
 
-@router.post("/free-compare-stream")
+@router.post("/free-compare-stream", dependencies=[Depends(ip_rate_limit("free_compare"))])
 async def free_compare_cv_offer_stream(
     request: ComparisonRequest,
     http_request: Request,
@@ -107,7 +108,11 @@ async def get_free_analysis_stats():
     }
 
 
-@router.post("/free-upload-cv", response_model=PDFUploadResponse)
+@router.post(
+    "/free-upload-cv",
+    response_model=PDFUploadResponse,
+    dependencies=[Depends(ip_rate_limit("free_upload"))],
+)
 async def free_upload_cv_pdf(
     http_request: Request,
     file: UploadFile = File(...),

@@ -11,6 +11,7 @@ from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user
 from app.services.interview_service import InterviewService
+from app.services.rate_limit_service import rate_limit
 
 router = APIRouter(prefix="/interview", tags=["interview"])
 
@@ -21,7 +22,10 @@ async def test_interview_endpoint():
     return JSONResponse(content={"message": "Interview router is working!"}, status_code=200)
 
 
-@router.post("/generate-questions")
+@router.post(
+    "/generate-questions",
+    dependencies=[Depends(rate_limit("interview_generate", "DAILY_QUOTA_INTERVIEW_GENERATE"))],
+)
 async def generate_interview_questions(
     cv_file: UploadFile = File(...),
     job_text: str = Form(...),
@@ -54,7 +58,10 @@ async def generate_interview_questions(
         ) from e
 
 
-@router.post("/analyze-responses")
+@router.post(
+    "/analyze-responses",
+    dependencies=[Depends(rate_limit("interview_analyze", "DAILY_QUOTA_INTERVIEW_ANALYZE"))],
+)
 async def analyze_interview_responses(
     questions: str = Form(...),
     answers: str = Form(...),

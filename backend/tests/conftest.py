@@ -24,9 +24,20 @@ from app.main import app  # noqa: E402
 from app.models.comparison_record import ComparisonRecord  # noqa: F401,E402
 from app.models.interview_record import InterviewRecord  # noqa: F401,E402
 from app.models.user import User  # noqa: F401,E402
+from app.services.rate_limit_service import rate_limiter  # noqa: E402
+from app.services.redis_service import redis_service  # noqa: E402
 
 
 TEST_DATABASE_URL = _normalize_database_url(os.environ["DATABASE_URL"])
+
+
+@pytest.fixture(autouse=True)
+def isolated_rate_limits(monkeypatch):
+    # Stockage mémoire : les tests n'écrivent jamais dans le Redis du .env
+    monkeypatch.setattr(redis_service, "redis_available", False)
+    rate_limiter.reset()
+    yield
+    rate_limiter.reset()
 
 
 @pytest.fixture(scope="session")
