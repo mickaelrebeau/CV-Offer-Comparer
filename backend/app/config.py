@@ -38,6 +38,17 @@ class Settings(BaseSettings):
     # Endpoints de debug (test-stream, reset free-trial, stats…) : jamais exposés en production
     ENABLE_DEBUG_ENDPOINTS: bool = False
 
+    # Rate limiting (0 = illimité). Fenêtre glissante d'une minute + quota journalier UTC par utilisateur
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_USER_PER_MINUTE: int = 10
+    RATE_LIMIT_IP_PER_MINUTE: int = 30
+    DAILY_QUOTA_COMPARE: int = 50
+    DAILY_QUOTA_INTERVIEW_GENERATE: int = 30
+    DAILY_QUOTA_INTERVIEW_ANALYZE: int = 30
+    DAILY_QUOTA_UPLOAD: int = 100
+    # Header contenant l'IP réelle du client derrière le proxy (Railway : X-Real-IP). Vide = IP de la socket
+    CLIENT_IP_HEADER: str = "X-Real-IP"
+
     # Redis (Railway / local)
     REDIS_URL: str = "redis://localhost:6379"
     REDIS_PASSWORD: str = ""
