@@ -71,7 +71,7 @@ python migrate_to_redis_cloud.py
 
 ### Routes de santé
 - `GET /api/health/redis`
-- `GET /api/free-analysis-stats`
+- `GET /api/free-analysis-stats` (dev uniquement, `ENABLE_DEBUG_ENDPOINTS=true`)
 
 ## 🆘 Dépannage
 

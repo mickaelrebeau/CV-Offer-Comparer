@@ -56,15 +56,6 @@ export const useAuthStore = defineStore('auth', () => {
     initPromise = (async () => {
       loading.value = true
       try {
-        // Token déjà présent dans l'URL du callback Google
-        if (typeof window !== 'undefined') {
-          const path = window.location.pathname
-          const params = new URLSearchParams(window.location.search)
-          const urlToken = params.get('token')
-          if (path === '/auth/callback' && urlToken) {
-            setAccessToken(urlToken)
-          }
-        }
         await fetchMe()
       } finally {
         loading.value = false
@@ -123,11 +114,15 @@ export const useAuthStore = defineStore('auth', () => {
     return { data: null, error: null }
   }
 
-  async function completeGoogleCallback(token: string) {
-    setAccessToken(token)
+  async function completeGoogleCallback(code: string) {
     // Ne pas toggler loading ici : ça détruisait la vue callback
-    const me = await fetchMe()
-    return !!me
+    try {
+      const { data } = await api.post<AuthResponse>('/auth/google/exchange', { code })
+      applyAuth(data)
+      return true
+    } catch {
+      return false
+    }
   }
 
   async function signOut() {

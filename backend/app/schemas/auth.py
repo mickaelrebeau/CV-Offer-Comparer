@@ -11,6 +11,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleCodeExchangeRequest(BaseModel):
+    """Code à usage unique reçu sur /auth/callback."""
+    code: str = Field(min_length=1, max_length=128)
+
+
 class GoogleTokenRequest(BaseModel):
     """Alternative GIS : ID token Google envoyé par le frontend."""
     id_token: str

@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.dependencies import require_debug_endpoints
 from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
@@ -30,7 +31,7 @@ def _sse_headers() -> dict[str, str]:
     }
 
 
-@router.get("/test-stream")
+@router.get("/test-stream", dependencies=[Depends(require_debug_endpoints)], include_in_schema=False)
 async def test_stream():
     async def generate_test():
         try:

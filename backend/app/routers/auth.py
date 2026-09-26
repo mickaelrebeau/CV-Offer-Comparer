@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.db import get_db
 from app.models.user import User
 from app.schemas.auth import (
     AuthResponse,
+    GoogleCodeExchangeRequest,
     GoogleTokenRequest,
     LoginRequest,
     RegisterRequest,
@@ -20,10 +21,18 @@ from app.services.auth_service import (
     delete_user,
     exchange_google_code,
     get_current_user,
+    get_user_by_id,
     google_authorize_url,
     register_user,
     upsert_google_user,
     verify_google_id_token,
+)
+from app.services.oauth_service import (
+    OAUTH_STATE_COOKIE,
+    OAUTH_STATE_MAX_AGE,
+    generate_state,
+    is_valid_state,
+    oauth_code_store,
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -48,47 +57,86 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     return _auth_payload(user)
 
 
+def _state_cookie_kwargs() -> dict:
+    # Cookie posé et relu sur le domaine du backend (redirections top-level → SameSite=Lax suffit)
+    return {
+        "path": "/api/auth/google",
+        "httponly": True,
+        "secure": settings.GOOGLE_REDIRECT_URI.startswith("https://"),
+        "samesite": "lax",
+    }
+
+
+def _login_error_redirect(reason: str) -> RedirectResponse:
+    frontend = settings.FRONTEND_URL.rstrip("/")
+    response = RedirectResponse(
+        f"{frontend}/login?error=google_oauth&reason={reason}",
+        status_code=302,
+    )
+    response.delete_cookie(OAUTH_STATE_COOKIE, **_state_cookie_kwargs())
+    return response
+
+
 @router.get("/google")
 def google_login():
-    """Démarre le flux OAuth Google (redirection)."""
-    return RedirectResponse(google_authorize_url(), status_code=302)
+    """Démarre le flux OAuth Google (redirection) avec un state anti-CSRF."""
+    state = generate_state()
+    response = RedirectResponse(google_authorize_url(state), status_code=302)
+    response.set_cookie(
+        OAUTH_STATE_COOKIE,
+        state,
+        max_age=OAUTH_STATE_MAX_AGE,
+        **_state_cookie_kwargs(),
+    )
+    return response
 
 
 @router.get("/google/callback")
 async def google_callback(
     code: str | None = Query(default=None),
+    state: str | None = Query(default=None),
     error: str | None = Query(default=None),
+    oauth_state: str | None = Cookie(default=None),
     db: Session = Depends(get_db),
 ):
-    frontend = settings.FRONTEND_URL.rstrip("/")
     if error or not code:
         print(f"[OAuth] callback without code: error={error}")
-        return RedirectResponse(
-            f"{frontend}/login?error=google_oauth&reason=no_code",
-            status_code=302,
-        )
+        return _login_error_redirect("no_code")
+
+    if not is_valid_state(oauth_state, state):
+        print("[OAuth] invalid state")
+        return _login_error_redirect("invalid_state")
 
     try:
         profile = await exchange_google_code(code)
         user = upsert_google_user(db, profile)
-        token = create_access_token(str(user.id), user.email)
-        query = urlencode({"token": token})
-        redirect_to = f"{frontend}/auth/callback?{query}"
-        print(f"[OAuth] success for {user.email} → {frontend}/auth/callback")
-        return RedirectResponse(redirect_to, status_code=302)
     except HTTPException as exc:
         print(f"[OAuth] HTTPException: {exc.detail}")
-        return RedirectResponse(
-            f"{frontend}/login?error=google_oauth&reason=exchange_failed",
-            status_code=302,
-        )
+        return _login_error_redirect("exchange_failed")
     except Exception as exc:
         print(f"[OAuth] unexpected error: {exc!r}")
-        return RedirectResponse(
-            f"{frontend}/login?error=google_oauth&reason=server_error",
-            status_code=302,
-        )
+        return _login_error_redirect("server_error")
 
+    # Code à usage unique : le JWT ne transite jamais dans l'URL
+    frontend = settings.FRONTEND_URL.rstrip("/")
+    query = urlencode({"code": oauth_code_store.issue(str(user.id))})
+    print(f"[OAuth] success for {user.email} → {frontend}/auth/callback")
+    response = RedirectResponse(f"{frontend}/auth/callback?{query}", status_code=302)
+    response.delete_cookie(OAUTH_STATE_COOKIE, **_state_cookie_kwargs())
+    return response
+
+
+@router.post("/google/exchange", response_model=AuthResponse)
+def google_code_exchange(
+    payload: GoogleCodeExchangeRequest,
+    db: Session = Depends(get_db),
+):
+    """Échange le code à usage unique du callback contre un JWT."""
+    user_id = oauth_code_store.consume(payload.code)
+    user = get_user_by_id(db, user_id) if user_id else None
+    if not user:
+        raise HTTPException(status_code=400, detail="Code de connexion invalide ou expiré")
+    return _auth_payload(user)
 
 
 @router.post("/google/token", response_model=AuthResponse)
