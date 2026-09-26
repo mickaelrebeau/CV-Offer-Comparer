@@ -5,7 +5,12 @@
       @dragover="handleDragOver"
       @dragleave="handleDragLeave"
       @click="triggerFileInput"
-      class="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all"
+      @keydown.enter.prevent="isIdle && triggerFileInput()"
+      @keydown.space.prevent="isIdle && triggerFileInput()"
+      :role="isIdle ? 'button' : undefined"
+      :tabindex="isIdle ? 0 : undefined"
+      :aria-label="isIdle ? 'Importer votre CV au format PDF (10 Mo maximum)' : undefined"
+      class="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/60"
       :class="{
         'border-ink/40 bg-ink/5': isDragOver,
         'border-emerald-500/40 bg-emerald-500/5': uploadedFile,
@@ -19,11 +24,13 @@
         accept=".pdf"
         @change="handleFileSelect"
         class="hidden"
+        tabindex="-1"
+        aria-hidden="true"
       />
       
       <div v-if="!uploadedFile && !uploading" class="space-y-3">
         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-paper-dim text-ink-soft">
-          <Upload class="h-5 w-5" />
+          <Upload class="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
           <p class="text-sm font-medium text-ink">Glissez votre CV (PDF) ici</p>
@@ -32,14 +39,14 @@
       </div>
 
       <div v-else-if="uploading" class="space-y-3 py-2">
-        <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" />
+        <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
         <p class="text-sm font-medium text-ink">Extraction du PDF...</p>
         <p class="font-mono text-micro uppercase text-ink-soft">Analyse en cours</p>
       </div>
 
       <div v-else-if="uploadedFile" class="space-y-3">
         <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
-          <CheckCircle class="h-5 w-5" />
+          <CheckCircle class="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
           <p class="text-sm font-semibold text-foreground">
@@ -56,10 +63,10 @@
 
       <div v-else-if="uploadError" class="space-y-3">
         <div class="w-10 h-10 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
-          <XCircle class="h-5 w-5" />
+          <XCircle class="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
-          <p class="text-sm font-semibold text-rose-500">
+          <p class="text-sm font-semibold text-rose-700">
             Erreur lors de l'extraction
           </p>
           <p class="text-xs text-muted-foreground mt-1">
@@ -72,11 +79,13 @@
       </div>
     </div>
 
+    <p class="sr-only" aria-live="polite">{{ liveMessage }}</p>
+
     <!-- Extracted Text Drawer / Preview -->
     <div v-if="extractedText && showPreview" class="mt-4 rounded-lg border border-ink/10 bg-paper-dim p-4">
       <div class="mb-2 flex items-center justify-between">
         <span class="field-label">Aperçu extrait</span>
-        <button @click="showPreview = !showPreview" class="font-mono text-micro uppercase text-ink-soft hover:text-ink">
+        <button type="button" :aria-expanded="showPreview" @click="showPreview = !showPreview" class="font-mono text-micro uppercase text-ink-soft hover:text-ink">
           {{ showPreview ? 'Masquer' : 'Afficher' }}
         </button>
       </div>
@@ -86,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-vue-next'
 import { uploadFreeCV } from '@/lib/api'
@@ -110,6 +119,16 @@ const uploadedFile = ref<File | null>(null)
 const uploadError = ref<string | null>(null)
 const extractedText = ref('')
 const showPreview = ref(false)
+
+const isIdle = computed(() => !uploadedFile.value && !uploading.value && !uploadError.value)
+
+// Annonce l'état de l'upload aux lecteurs d'écran
+const liveMessage = computed(() => {
+  if (uploading.value) return 'Extraction du PDF en cours'
+  if (uploadError.value) return `Erreur lors de l'extraction : ${uploadError.value}`
+  if (uploadedFile.value) return `CV extrait avec succès : ${uploadedFile.value.name}`
+  return ''
+})
 
 const triggerFileInput = () => {
   fileInput.value?.click()

@@ -1,11 +1,19 @@
 <template>
   <div class="relative flex min-h-screen flex-col bg-paper font-sans text-ink antialiased">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:font-mono focus:text-caption focus:uppercase focus:text-paper"
+    >
+      Aller au contenu
+    </a>
     <div
       v-if="authStore.loading"
       class="fixed inset-0 z-[100] flex items-center justify-center bg-paper/85 backdrop-blur-sm"
+      role="status"
+      aria-live="polite"
     >
       <div class="space-y-4 text-center font-mono">
-        <div class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-ink/20 border-t-ink"></div>
+        <div class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-ink/20 border-t-ink" aria-hidden="true"></div>
         <p class="text-caption uppercase text-ink-soft">Chargement de la session</p>
       </div>
     </div>
@@ -15,70 +23,83 @@
       class="sticky top-0 z-50 border-b border-ink/10 bg-paper/90 backdrop-blur-md"
     >
       <div class="mx-auto flex h-14 max-w-[100rem] items-center justify-between px-5 sm:px-8 lg:px-16">
-        <a @click="handleLogoClick" class="group cursor-pointer transition-opacity hover:opacity-70">
+        <RouterLink
+          :to="authStore.isAuthenticated ? '/dashboard' : '/'"
+          aria-label="Talento — accueil"
+          class="group transition-opacity hover:opacity-70"
+        >
           <BrandLogo tag="span" size="sm" />
-        </a>
+        </RouterLink>
 
-        <nav class="hidden items-center gap-6 font-mono text-caption uppercase md:flex">
+        <nav aria-label="Navigation principale" class="hidden items-center gap-6 font-mono text-caption uppercase md:flex">
           <template v-if="authStore.isAuthenticated">
-            <a
+            <RouterLink
               v-for="link in appLinks"
               :key="link.path"
-              @click="navigateTo(link.path)"
-              class="cursor-pointer transition-colors"
+              :to="link.path"
+              class="transition-colors"
               :class="route.path === link.path ? 'text-ink' : 'text-ink-soft hover:text-ink'"
             >
               {{ link.label }}
-            </a>
+            </RouterLink>
           </template>
         </nav>
 
         <div class="flex items-center gap-3">
           <template v-if="!authStore.isAuthenticated">
-            <a
-              @click="navigateTo('/login')"
-              class="hidden cursor-pointer font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
+            <RouterLink
+              to="/login"
+              class="hidden font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
             >
               Connexion
-            </a>
-            <a @click="navigateTo('/register')" class="btn-primary !h-9 !px-4 !text-micro">
+            </RouterLink>
+            <RouterLink to="/register" class="btn-primary !h-9 !px-4 !text-micro">
               Commencer
-            </a>
+            </RouterLink>
           </template>
           <UserMenu v-else />
-          <button @click="isMobileMenuOpen = !isMobileMenuOpen" class="p-1.5 md:hidden">
-            <Menu v-if="!isMobileMenuOpen" class="h-5 w-5" />
-            <X v-else class="h-5 w-5" />
+          <button
+            type="button"
+            class="p-1.5 md:hidden"
+            :aria-label="isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
+            :aria-expanded="isMobileMenuOpen"
+            aria-controls="mobile-menu"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+          >
+            <Menu v-if="!isMobileMenuOpen" class="h-5 w-5" aria-hidden="true" />
+            <X v-else class="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </div>
 
-      <div
+      <nav
         v-if="isMobileMenuOpen"
-        class="flex flex-col gap-3 border-t border-ink/10 px-5 py-4 font-mono text-caption uppercase md:hidden"
+        id="mobile-menu"
+        aria-label="Navigation mobile"
+        class="flex flex-col items-start gap-3 border-t border-ink/10 px-5 py-4 font-mono text-caption uppercase md:hidden"
       >
         <template v-if="!authStore.isAuthenticated">
-          <a @click="navigateTo('/login')" class="cursor-pointer text-ink-soft">Connexion</a>
-          <a @click="navigateTo('/register')" class="cursor-pointer text-ink">Commencer</a>
+          <RouterLink to="/login" class="text-ink-soft">Connexion</RouterLink>
+          <RouterLink to="/register" class="text-ink">Commencer</RouterLink>
         </template>
         <template v-else>
-          <a
+          <RouterLink
             v-for="link in appLinks"
             :key="link.path"
-            @click="navigateTo(link.path)"
-            class="cursor-pointer text-ink-soft"
+            :to="link.path"
+            :class="route.path === link.path ? 'text-ink' : 'text-ink-soft'"
           >
             {{ link.label }}
-          </a>
-          <a @click="navigateTo('/profile')" class="cursor-pointer text-ink-soft">Profil</a>
-          <a @click="handleSignOut" class="cursor-pointer text-rose-600">Déconnexion</a>
+          </RouterLink>
+          <RouterLink to="/profile" class="text-ink-soft">Profil</RouterLink>
+          <button type="button" class="uppercase text-rose-700" @click="handleSignOut">Déconnexion</button>
         </template>
-      </div>
+      </nav>
     </header>
 
     <EmailVerificationBanner />
 
-    <main class="flex-grow">
+    <main id="main-content" tabindex="-1" class="flex-grow focus:outline-none">
       <RouterView />
     </main>
 
@@ -149,16 +170,6 @@ const appLinks = [
   { path: '/compare', label: 'Comparateur' },
   { path: '/interview-simulator', label: 'Simulateur' },
 ]
-
-const navigateTo = (path: string) => {
-  router.push(path)
-  isMobileMenuOpen.value = false
-}
-
-const handleLogoClick = () => {
-  router.push(authStore.isAuthenticated ? '/dashboard' : '/')
-  isMobileMenuOpen.value = false
-}
 
 const handleSignOut = async () => {
   await authStore.signOut()

@@ -4,7 +4,7 @@
       <div class="panel overflow-hidden">
         <div class="panel-header justify-between">
           <span>01 · Offre d'emploi</span>
-          <FileText class="h-3.5 w-3.5" />
+          <FileText class="h-3.5 w-3.5" aria-hidden="true" />
         </div>
         <div class="p-4 sm:p-5">
           <Textarea v-model="offerText" placeholder="Collez la description complète de l'offre..." class="min-h-[220px]" />
@@ -50,13 +50,13 @@
       </div>
 
       <Button :disabled="!hasData || loading || !canAnalyze" size="lg" @click="compareCVWithOffer">
-        <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
-        <ArrowRightLeft v-else class="mr-2 h-4 w-4" />
+        <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+        <ArrowRightLeft v-else class="mr-2 h-4 w-4" aria-hidden="true" />
         {{ canAnalyze ? 'Lancer le diagnostic gratuit' : 'Essai gratuit déjà utilisé' }}
       </Button>
     </div>
 
-    <div v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
+    <div role="alert" v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
       {{ error }}
     </div>
 
@@ -91,17 +91,17 @@
             >
               <div class="flex items-start justify-between gap-4">
                 <div class="flex-1 space-y-2">
-                  <div class="font-mono text-micro uppercase text-paper/40">{{ item.category }}</div>
+                  <div class="font-mono text-micro uppercase text-paper/60">{{ item.category }}</div>
                   <p class="text-sm text-paper/90">{{ item.offerText }}</p>
-                  <p v-if="item.cvText" class="text-xs text-paper/50">
+                  <p v-if="item.cvText" class="text-xs text-paper/60">
                     <span class="text-paper/70">Extrait CV :</span> {{ item.cvText }}
                   </p>
                   <div v-if="item.suggestions?.length" class="mt-3 space-y-1.5 border-t border-white/10 pt-3">
-                    <div class="font-mono text-micro uppercase text-paper/40">Reformulations</div>
+                    <div class="font-mono text-micro uppercase text-paper/60">Reformulations</div>
                     <ul class="space-y-1.5 text-xs text-paper/70">
                       <li v-for="sug in item.suggestions" :key="sug" class="flex items-start justify-between gap-3">
                         <span>{{ sug }}</span>
-                        <button @click="copyToClipboard(sug)" class="shrink-0 font-mono text-micro uppercase text-paper/40 hover:text-paper">Copier</button>
+                        <button @click="copyToClipboard(sug)" class="shrink-0 font-mono text-micro uppercase text-paper/60 hover:text-paper">Copier</button>
                       </li>
                     </ul>
                   </div>

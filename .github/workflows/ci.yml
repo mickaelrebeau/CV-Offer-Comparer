@@ -8,7 +8,7 @@ on:
 
 jobs:
   frontend:
-    name: Frontend (lint + build)
+    name: Frontend (lint + build + a11y)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -39,6 +39,16 @@ jobs:
             sleep 1
           done
           curl -fsS http://localhost:4173/ | grep -q "Talento"
+      - name: Install Chromium (axe-core)
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Accessibility smoke test (axe-core)
+        run: |
+          pnpm preview --port 4174 --strictPort &
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:4174/ > /dev/null && break
+            sleep 1
+          done
+          A11Y_BASE_URL=http://localhost:4174 pnpm test:a11y
 
   backend:
     name: Backend (pytest)

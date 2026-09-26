@@ -5,7 +5,7 @@
       title="Analyse gratuite"
       description="Testez le moteur de diagnostic immédiatement. Une analyse complète vous est offerte."
     >
-      <div
+      <div role="status"
         v-if="freeAnalysisStatus"
         class="mt-4 max-w-xl rounded-lg border p-4 font-mono text-micro uppercase"
         :class="freeAnalysisStatus.can_use_free_analysis
@@ -13,8 +13,8 @@
           : 'border-amber-500/25 bg-amber-500/5 text-amber-800'"
       >
         <div class="flex items-center gap-2.5">
-          <CheckCircle v-if="freeAnalysisStatus.can_use_free_analysis" class="h-4 w-4 shrink-0" />
-          <AlertCircle v-else class="h-4 w-4 shrink-0" />
+          <CheckCircle v-if="freeAnalysisStatus.can_use_free_analysis" class="h-4 w-4 shrink-0" aria-hidden="true" />
+          <AlertCircle v-else class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ freeAnalysisStatus.message }}</span>
         </div>
       </div>

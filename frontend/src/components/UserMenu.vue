@@ -8,7 +8,7 @@
     </Button>
     <template v-else>
       <Button variant="outline" size="sm" @click="$router.push('/profile')">Profil</Button>
-      <Button variant="ghost" size="sm" class="text-rose-600 hover:text-rose-700" @click="handleSignOut">
+      <Button variant="ghost" size="sm" class="text-rose-700 hover:text-rose-800" @click="handleSignOut">
         Déconnexion
       </Button>
     </template>

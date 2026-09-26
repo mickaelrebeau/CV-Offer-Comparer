@@ -1,4 +1,7 @@
-import { defineComponent, h, ref, watch } from 'vue'
+import { defineComponent, h, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
 
 export interface ModalProps {
   isOpen: boolean
@@ -45,10 +48,57 @@ export const Modal = defineComponent({
   emits: ['confirm', 'cancel', 'close'],
   setup(props, { slots, emit }) {
     const isVisible = ref(props.isOpen)
+    const dialogRef = ref<HTMLElement | null>(null)
+    const cancelRef = ref<HTMLElement | null>(null)
+    const titleId = `modal-title-${useId()}`
+    const messageId = `modal-message-${useId()}`
+    let previouslyFocused: HTMLElement | null = null
+
+    const focusables = () =>
+      Array.from(dialogRef.value?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+
+    // Échap ferme la modale ; Tab reste piégé à l'intérieur
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        emit('close')
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    const open = async () => {
+      previouslyFocused = document.activeElement as HTMLElement | null
+      document.addEventListener('keydown', handleKeydown)
+      await nextTick()
+      // Action la moins destructive par défaut
+      ;(cancelRef.value ?? focusables()[0])?.focus()
+    }
+
+    const close = () => {
+      document.removeEventListener('keydown', handleKeydown)
+      previouslyFocused?.focus()
+      previouslyFocused = null
+    }
 
     watch(() => props.isOpen, (newValue) => {
       isVisible.value = newValue
+      if (newValue) open()
+      else close()
     })
+
+    onBeforeUnmount(() => document.removeEventListener('keydown', handleKeydown))
 
     const handleConfirm = () => {
       emit('confirm')
@@ -97,23 +147,32 @@ export const Modal = defineComponent({
         // Overlay
         h('div', {
           class: 'absolute inset-0 bg-black bg-opacity-50',
+          'aria-hidden': 'true',
           onClick: handleClose
         }),
         // Modal
         h('div', {
+          ref: dialogRef,
+          role: props.type === 'error' || props.type === 'warning' ? 'alertdialog' : 'dialog',
+          'aria-modal': 'true',
+          'aria-labelledby': titleId,
+          'aria-describedby': messageId,
           class: 'relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6'
         }, [
           // Header
           h('div', {
             class: 'flex items-center justify-between mb-4'
           }, [
-            h('h3', {
+            h('h2', {
+              id: titleId,
               class: 'text-lg font-semibold text-gray-900'
             }, props.title),
             h('button', {
-              class: 'text-gray-400 hover:text-gray-600',
+              type: 'button',
+              'aria-label': 'Fermer',
+              class: 'text-gray-600 hover:text-gray-900',
               onClick: handleClose
-            }, '×')
+            }, h('span', { 'aria-hidden': 'true' }, '×'))
           ]),
           // Content
           h('div', {
@@ -126,7 +185,8 @@ export const Modal = defineComponent({
                 class: 'flex items-start'
               }, [
                 h('div', {
-                  class: `flex-shrink-0 ${getIconClasses()}`
+                  class: `flex-shrink-0 ${getIconClasses()}`,
+                  'aria-hidden': 'true'
                 }, [
                   props.type === 'warning' && h('svg', {
                     class: 'h-5 w-5',
@@ -177,6 +237,7 @@ export const Modal = defineComponent({
                   class: 'ml-3'
                 }, [
                   h('p', {
+                    id: messageId,
                     class: 'text-sm'
                   }, props.message)
                 ])
@@ -188,6 +249,8 @@ export const Modal = defineComponent({
             class: 'flex justify-end space-x-3'
           }, [
             props.showCancel && h('button', {
+              ref: cancelRef,
+              type: 'button',
               class: 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
               onClick: handleCancel
             }, props.cancelText),
@@ -201,6 +264,7 @@ export const Modal = defineComponent({
                   ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
                   : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
               }`,
+              type: 'button',
               onClick: handleConfirm
             }, props.confirmText)
           ])

@@ -5,15 +5,15 @@
 
       <div class="panel p-6 sm:p-8 space-y-6">
         <div v-if="status === 'pending'" class="flex items-center justify-center gap-3 font-mono text-caption uppercase text-ink-soft">
-          <Loader2 class="h-5 w-5 animate-spin" />
+          <Loader2 class="h-5 w-5 animate-spin" aria-hidden="true" />
           Vérification en cours
         </div>
 
-        <div v-else-if="status === 'success'" class="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 font-mono text-micro text-emerald-700">
+        <div role="status" v-else-if="status === 'success'" class="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 font-mono text-micro text-emerald-700">
           Adresse e-mail confirmée. Vous pouvez lancer vos analyses.
         </div>
 
-        <div v-else class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
+        <div role="alert" v-else class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
           {{ error }}
         </div>
 

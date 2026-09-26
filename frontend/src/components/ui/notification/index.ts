@@ -77,7 +77,9 @@ export const Notification = defineComponent({
       if (!isVisible.value) return null
 
       return h('div', {
-        class: 'fixed top-4 right-4 z-50 max-w-sm w-full'
+        class: 'fixed top-4 right-4 z-50 max-w-sm w-full',
+        role: props.type === 'error' ? 'alert' : 'status',
+        'aria-live': props.type === 'error' ? 'assertive' : 'polite'
       }, [
         h('div', {
           class: `p-4 rounded-md border ${getTypeClasses()} shadow-lg`
@@ -86,7 +88,8 @@ export const Notification = defineComponent({
             class: 'flex items-start'
           }, [
             h('div', {
-              class: `flex-shrink-0 ${getIconClasses()}`
+              class: `flex-shrink-0 ${getIconClasses()}`,
+              'aria-hidden': 'true'
             }, [
               props.type === 'warning' && h('svg', {
                 class: 'h-5 w-5',
@@ -144,7 +147,8 @@ export const Notification = defineComponent({
               class: 'ml-4 flex-shrink-0'
             }, [
               h('button', {
-                class: 'inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600',
+                type: 'button',
+                class: 'inline-flex text-gray-600 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-900',
                 onClick: handleClose
               }, [
                 h('span', { class: 'sr-only' }, 'Fermer'),

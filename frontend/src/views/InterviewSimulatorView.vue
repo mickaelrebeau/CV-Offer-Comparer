@@ -6,21 +6,26 @@
       description="Préparez-vous aux questions ciblées générées d'après les zones d'attention de votre candidature."
     />
 
+    <!-- Annonce le changement d'étape et de question aux lecteurs d'écran -->
+    <p class="sr-only" aria-live="polite">{{ stepAnnouncement }}</p>
+
     <!-- Étape 1 : saisie -->
     <div v-if="currentStep === 1" class="space-y-8">
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="panel overflow-hidden">
-          <div class="panel-header">01 · Offre d'emploi</div>
+          <label for="job-text" class="panel-header">01 · Offre d'emploi</label>
           <div class="p-4 sm:p-5">
-            <Textarea :model-value="jobText" placeholder="Collez l'offre d'emploi..." class="min-h-[200px]" @input="handleJobInput" />
+            <Textarea id="job-text" :model-value="jobText" placeholder="Collez l'offre d'emploi..." class="min-h-[200px]" @input="handleJobInput" />
           </div>
         </div>
 
         <div class="panel overflow-hidden">
           <div class="panel-header justify-between">
-            <span>02 · Mon CV</span>
-            <div class="flex gap-1">
+            <span id="cv-label">02 · Mon CV</span>
+            <div class="flex gap-1" role="group" aria-label="Format du CV">
               <button
+                type="button"
+                :aria-pressed="cvActiveTab === 'upload'"
                 @click="cvActiveTab = 'upload'"
                 class="rounded px-2 py-0.5 transition-colors"
                 :class="cvActiveTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
@@ -28,6 +33,8 @@
                 PDF
               </button>
               <button
+                type="button"
+                :aria-pressed="cvActiveTab === 'manual'"
                 @click="cvActiveTab = 'manual'"
                 class="rounded px-2 py-0.5 transition-colors"
                 :class="cvActiveTab === 'manual' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
@@ -38,19 +45,19 @@
           </div>
           <div class="p-4 sm:p-5">
             <PDFUpload v-if="cvActiveTab === 'upload'" :model-value="cvText" @update:model-value="handleCVTextUpdate" />
-            <Textarea v-else :model-value="cvText" placeholder="Collez le texte de votre CV..." class="min-h-[200px]" @input="handleCVInput" />
+            <Textarea v-else aria-labelledby="cv-label" :model-value="cvText" placeholder="Collez le texte de votre CV..." class="min-h-[200px]" @input="handleCVInput" />
           </div>
         </div>
       </div>
 
-      <div v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
+      <div v-if="error" role="alert" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
         {{ error }}
       </div>
 
       <div class="flex justify-center">
         <Button :disabled="!cvText || !jobText || isLoading" size="lg" @click="generateQuestions">
-          <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
-          <MessageSquare v-else class="mr-2 h-4 w-4" />
+          <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+          <MessageSquare v-else class="mr-2 h-4 w-4" aria-hidden="true" />
           Générer les questions
         </Button>
       </div>
@@ -61,11 +68,11 @@
       <div class="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex flex-wrap items-center gap-3">
           <Button variant="outline" size="sm" @click="resetSimulator">
-            <ArrowLeft class="mr-1.5 h-4 w-4" />
+            <ArrowLeft class="mr-1.5 h-4 w-4" aria-hidden="true" />
             Changer de sujet
           </Button>
           <Button v-if="!isInterviewStarted" size="sm" @click="startInterview">
-            <Play class="mr-1.5 h-4 w-4" />
+            <Play class="mr-1.5 h-4 w-4" aria-hidden="true" />
             Lancer la simulation
           </Button>
         </div>
@@ -79,37 +86,41 @@
           <div class="panel-dark-inner">
             <div class="panel-dark-header justify-between">
               <span>Question {{ currentQuestionIndex + 1 }} / {{ questions.length }} · {{ currentQuestionCategory }}</span>
-              <span>⏱ {{ formatTime(interviewTimer) }}</span>
+              <span role="timer">
+                <span aria-hidden="true">⏱</span>
+                <span class="sr-only">Temps écoulé :</span>
+                {{ formatTime(interviewTimer) }}
+              </span>
             </div>
             <div class="space-y-5 p-5 sm:p-6">
               <p class="font-sans text-lg font-medium leading-snug text-paper">{{ currentQuestion }}</p>
               <div class="space-y-2">
-                <label for="answer" class="field-label !text-paper/40">Votre réponse</label>
+                <label for="answer" class="field-label !text-paper/60">Votre réponse</label>
                 <Textarea
                   id="answer"
                   v-model="currentAnswer"
                   placeholder="Rédigez les éléments clés de votre réponse..."
-                  class="min-h-[160px] !border-white/10 !bg-ink-deep !text-paper placeholder:!text-paper/30"
+                  class="min-h-[160px] !border-white/10 !bg-ink-deep !text-paper placeholder:!text-paper/60"
                 />
               </div>
               <div class="flex items-center justify-between pt-2">
                 <Button variant="outline" size="sm" :disabled="currentQuestionIndex === 0" @click="previousQuestion">
-                  <ChevronLeft class="mr-1 h-4 w-4" />
+                  <ChevronLeft class="mr-1 h-4 w-4" aria-hidden="true" />
                   Précédente
                 </Button>
                 <div class="flex gap-2">
                   <Button v-if="!isPaused" variant="outline" size="sm" @click="pauseInterview">
-                    <Pause class="mr-1 h-4 w-4" />
+                    <Pause class="mr-1 h-4 w-4" aria-hidden="true" />
                     Pause
                   </Button>
                   <Button v-else variant="outline" size="sm" @click="resumeInterview">
-                    <Play class="mr-1 h-4 w-4" />
+                    <Play class="mr-1 h-4 w-4" aria-hidden="true" />
                     Reprendre
                   </Button>
                 </div>
                 <Button size="sm" :disabled="currentQuestionIndex === questions.length - 1" @click="nextQuestion">
                   Suivante
-                  <ChevronRight class="ml-1 h-4 w-4" />
+                  <ChevronRight class="ml-1 h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>
@@ -121,20 +132,28 @@
             <span>Progression</span>
             <span>{{ Math.round(((currentQuestionIndex + 1) / questions.length) * 100) }}%</span>
           </div>
-          <div class="progress-track">
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Progression de la simulation"
+            :aria-valuenow="currentQuestionIndex + 1"
+            aria-valuemin="1"
+            :aria-valuemax="questions.length"
+            :aria-valuetext="`Question ${currentQuestionIndex + 1} sur ${questions.length}`"
+          >
             <div class="progress-fill" :style="{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }"></div>
           </div>
         </div>
 
         <div v-if="currentQuestionIndex === questions.length - 1" class="panel p-8 text-center">
-          <CheckCircle class="mx-auto mb-4 h-10 w-10 text-emerald-500" />
+          <CheckCircle class="mx-auto mb-4 h-10 w-10 text-emerald-500" aria-hidden="true" />
           <h3 class="mb-2 font-medium text-title">Toutes les questions sont complétées</h3>
           <p class="mb-6 text-lead text-ink-soft">Obtenez une évaluation détaillée de vos réponses.</p>
-          <div v-if="error" class="mb-4 rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
+          <div v-if="error" role="alert" class="mb-4 rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
             {{ error }}
           </div>
           <Button size="lg" :disabled="isLoading" @click="finishInterview">
-            <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             {{ isLoading ? 'Analyse en cours...' : 'Obtenir le rapport' }}
           </Button>
         </div>
@@ -144,7 +163,7 @@
         <div v-for="(q, idx) in questions" :key="idx" class="panel p-5">
           <div class="mb-2 flex items-center gap-2 font-mono text-micro uppercase">
             <span class="text-ink-soft">Question {{ idx + 1 }}</span>
-            <span class="text-ink/30">{{ q.category }}</span>
+            <span class="text-ink-soft">· {{ q.category }}</span>
           </div>
           <p class="text-sm font-medium text-ink">{{ q.text }}</p>
         </div>
@@ -185,6 +204,12 @@ const answers = ref<any[]>([])
 let timerInterval: ReturnType<typeof setInterval> | null = null
 
 const currentQuestion = computed(() => questions.value[currentQuestionIndex.value]?.text || '')
+
+const stepAnnouncement = computed(() => {
+  if (currentStep.value === 1) return ''
+  if (!isInterviewStarted.value) return `${questions.value.length} questions générées. Lancez la simulation quand vous êtes prêt.`
+  return `Question ${currentQuestionIndex.value + 1} sur ${questions.value.length} : ${currentQuestion.value}`
+})
 const currentQuestionCategory = computed(() => questions.value[currentQuestionIndex.value]?.category || '')
 const estimatedTime = computed(() => Math.round(questions.value.length * 2))
 
