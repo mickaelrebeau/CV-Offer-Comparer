@@ -1,5 +1,5 @@
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
-import { useHead } from '@vueuse/head'
+import { useHead } from '@unhead/vue'
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -61,8 +61,10 @@ export function usePageSeo(input: MaybeRefOrGetter<PageSeoInput>) {
           { rel: 'alternate', hreflang: 'fr', href: url },
         ],
         script: jsonLd.map((schema) => ({
+          // Clé stable : unhead remplace ou retire ces scripts (shell SPA servi avec le head de l'accueil)
+          key: `ld-${schema['@type']}`,
           type: 'application/ld+json',
-          children: JSON.stringify(schema),
+          innerHTML: JSON.stringify(schema),
         })),
       }
     }),

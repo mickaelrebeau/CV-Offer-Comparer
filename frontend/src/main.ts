@@ -1,6 +1,5 @@
 import { ViteSSG } from 'vite-ssg'
 import { createPinia } from 'pinia'
-import { createHead } from '@vueuse/head'
 import App from './App.vue'
 import { routes } from './router'
 import { useAuthStore } from '@/stores/auth'
@@ -23,10 +22,9 @@ export const createApp = ViteSSG(
     },
   },
   ({ app, router, isClient }) => {
+    // Le head (@unhead/vue) est créé par vite-ssg : c'est lui qui est sérialisé au prerender
     const pinia = createPinia()
-    const head = createHead()
     app.use(pinia)
-    app.use(head)
 
     if (isClient) {
       initAnalytics()
