@@ -118,6 +118,23 @@ App: http://localhost:3000 (or the Vite port shown)
 
 Detailed guide: [documentation/STARTUP.md](documentation/STARTUP.md)
 
+### Usage limits (rate limiting)
+
+Costly routes (Gemini, upload) are limited per user **and** per IP. Beyond the limit, the API answers `429 Too Many Requests` with a `Retry-After` header (seconds).
+
+| Route | Per-minute limit | Daily quota (UTC, per user) |
+|---|---|---|
+| `POST /api/compare-stream` | user + IP | `DAILY_QUOTA_COMPARE` (50) |
+| `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
+| `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
+| `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
+| `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 free analysis per client |
+
+- Per minute (Redis sliding window): `RATE_LIMIT_USER_PER_MINUTE` (10) and `RATE_LIMIT_IP_PER_MINUTE` (30), per route.
+- `0` = unlimited; `RATE_LIMIT_ENABLED=false` disables everything.
+- Real client IP is read from `CLIENT_IP_HEADER` (`X-Real-IP`, set by Railway). Adjust behind another proxy; leave empty without a proxy to use the socket IP.
+- Without Redis, counters are kept in memory (per instance).
+
 ## Contributing
 
 Contributions are welcome — bugs, docs, features, UX.

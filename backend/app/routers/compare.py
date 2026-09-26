@@ -12,6 +12,7 @@ from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
 from app.services.auth_service import AuthService
 from app.services.comparison_service import stream_comparison
+from app.services.rate_limit_service import rate_limit
 
 router = APIRouter()
 security = HTTPBearer()
@@ -48,7 +49,7 @@ async def test_stream():
     )
 
 
-@router.post("/compare-stream")
+@router.post("/compare-stream", dependencies=[Depends(rate_limit("compare", "DAILY_QUOTA_COMPARE"))])
 async def compare_cv_offer_stream(
     request: ComparisonRequest,
     user: User = Depends(auth_service.verify_token),

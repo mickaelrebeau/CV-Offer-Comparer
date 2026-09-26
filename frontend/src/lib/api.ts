@@ -206,7 +206,8 @@ export async function streamCompare(
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
 
     const reader = response.body?.getReader();
@@ -285,10 +286,11 @@ export async function streamFreeCompare(
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
+      const errorData = await response.json().catch(() => ({}));
+      if (response.status === 429 && !errorData.detail) {
         throw new Error("Vous avez déjà utilisé votre analyse gratuite. Veuillez créer un compte pour continuer.");
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
 
     const reader = response.body?.getReader();
