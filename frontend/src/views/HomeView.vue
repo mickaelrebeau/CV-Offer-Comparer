@@ -3,93 +3,86 @@
 
     <!-- ────────────────────────── NAVIGATION (fixe, centrée) ────────────────────────── -->
     <header class="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-between items-start p-5 lg:justify-center lg:p-8">
-      <a
-        href="/"
-        @click.prevent="handleLogoClick"
-        class="pointer-events-auto cursor-pointer lg:absolute lg:left-8"
-        aria-label="Talento — accueil"
+      <RouterLink
+        :to="homePath"
+        class="pointer-events-auto lg:absolute lg:left-8"
+        :aria-label="t('nav.homeAria')"
       >
         <BrandLogo tag="span" size="sm" />
-      </a>
+      </RouterLink>
       <nav
-        aria-label="Sections de la page"
+        :aria-label="t('landing.nav.sections')"
         class="pointer-events-auto hidden lg:flex items-center gap-7 rounded-full border border-ink/12 bg-paper/95 px-6 py-2.5 font-mono text-caption uppercase backdrop-blur-md"
       >
-        <a href="#probleme" class="text-ink-soft transition-colors hover:text-ink">Problème</a>
-        <a href="#methode" class="text-ink-soft transition-colors hover:text-ink">Méthode</a>
-        <a href="#apercu" class="text-ink-soft transition-colors hover:text-ink">Aperçu</a>
-        <a href="#stats" class="text-ink-soft transition-colors hover:text-ink">Étapes</a>
-        <a href="#acces" class="text-ink-soft transition-colors hover:text-ink">Accès</a>
-        <a href="#faq" class="text-ink-soft transition-colors hover:text-ink">FAQ</a>
+        <a href="#probleme" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.problem') }}</a>
+        <a href="#methode" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.method') }}</a>
+        <a href="#apercu" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.preview') }}</a>
+        <a href="#stats" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.steps') }}</a>
+        <a href="#acces" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.access') }}</a>
+        <a href="#faq" class="text-ink-soft transition-colors hover:text-ink">{{ t('landing.nav.faq') }}</a>
       </nav>
 
       <div
         class="pointer-events-auto flex items-center gap-1 rounded-full border border-ink/12 bg-paper/95 p-1 pl-1.5 backdrop-blur-md lg:absolute lg:right-8"
       >
-        <a
+        <LanguageSwitcher class="px-2" />
+        <RouterLink
           v-if="!authStore.isAuthenticated"
-          @click="navigateTo('/login')"
-          class="hidden cursor-pointer px-4 py-1.5 font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
+          :to="localePath('/login')"
+          class="hidden px-4 py-1.5 font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
         >
-          Connexion
-        </a>
-        <a
-          @click="primaryAction"
-          class="cursor-pointer rounded-full bg-ink px-5 py-2 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+          {{ t('landing.nav.login') }}
+        </RouterLink>
+        <RouterLink
+          :to="primaryPath"
+          class="rounded-full bg-ink px-5 py-2 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
         >
-          {{ authStore.isAuthenticated ? 'Tableau de bord' : 'Analyser mon CV' }}
-        </a>
+          {{ authStore.isAuthenticated ? t('landing.nav.dashboard') : t('landing.nav.analyze') }}
+        </RouterLink>
       </div>
     </header>
 
     <div>
 
       <!-- ────────────────────────── 01 · HERO ────────────────────────── -->
-      <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12" aria-label="Présentation Talento">
+      <section class="grid min-h-svh grid-cols-1 lg:grid-cols-12" :aria-label="t('landing.hero.aria')">
         <div class="flex flex-col justify-center px-5 pt-32 pb-16 sm:px-8 lg:col-span-6 lg:px-16 lg:py-24 xl:pl-20">
           <p data-reveal="hero" class="mb-3 font-mono text-caption uppercase tracking-[0.14em] text-ink">
             Talento
           </p>
           <p data-reveal="hero" class="mb-5 font-mono text-caption uppercase text-ink-soft">
-            Conçu pour les candidatures ciblées.
+            {{ t('landing.hero.kicker') }}
           </p>
 
           <h1 data-reveal="hero" class="mb-8 max-w-[16ch] text-balance font-medium text-display">
-            L'analyse ATS que vous ne referez plus à la main.
+            {{ t('landing.hero.title') }}
           </h1>
 
           <p data-reveal="hero" class="mb-6 max-w-[52ch] text-lead text-ink-soft">
-            Chaque candidature repart de zéro : relire l'offre, deviner les mots-clés, réécrire les
-            mêmes phrases. Talento fige les décisions — extraction, correspondance
-            sémantique, scoring, préparation d'entretien — et les rejoue sur chaque offre en une
-            seule passe.
+            {{ t('landing.hero.lead') }}
           </p>
 
           <p data-reveal="hero" class="mb-10 font-mono text-caption uppercase text-ink-soft">
-            Pour ceux qui visent un poste précis, pas cinquante.
+            {{ t('landing.hero.audience') }}
           </p>
 
           <div data-reveal="hero" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
-              href="/free-trial"
-              @click.prevent="primaryAction"
-              class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+            <RouterLink
+              :to="primaryPath"
+              class="inline-flex h-12 items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
             >
-              Lancer une analyse gratuite
-            </a>
+              {{ t('landing.hero.ctaPrimary') }}
+            </RouterLink>
             <a
               href="#methode"
               class="inline-flex h-12 items-center justify-center rounded-lg border border-ink/20 px-6 font-mono text-caption uppercase text-ink transition-colors hover:border-ink/50"
             >
-              Voir la méthode
+              {{ t('landing.hero.ctaSecondary') }}
             </a>
           </div>
 
           <div data-reveal="hero" class="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft">
-            <span>Gemini · 1 appel</span>
-            <span>Flux SSE · &lt; 2 s</span>
-            <span>Historique compte</span>
-            <span>Licence MIT</span>
+            <span v-for="badge in list('landing.hero.badges')" :key="badge">{{ badge }}</span>
           </div>
         </div>
 
@@ -97,10 +90,10 @@
         <div data-reveal="hero-panel" class="relative min-h-[70svh] bg-ink p-5 pt-24 sm:p-8 sm:pt-28 lg:col-span-6 lg:min-h-svh lg:p-12 lg:pt-28">
           <div class="flex h-full flex-col overflow-hidden rounded-xl bg-ink-deep font-mono text-caption text-paper/90 ring-1 ring-white/10">
             <div class="flex h-9 shrink-0 items-center justify-between border-b border-white/10 px-4 text-micro uppercase text-paper/60">
-              <span>analyse — session en direct</span>
+              <span>{{ t('landing.terminal.title') }}</span>
               <span class="flex items-center gap-1.5">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                streaming
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true"></span>
+                {{ t('landing.terminal.streaming') }}
               </span>
             </div>
 
@@ -108,20 +101,20 @@
               <div class="pointer-events-none absolute inset-x-0 top-0 h-px animate-scan bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent"></div>
 
               <div class="space-y-1.5 text-paper/60">
-                <p><span class="text-paper/30" aria-hidden="true">$</span> lecture offre.pdf … <span class="text-emerald-400">ok</span></p>
-                <p><span class="text-paper/30" aria-hidden="true">$</span> lecture cv.pdf … <span class="text-emerald-400">ok</span></p>
-                <p><span class="text-paper/30" aria-hidden="true">$</span> extraction des critères … <span class="text-emerald-400">18 trouvés</span></p>
+                <p><span class="text-paper/30" aria-hidden="true">$</span> {{ t('landing.terminal.readOffer') }} <span class="text-emerald-400">{{ t('landing.terminal.ok') }}</span></p>
+                <p><span class="text-paper/30" aria-hidden="true">$</span> {{ t('landing.terminal.readCv') }} <span class="text-emerald-400">{{ t('landing.terminal.ok') }}</span></p>
+                <p><span class="text-paper/30" aria-hidden="true">$</span> {{ t('landing.terminal.extract') }} <span class="text-emerald-400">{{ t('landing.terminal.found') }}</span></p>
               </div>
 
               <div class="my-5 flex items-end justify-between border-y border-white/10 py-5">
                 <div>
-                  <div class="mb-1 text-micro uppercase text-paper/60">Score de correspondance</div>
+                  <div class="mb-1 text-micro uppercase text-paper/60">{{ t('landing.terminal.score') }}</div>
                   <div class="text-5xl font-medium tabular-nums text-paper">{{ animatedScore }}%</div>
                 </div>
                 <div class="text-right text-micro uppercase text-paper/60">
-                  <div>18 critères</div>
-                  <div>14 couverts</div>
-                  <div>4 manquants</div>
+                  <div>{{ t('landing.terminal.criteria') }}</div>
+                  <div>{{ t('landing.terminal.covered') }}</div>
+                  <div>{{ t('landing.terminal.missing') }}</div>
                 </div>
               </div>
 
@@ -140,7 +133,7 @@
               </div>
 
               <div class="mt-7 space-y-2.5">
-                <div class="text-micro uppercase text-paper/60">Couverture par catégorie</div>
+                <div class="text-micro uppercase text-paper/60">{{ t('landing.terminal.coverage') }}</div>
                 <div v-for="cat in categories" :key="cat.label" class="flex items-center gap-4">
                   <span class="w-28 shrink-0 text-paper/55">{{ cat.label }}</span>
                   <span class="h-px flex-1 bg-white/10">
@@ -151,8 +144,8 @@
               </div>
 
               <p class="mt-auto pt-6 text-paper/60">
-                <span class="text-paper/20" aria-hidden="true">$</span> génération des reformulations
-                <span class="animate-caret">▍</span>
+                <span class="text-paper/20" aria-hidden="true">$</span> {{ t('landing.terminal.rewrites') }}
+                <span class="animate-caret" aria-hidden="true">▍</span>
               </p>
             </div>
           </div>
@@ -166,7 +159,7 @@
             <div class="rounded-xl bg-ink-deep p-1.5 shadow-[0_24px_60px_-30px_rgba(35,35,35,0.6)]">
               <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
                 <div class="flex h-9 items-center border-b border-white/10 px-4 text-micro uppercase text-paper/60">
-                  temps-perdu.log
+                  {{ t('landing.problem.log') }}
                 </div>
                 <div class="overflow-x-auto p-4 sm:p-6">
                   <div class="min-w-max space-y-1.5">
@@ -184,28 +177,20 @@
                   </div>
                 </div>
                 <div class="border-t border-white/10 px-4 py-3 text-micro uppercase text-paper/60 sm:px-6">
-                  Temps perdu estimé : ~12 heures par candidature (1,5 jour)
+                  {{ t('landing.problem.total') }}
                 </div>
               </div>
             </div>
           </div>
 
           <div data-reveal-item class="order-1 lg:order-2 lg:col-span-5 lg:col-start-8 lg:pt-4">
-            <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Problèmes courants</p>
+            <p class="mb-5 font-mono text-caption uppercase text-ink-soft">{{ t('landing.problem.kicker') }}</p>
             <h2 class="mb-7 max-w-[18ch] text-balance font-medium text-headline">
-              Adapter un CV à une offre coûte une journée. À chaque fois.
+              {{ t('landing.problem.title') }}
             </h2>
             <div class="space-y-4 text-lead text-ink-soft">
-              <p>
-                Ce n'est jamais la partie facile qui fait mal. C'est relire l'offre ligne par ligne
-                pour deviner ce que le filtre attend. C'est réécrire les mêmes expériences sous un
-                intitulé différent. C'est le PDF que l'ATS découpe mal, et le refus automatique
-                avant qu'un humain n'ouvre le dossier.
-              </p>
-              <p>
-                Personne ne compte ces heures, et tout le monde les repaie à la candidature
-                suivante.
-              </p>
+              <p>{{ t('landing.problem.p1') }}</p>
+              <p>{{ t('landing.problem.p2') }}</p>
             </div>
           </div>
         </div>
@@ -216,20 +201,13 @@
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
             <div data-reveal-item class="lg:col-span-5">
-              <p class="mb-5 font-mono text-caption uppercase text-paper/60">Architecture</p>
+              <p class="mb-5 font-mono text-caption uppercase text-paper/60">{{ t('landing.method.kicker') }}</p>
               <h2 class="max-w-[16ch] text-balance font-medium text-headline">
-                Chaque décision déjà prise. Pour passer directement à l'entretien.
+                {{ t('landing.method.title') }}
               </h2>
             </div>
             <div data-reveal-item class="lg:col-span-6 lg:col-start-7 lg:pt-2">
-              <p class="text-lead text-paper/60">
-                Un générateur de CV vous donne des gabarits. Ici, ce sont des décisions : comment
-                l'offre est découpée, comment une compétence est reconnue comme équivalente, quels
-                écarts comptent, dans quel ordre les résultats arrivent à l'écran. Fixées une fois,
-                appliquées à chaque analyse. C'est ce qui rend le modèle utile : un LLM sans
-                contraintes improvise, un LLM dans une structure figée produit un résultat
-                comparable d'une offre à l'autre.
-              </p>
+              <p class="text-lead text-paper/60">{{ t('landing.method.lead') }}</p>
             </div>
           </div>
 
@@ -255,16 +233,18 @@
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="mb-12 flex flex-col gap-6 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
             <div data-reveal-item>
-              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Aperçu réel</p>
+              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">{{ t('landing.preview.kicker') }}</p>
               <h2 class="max-w-[14ch] text-balance font-medium text-headline">
-                Voici l'outil, pas une maquette.
+                {{ t('landing.preview.title') }}
               </h2>
             </div>
 
-            <div data-reveal-item class="flex gap-1 rounded-lg border border-ink/15 p-1 font-mono text-caption uppercase">
+            <div data-reveal-item role="group" :aria-label="t('landing.preview.tabsLabel')" class="flex gap-1 rounded-lg border border-ink/15 p-1 font-mono text-caption uppercase">
               <button
                 v-for="tab in tabs"
                 :key="tab.id"
+                type="button"
+                :aria-pressed="activeTab === tab.id"
                 @click="activeTab = tab.id"
                 class="rounded-md px-4 py-2 transition-colors"
                 :class="activeTab === tab.id ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
@@ -277,10 +257,10 @@
           <div data-reveal-item class="rounded-xl bg-ink-deep p-1.5 shadow-[0_40px_80px_-40px_rgba(35,35,35,0.55)]">
             <div class="overflow-hidden rounded-lg bg-ink font-mono text-caption text-paper ring-1 ring-white/10">
               <div class="flex h-10 items-center gap-2 border-b border-white/10 px-4 text-micro uppercase text-paper/60">
-                <span class="h-2 w-2 rounded-full bg-white/15"></span>
-                <span class="h-2 w-2 rounded-full bg-white/15"></span>
-                <span class="h-2 w-2 rounded-full bg-white/15"></span>
-                <span class="ml-3">{{ activeTab === 'analyse' ? 'comparateur — résultat' : 'simulateur — session' }}</span>
+                <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
+                <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
+                <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
+                <span class="ml-3">{{ activeTab === 'analyse' ? t('landing.preview.windowAnalysis') : t('landing.preview.windowInterview') }}</span>
               </div>
 
               <div ref="demoVideoEl" class="relative aspect-video w-full">
@@ -289,14 +269,14 @@
                   class="absolute inset-0"
                   variant="analyse"
                   :in-view="demoVideoInView"
-                  label="Démonstration de l'analyse CV et offre d'emploi Talento"
+:label="t('landing.preview.videoAnalysis')"
                 />
                 <ProductDemoVideo
                   v-else
                   class="absolute inset-0"
                   variant="entretien"
                   :in-view="demoVideoInView"
-                  label="Démonstration du simulateur d'entretien Talento"
+:label="t('landing.preview.videoInterview')"
                 />
               </div>
             </div>
@@ -305,7 +285,7 @@
       </section>
 
       <!-- ────────────────────────── 05 · CHIFFRES + ÉTAPES (bande encre) ────────────────────────── -->
-      <section id="stats" data-reveal="section" class="bg-ink py-20 text-paper lg:py-40" aria-label="Indicateurs et étapes">
+      <section id="stats" data-reveal="section" class="bg-ink py-20 text-paper lg:py-40" :aria-label="t('landing.stats.aria')">
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-2 gap-8 border-b border-white/10 pb-16 lg:grid-cols-4">
             <div v-for="stat in stats" :key="stat.label" data-reveal-stat>
@@ -329,44 +309,43 @@
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div class="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
             <div data-reveal-item class="lg:col-span-5">
-              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">Accès</p>
+              <p class="mb-5 font-mono text-caption uppercase text-ink-soft">{{ t('landing.access.kicker') }}</p>
               <h2 class="mb-6 max-w-[14ch] text-balance font-medium text-headline">
-                Gratuit à l'essai. Ouvert au code.
+                {{ t('landing.access.title') }}
               </h2>
               <p class="max-w-[46ch] text-lead text-ink-soft">
-                Le projet est publié sous licence MIT. Vous pouvez l'utiliser en ligne, lire le
-                code, l'héberger vous-même ou contribuer.
+                {{ t('landing.access.lead') }}
               </p>
             </div>
 
             <div data-reveal-item class="lg:col-span-6 lg:col-start-7">
               <div class="rounded-xl border border-ink/15 p-6 sm:p-8">
                 <div class="mb-6 flex items-baseline justify-between border-b border-paper-line pb-5">
-                  <span class="font-mono text-caption uppercase">Compte gratuit</span>
-                  <span class="text-3xl font-medium">0 €</span>
+                  <span class="font-mono text-caption uppercase">{{ t('landing.access.plan') }}</span>
+                  <span class="text-3xl font-medium">{{ t('landing.access.price') }}</span>
                 </div>
 
                 <ul class="mb-8 space-y-2.5 font-mono text-caption uppercase text-ink-soft">
-                  <li v-for="perk in perks" :key="perk" class="flex gap-3">
+                  <li v-for="perk in list('landing.access.perks')" :key="perk" class="flex gap-3">
                     <span class="text-ink/30" aria-hidden="true">—</span>
                     <span>{{ perk }}</span>
                   </li>
                 </ul>
 
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <a
-                    @click="primaryAction"
-                    class="inline-flex h-12 flex-1 cursor-pointer items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
+                  <RouterLink
+                    :to="authStore.isAuthenticated ? localePath('/dashboard') : localePath('/register')"
+                    class="inline-flex h-12 flex-1 items-center justify-center rounded-lg bg-ink px-6 font-mono text-caption uppercase text-paper transition-opacity hover:opacity-85"
                   >
-                    Créer mon compte
-                  </a>
+                    {{ t('landing.access.register') }}
+                  </RouterLink>
                   <a
                     href="https://github.com/mickaelrebeau/CV-Offer-Comparer"
                     target="_blank"
                     rel="noopener"
                     class="inline-flex h-12 items-center justify-center rounded-lg border border-ink/20 px-6 font-mono text-caption uppercase transition-colors hover:border-ink/50"
                   >
-                    Voir le code
+                    {{ t('landing.access.code') }}
                   </a>
                 </div>
               </div>
@@ -386,9 +365,9 @@
       >
         <div class="mx-auto max-w-[100rem] px-5 sm:px-8 lg:px-16">
           <div data-reveal-item class="mb-14 lg:mb-20">
-            <p class="mb-5 font-mono text-caption uppercase text-paper/60">Avant de commencer</p>
+            <p class="mb-5 font-mono text-caption uppercase text-paper/60">{{ t('landing.faq.kicker') }}</p>
             <h2 class="max-w-[16ch] text-balance font-medium text-headline">
-              Les questions qu'on nous pose.
+              {{ t('landing.faq.title') }}
             </h2>
           </div>
 
@@ -417,13 +396,12 @@
           </div>
 
           <div data-reveal-item class="mt-16">
-            <a
-              href="/free-trial"
-              @click.prevent="primaryAction"
-              class="inline-flex h-12 cursor-pointer items-center justify-center rounded-lg bg-paper px-6 font-mono text-caption uppercase text-ink transition-opacity hover:opacity-85"
+            <RouterLink
+              :to="primaryPath"
+              class="inline-flex h-12 items-center justify-center rounded-lg bg-paper px-6 font-mono text-caption uppercase text-ink transition-opacity hover:opacity-85"
             >
-              Lancer une analyse gratuite
-            </a>
+              {{ t('landing.faq.cta') }}
+            </RouterLink>
           </div>
         </div>
       </section>
@@ -437,18 +415,18 @@
             class="mb-14 select-none text-balance font-medium leading-[0.92] tracking-[-0.03em]"
             style="font-size: clamp(2.5rem, 11vw, 11rem)"
           >
-            Candidatez juste.
+            {{ t('landing.footer.slogan') }}
           </div>
 
           <div class="flex flex-col gap-4 border-t border-paper-line pt-6 font-mono text-micro uppercase text-ink-soft sm:flex-row sm:items-center sm:justify-between">
-            <span>© 2026 — Licence MIT</span>
+            <span>{{ t('landing.footer.license') }}</span>
             <div class="flex flex-wrap gap-x-6 gap-y-2">
-              <RouterLink to="/mentions-legales" class="transition-colors hover:text-ink">Mentions légales</RouterLink>
-              <RouterLink to="/cgv" class="transition-colors hover:text-ink">CGV</RouterLink>
-              <RouterLink to="/confidentialite" class="transition-colors hover:text-ink">Confidentialité</RouterLink>
-              <a href="https://github.com/mickaelrebeau/CV-Offer-Comparer" target="_blank" rel="noopener" class="transition-colors hover:text-ink">GitHub</a>
-              <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
-              <a href="/login" @click.prevent="navigateTo('/login')" class="cursor-pointer transition-colors hover:text-ink">Connexion</a>
+              <RouterLink :to="localePath('/mentions-legales')" class="transition-colors hover:text-ink">{{ t('landing.footer.legalNotice') }}</RouterLink>
+              <RouterLink :to="localePath('/cgv')" class="transition-colors hover:text-ink">{{ t('landing.footer.terms') }}</RouterLink>
+              <RouterLink :to="localePath('/confidentialite')" class="transition-colors hover:text-ink">{{ t('landing.footer.privacy') }}</RouterLink>
+              <a href="https://github.com/mickaelrebeau/CV-Offer-Comparer" target="_blank" rel="noopener" class="transition-colors hover:text-ink">{{ t('landing.footer.github') }}</a>
+              <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">{{ t('landing.footer.contact') }}</a>
+              <RouterLink :to="localePath('/login')" class="transition-colors hover:text-ink">{{ t('landing.footer.login') }}</RouterLink>
             </div>
           </div>
         </div>
@@ -458,192 +436,101 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { RouterLink, useRoute } from 'vue-router'
 import BrandLogo from '@/components/BrandLogo.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import ProductDemoVideo from '@/components/ProductDemoVideo.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useLandingScroll } from '@/composables/useLandingScroll'
+import { useLocale } from '@/i18n/useLocale'
 import {
   buildFaqJsonLd,
+  buildOrganizationJsonLd,
   buildSoftwareJsonLd,
   buildWebSiteJsonLd,
   usePageSeo,
 } from '@/composables/usePageSeo'
-import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site'
 
-const router = useRouter()
+const { t, tm, rt } = useI18n()
+const { locale, localePath } = useLocale()
+const route = useRoute()
 const authStore = useAuthStore()
 const rootEl = ref<HTMLElement | null>(null)
 const demoVideoEl = ref<HTMLElement | null>(null)
 const demoVideoInView = ref(false)
 useLandingScroll({ root: rootEl })
 
+/** Liste de chaînes d'un catalogue (tableau JSON). */
+const list = (key: string) => (tm(key) as unknown[]).map((message) => rt(message as string))
+
+/** Liste d'objets d'un catalogue : chaque champ texte est résolu. */
+function records(key: string): Record<string, string>[] {
+  return (tm(key) as Record<string, unknown>[]).map((record) =>
+    Object.fromEntries(Object.entries(record).map(([field, message]) => [field, rt(message as string)])),
+  )
+}
+
+const id = (index: number) => String(index + 1).padStart(3, '0')
+
+const homePath = computed(() => localePath(authStore.isAuthenticated ? '/dashboard' : '/'))
+const primaryPath = computed(() => localePath(authStore.isAuthenticated ? '/dashboard' : '/free-trial'))
+
 const activeTab = ref<'analyse' | 'simulateur'>('analyse')
 
-const tabs = [
-  { id: 'analyse' as const, label: '01 · Analyse' },
-  { id: 'simulateur' as const, label: '02 · Entretien' },
-]
+const tabs = computed(() => [
+  { id: 'analyse' as const, label: t('landing.preview.tabAnalysis') },
+  { id: 'simulateur' as const, label: t('landing.preview.tabInterview') },
+])
 
-const timeSinks = [
-  { id: '001', label: "Relire l'offre et isoler les vrais critères", cost: '~1 H' },
-  { id: '002', label: "Réécrire le CV pour l'intitulé du poste", cost: '~3 H' },
-  { id: '003', label: 'Deviner les mots-clés attendus par le filtre', cost: '~2 H' },
-  { id: '004', label: 'Vérifier que le PDF passe le parsing', cost: '~1 H' },
-  { id: '005', label: 'Repérer honnêtement les compétences manquantes', cost: '~1 H' },
-  { id: '006', label: 'Reformuler les expériences en résultats mesurables', cost: '~2 H' },
-  { id: '007', label: 'Préparer les questions techniques probables', cost: '~2 H' },
-  { id: '008', label: 'Tout recommencer à la candidature suivante', cost: '∞ H' },
-]
+const SINK_COSTS = ['~1 H', '~3 H', '~2 H', '~1 H', '~1 H', '~2 H', '~2 H', '∞ H']
+const timeSinks = computed(() =>
+  list('landing.problem.sinks').map((label, index) => ({ id: id(index), label, cost: SINK_COSTS[index] })),
+)
 
-const decisions = [
-  {
-    id: '001',
-    title: 'Une seule passe',
-    body: "L'offre et le CV partent ensemble dans un appel structuré unique. Pas de chaîne de prompts, pas de latence cumulée : la première réponse arrive en moins de deux secondes.",
-  },
-  {
-    id: '002',
-    title: 'Correspondance sémantique',
-    body: "« Vue 3 » et « Vue.js », « Postgres » et « PostgreSQL », « anglais courant » et « bilingue » sont reconnus comme équivalents. L'intention compte, pas la chaîne de caractères.",
-  },
-  {
-    id: '003',
-    title: "Cinq catégories d'écart",
-    body: "Compétences techniques, compétences transverses, langues, niveau d'expérience, diplômes et certifications. Les mêmes cases à chaque analyse, avec le même seuil de correspondance.",
-  },
-  {
-    id: '004',
-    title: 'Reformulations prêtes à coller',
-    body: "Chaque critère faible ou manquant reçoit une formulation orientée résultat, lisible par un ATS comme par un recruteur, que vous copiez directement dans votre document.",
-  },
-  {
-    id: '005',
-    title: "Entretien dérivé de l'écart",
-    body: "Les questions ne sortent pas d'une banque générique : elles sont générées depuis la différence exacte entre votre profil et l'offre, avec un retour sur chaque réponse.",
-  },
-  {
-    id: '006',
-    title: 'Résultats au fil du flux',
-    body: "Les critères s'affichent au fur et à mesure via un flux SSE. Vous lisez les premiers résultats pendant que les suivants arrivent, sans écran d'attente.",
-  },
-  {
-    id: '007',
-    title: 'Contrôle des données',
-    body: "Les fichiers ne sont pas archivés hors session. Gemini reçoit le texte pour l'analyse ; les comptes connectés peuvent conserver un historique. Aucun CV revendu, suppression possible depuis le profil.",
-  },
-]
+const decisions = computed(() => records('landing.method.decisions').map((decision, index) => ({ id: id(index), ...decision })))
 
-const stats = [
-  { value: '< 2 s', label: 'Première réponse' },
-  { value: '1', label: 'Appel modèle par analyse' },
-  { value: '5', label: "Catégories d'écart" },
-  { value: '0', label: 'Document conservé' },
-]
+const stats = computed(() => records('landing.stats.items'))
 
-const steps = [
-  {
-    id: '001',
-    title: 'Déposez',
-    body: "Votre CV en PDF et le texte de l'offre. Le texte est extrait et nettoyé automatiquement.",
-  },
-  {
-    id: '002',
-    title: 'Lisez',
-    body: 'Score global, détail par critère, écarts classés et reformulations, affichés au fil du flux.',
-  },
-  {
-    id: '003',
-    title: 'Préparez',
-    body: "Dix questions d'entretien construites sur vos points faibles réels, avec un retour immédiat.",
-  },
-]
+const steps = computed(() => records('landing.stats.steps').map((step, index) => ({ id: id(index), ...step })))
 
-const perks = [
-  'Essai sans carte bancaire',
-  'Analyse complète en flux continu',
-  'Écarts classés et reformulations',
-  "Simulateur d'entretien et retours",
-  'Import PDF et extraction automatique',
-  'Code source ouvert, auto-hébergeable',
-]
+const faq = computed(() => records('landing.faq.items'))
 
-const faq = [
-  {
-    id: 'Q.001',
-    question: 'Sur quelle stack est-ce construit ?',
-    answer: "Vue 3, TypeScript, Pinia et Tailwind côté interface. FastAPI, PostgreSQL et le modèle Gemini via google-genai côté serveur. Déploiement Docker sur Railway.",
-  },
-  {
-    id: 'Q.002',
-    question: 'En quoi est-ce différent des générateurs de CV ?',
-    answer: "Un générateur vous donne une mise en page. Ici, vous obtenez un diagnostic : ce que l'offre demande, ce que votre CV couvre réellement, ce qui manque, et quoi écrire à la place.",
-  },
-  {
-    id: 'Q.003',
-    question: 'Mes documents sont-ils conservés ?',
-    answer: "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique des analyses peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité.",
-  },
-  {
-    id: 'Q.007',
-    question: 'Utilisez-vous des outils d’analytics ?',
-    answer: "Oui. PostHog (région UE) mesure l'usage produit et les erreurs. Après connexion, votre compte peut être associé aux événements. Voir la politique de confidentialité.",
-  },
-  {
-    id: 'Q.004',
-    question: 'Le score est-il fiable ?',
-    answer: "C'est une estimation calibrée sur les critères extraits de l'offre, pas le score exact d'un ATS propriétaire. Il sert à hiérarchiser vos corrections, pas à prédire une embauche.",
-  },
-  {
-    id: 'Q.005',
-    question: 'Puis-je héberger le projet moi-même ?',
-    answer: "Oui. Le dépôt est public sous licence MIT et contient les Dockerfile, le guide de démarrage et les variables d'environnement nécessaires.",
-  },
-  {
-    id: 'Q.006',
-    question: 'Comment contribuer ?',
-    answer: "Les issues et pull requests sont ouvertes. Le guide de contribution décrit la mise en place locale, les conventions de commit et le processus de revue.",
-  },
-]
+const CATEGORY_VALUES = [92, 85, 100, 78, 90]
+const categories = computed(() =>
+  list('landing.terminal.categories').map((label, index) => ({ label, value: CATEGORY_VALUES[index] })),
+)
 
-const categories = [
-  { label: 'Techniques', value: 92 },
-  { label: 'Transverses', value: 85 },
-  { label: 'Langues', value: 100 },
-  { label: 'Expérience', value: 78 },
-  { label: 'Diplômes', value: 90 },
-]
-
-const streamRows = [
-  { id: '001', label: 'TypeScript', status: 'couvert', tone: 'text-emerald-400' },
-  { id: '002', label: 'Vue 3', status: 'couvert', tone: 'text-emerald-400' },
-  { id: '003', label: 'Tests unitaires', status: 'partiel', tone: 'text-amber-400' },
-  { id: '004', label: 'Docker', status: 'manquant', tone: 'text-rose-400' },
-]
+const ROW_STATUS = [
+  ['covered', 'text-emerald-400'],
+  ['covered', 'text-emerald-400'],
+  ['partial', 'text-amber-400'],
+  ['missing', 'text-rose-400'],
+] as const
+const streamRows = computed(() =>
+  list('landing.terminal.rows').map((label, index) => ({
+    id: id(index),
+    label,
+    status: t(`landing.terminal.status.${ROW_STATUS[index][0]}`),
+    tone: ROW_STATUS[index][1],
+  })),
+)
 
 const animatedScore = ref(0)
 const visibleRows = ref(0)
 
-usePageSeo({
-  title: undefined,
-  description: SITE_DESCRIPTION,
-  path: '/',
-  jsonLd: [
-    buildWebSiteJsonLd(),
-    buildSoftwareJsonLd(),
-    buildFaqJsonLd(faq.map(({ question, answer }) => ({ question, answer }))),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: SITE_NAME,
-      url: 'https://cv-compare.up.railway.app',
-      logo: 'https://cv-compare.up.railway.app/logo.png',
-      email: 'rebeau.mickael@gmail.com',
-      sameAs: ['https://github.com/mickaelrebeau/CV-Offer-Comparer'],
-    },
-  ],
-})
+usePageSeo(
+  computed(() => ({
+    path: route.path,
+    jsonLd: [
+      buildWebSiteJsonLd(locale.value, t('seo.default.description')),
+      buildSoftwareJsonLd(locale.value, t('seo.default.description')),
+      buildFaqJsonLd(faq.value.map(({ question, answer }) => ({ question, answer })), locale.value),
+      buildOrganizationJsonLd(),
+    ],
+  })),
+)
 
 let scoreTimer: number | undefined
 let rowTimer: number | undefined
@@ -659,7 +546,7 @@ onMounted(() => {
   }, 24)
 
   rowTimer = window.setInterval(() => {
-    if (visibleRows.value >= streamRows.length) {
+    if (visibleRows.value >= streamRows.value.length) {
       window.clearInterval(rowTimer)
       return
     }
@@ -683,14 +570,4 @@ onUnmounted(() => {
   window.clearInterval(rowTimer)
   demoVideoObserver?.disconnect()
 })
-
-const navigateTo = (path: string) => router.push(path)
-
-const primaryAction = () => {
-  router.push(authStore.isAuthenticated ? '/dashboard' : '/free-trial')
-}
-
-const handleLogoClick = () => {
-  router.push(authStore.isAuthenticated ? '/dashboard' : '/')
-}
 </script>

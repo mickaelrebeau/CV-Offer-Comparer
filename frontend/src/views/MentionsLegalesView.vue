@@ -1,9 +1,86 @@
 <template>
   <LegalPageShell
+    v-if="locale === 'en'"
+    label="Legal information"
+    title="Legal notice"
+    description="Publisher, hosting and access conditions of the Talento service."
+    updated-at="2026-08-03"
+  >
+    <section>
+      <h2>1. Website publisher</h2>
+      <p>
+        The <strong>Talento</strong> website (GitHub repository “CV-Offer-Comparer”) is published by
+        <strong>{{ LEGAL_PUBLISHER.name }}</strong>, a private individual.
+      </p>
+      <ul>
+        <li>Contact: <a :href="`mailto:${LEGAL_PUBLISHER.email}`">{{ LEGAL_PUBLISHER.email }}</a></li>
+        <li>Profile: <a :href="LEGAL_PUBLISHER.github" target="_blank" rel="noopener">GitHub</a></li>
+        <li>Website: <a :href="SITE_URL">{{ SITE_URL }}</a></li>
+      </ul>
+      <p>
+        As there is no dedicated company, the publisher acts in their own name to provide this
+        open source service.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Publication director</h2>
+      <p>{{ LEGAL_PUBLISHER.name }}.</p>
+    </section>
+
+    <section>
+      <h2>3. Hosting</h2>
+      <p>
+        The application is deployed on the <strong>Railway</strong> infrastructure
+        (Railway Corp / railway.app). Application data (user accounts, comparison history) is
+        stored in PostgreSQL and Redis provided by this host.
+      </p>
+    </section>
+
+    <section>
+      <h2>4. Nature of the service</h2>
+      <p>
+        Talento is open source software released under the <strong>MIT</strong> License. It
+        provides an analysis assisted by artificial intelligence (Google Gemini) between a resume
+        and a job offer, as well as an interview simulator. The online service is offered as a
+        free tool, with no guarantee of being hired.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Intellectual property</h2>
+      <p>
+        The source code is available on
+        <a :href="GITHUB_URL" target="_blank" rel="noopener">GitHub</a>
+        under the MIT License. The trademarks, logos and editorial content of the landing page
+        remain the property of the publisher, unless stated otherwise.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Liability</h2>
+      <p>
+        The publisher strives to keep the service available, without any obligation of result.
+        The scores and suggestions generated are indicative. Users remain solely responsible for
+        how they use the rewrites and for the content of their applications.
+      </p>
+    </section>
+
+    <section>
+      <h2>7. Contact</h2>
+      <p>
+        For any question about this legal notice:
+        <a :href="`mailto:${LEGAL_PUBLISHER.email}`">{{ LEGAL_PUBLISHER.email }}</a>.
+      </p>
+    </section>
+  </LegalPageShell>
+
+  <LegalPageShell
+    v-else
     label="Informations légales"
     title="Mentions légales"
     description="Éditeur, hébergement et conditions d’accès au service Talento."
-    updated-at="3 août 2026"
+    updated-at="2026-08-03"
   >
     <section>
       <h2>1. Éditeur du site</h2>
@@ -78,12 +155,9 @@
 
 <script setup lang="ts">
 import LegalPageShell from '@/components/LegalPageShell.vue'
-import { usePageSeo } from '@/composables/usePageSeo'
+import { useLocale } from '@/i18n/useLocale'
 import { GITHUB_URL, LEGAL_PUBLISHER, SITE_URL } from '@/lib/site'
 
-usePageSeo({
-  title: 'Mentions légales',
-  description: 'Mentions légales de Talento : éditeur, hébergement, propriété intellectuelle et responsabilité.',
-  path: '/mentions-legales',
-})
+// Titre, description et canonical : App.vue (meta.seo = 'legalNotice')
+const { locale } = useLocale()
 </script>

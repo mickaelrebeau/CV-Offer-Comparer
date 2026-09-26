@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { DEFAULT_LOCALE, LOCALE_TAGS, isLocale } from '@/i18n'
 import { hasEnglishVersion, localizePath } from '@/i18n/routing'
 import {
+  CONTACT_EMAIL,
+  GITHUB_URL,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
@@ -86,49 +88,54 @@ export function usePageSeo(input: MaybeRefOrGetter<PageSeoInput>) {
   )
 }
 
-export function buildWebSiteJsonLd() {
+type JsonLdLocale = keyof typeof LOCALE_TAGS
+
+const inLanguage = (locale: JsonLdLocale) => LOCALE_TAGS[locale].intl
+const siteUrl = (locale: JsonLdLocale) => absoluteUrl(localizePath('/', locale))
+
+const PUBLISHER = {
+  '@type': 'Person',
+  name: 'Mickael Rébeau',
+  url: 'https://github.com/mickaelrebeau',
+}
+
+export function buildWebSiteJsonLd(locale: JsonLdLocale = DEFAULT_LOCALE, description = SITE_DESCRIPTION) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
-    url: SITE_URL,
-    description: SITE_DESCRIPTION,
-    inLanguage: 'fr-FR',
-    publisher: {
-      '@type': 'Person',
-      name: 'Mickael Rébeau',
-      url: 'https://github.com/mickaelrebeau',
-    },
+    url: siteUrl(locale),
+    description,
+    inLanguage: inLanguage(locale),
+    publisher: PUBLISHER,
   }
 }
 
-export function buildSoftwareJsonLd() {
+export function buildSoftwareJsonLd(locale: JsonLdLocale = DEFAULT_LOCALE, description = SITE_DESCRIPTION) {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: SITE_NAME,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
-    url: SITE_URL,
-    description: SITE_DESCRIPTION,
+    url: siteUrl(locale),
+    description,
+    inLanguage: inLanguage(locale),
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'EUR',
     },
     license: 'https://opensource.org/licenses/MIT',
-    author: {
-      '@type': 'Person',
-      name: 'Mickael Rébeau',
-      url: 'https://github.com/mickaelrebeau',
-    },
+    author: PUBLISHER,
   }
 }
 
-export function buildFaqJsonLd(items: { question: string; answer: string }[]) {
+export function buildFaqJsonLd(items: { question: string; answer: string }[], locale: JsonLdLocale = DEFAULT_LOCALE) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
+    inLanguage: inLanguage(locale),
     mainEntity: items.map((item) => ({
       '@type': 'Question',
       name: item.question,
@@ -137,5 +144,17 @@ export function buildFaqJsonLd(items: { question: string; answer: string }[]) {
         text: item.answer,
       },
     })),
+  }
+}
+
+export function buildOrganizationJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: absoluteUrl('/logo.png'),
+    email: CONTACT_EMAIL,
+    sameAs: [GITHUB_URL],
   }
 }

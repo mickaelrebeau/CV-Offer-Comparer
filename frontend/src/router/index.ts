@@ -25,8 +25,6 @@ const baseRoutes: BaseRoute[] = [
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
     meta: { requiresAuth: false },
-    // Traduction de la landing : PR dédiée (#17)
-    translated: false,
   },
   {
     path: '/dashboard',
@@ -105,21 +103,18 @@ const baseRoutes: BaseRoute[] = [
     name: 'mentions-legales',
     component: () => import('@/views/MentionsLegalesView.vue'),
     meta: { requiresAuth: false, seo: 'legalNotice' },
-    translated: false,
   },
   {
     path: '/cgv',
     name: 'cgv',
     component: () => import('@/views/CgvView.vue'),
     meta: { requiresAuth: false, seo: 'terms' },
-    translated: false,
   },
   {
     path: '/confidentialite',
     name: 'confidentialite',
     component: () => import('@/views/ConfidentialiteView.vue'),
     meta: { requiresAuth: false, seo: 'privacy' },
-    translated: false,
   },
 ]
 
