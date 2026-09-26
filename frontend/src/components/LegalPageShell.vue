@@ -2,7 +2,17 @@
   <div class="page-shell">
     <AppPageHeader :label="label" :title="title" :description="description" />
     <article class="panel prose-legal mx-auto max-w-3xl space-y-8 p-6 sm:p-10">
-      <p class="font-mono text-micro uppercase text-ink-soft">{{ t('legal.updatedAt', { date: updatedAt }) }}</p>
+      <p class="font-mono text-micro uppercase text-ink-soft">
+        {{ t('legal.updatedAt', { date: formatDate(updatedAt, { dateStyle: 'long' }) }) }}
+      </p>
+      <p
+        v-if="locale !== 'fr'"
+        role="note"
+        class="rounded-lg border border-amber-500/25 bg-amber-500/5 p-4 text-sm text-amber-800"
+      >
+        {{ t('legal.frenchPrevails') }}
+        <RouterLink :to="frenchPath" lang="fr" class="font-medium underline underline-offset-2">{{ t('legal.viewFrench') }}</RouterLink>
+      </p>
       <slot />
     </article>
     <nav class="mx-auto mt-10 flex max-w-3xl flex-wrap gap-4 font-mono text-micro uppercase text-ink-soft">
@@ -15,17 +25,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import { localizePath } from '@/i18n/routing'
 import { useLocale } from '@/i18n/useLocale'
 
 const { t } = useI18n()
-const { localePath } = useLocale()
+const { locale, localePath, formatDate } = useLocale()
+const route = useRoute()
+const frenchPath = computed(() => localizePath(route.path, 'fr'))
 
 defineProps<{
   label: string
   title: string
   description: string
+  /** Date ISO (AAAA-MM-JJ), formatée selon la langue */
   updatedAt: string
 }>()
 </script>

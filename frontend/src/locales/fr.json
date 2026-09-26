@@ -51,20 +51,62 @@
       "tagline": "Analyse ATS CV ↔ offre & préparation d’entretien",
       "description": "Talento compare votre CV à une offre d’emploi avec Gemini : correspondances, lacunes, reformulations ATS et simulateur d’entretien. Open source, essai gratuit."
     },
-    "dashboard": { "title": "Tableau de bord", "description": "Votre espace Talento : comparaisons CV ↔ offre et simulations d’entretien." },
-    "compare": { "title": "Comparateur CV ↔ offre", "description": "Comparez votre CV à une offre d’emploi et obtenez un diagnostic ATS détaillé." },
-    "interviewSimulator": { "title": "Simulateur d’entretien", "description": "Entraînez-vous avec des questions d’entretien générées d’après votre CV et l’offre." },
-    "interviewResults": { "title": "Résultats de la simulation", "description": "Évaluation de vos réponses d’entretien et pistes d’amélioration." },
-    "freeTrial": { "title": "Essai gratuit", "description": "Analysez gratuitement la compatibilité entre votre CV et une offre d’emploi avec Talento." },
-    "profile": { "title": "Mon profil", "description": "Gérez votre compte Talento." },
-    "login": { "title": "Connexion", "description": "Connectez-vous à Talento pour accéder à vos analyses CV ↔ offre et à votre historique." },
-    "register": { "title": "Créer un compte", "description": "Créez un compte Talento gratuit pour analyser vos candidatures et préparer vos entretiens." },
-    "forgotPassword": { "title": "Mot de passe oublié", "description": "Recevez un lien pour choisir un nouveau mot de passe Talento." },
-    "resetPassword": { "title": "Nouveau mot de passe", "description": "Choisissez un nouveau mot de passe Talento." },
-    "verifyEmail": { "title": "Vérification de l’adresse e-mail", "description": "Confirmez votre adresse e-mail Talento." },
-    "legalNotice": { "title": "Mentions légales", "description": "Mentions légales de Talento : éditeur, hébergement et responsabilité." },
-    "terms": { "title": "CGV / CGU", "description": "Conditions générales d’utilisation du service Talento." },
-    "privacy": { "title": "Politique de confidentialité", "description": "Politique de confidentialité Talento : données, Gemini, PostHog et droits RGPD." }
+    "dashboard": {
+      "title": "Tableau de bord",
+      "description": "Votre espace Talento : comparaisons CV ↔ offre et simulations d’entretien."
+    },
+    "compare": {
+      "title": "Comparateur CV ↔ offre",
+      "description": "Comparez votre CV à une offre d’emploi et obtenez un diagnostic ATS détaillé."
+    },
+    "interviewSimulator": {
+      "title": "Simulateur d’entretien",
+      "description": "Entraînez-vous avec des questions d’entretien générées d’après votre CV et l’offre."
+    },
+    "interviewResults": {
+      "title": "Résultats de la simulation",
+      "description": "Évaluation de vos réponses d’entretien et pistes d’amélioration."
+    },
+    "freeTrial": {
+      "title": "Essai gratuit",
+      "description": "Analysez gratuitement la compatibilité entre votre CV et une offre d’emploi avec Talento."
+    },
+    "profile": {
+      "title": "Mon profil",
+      "description": "Gérez votre compte Talento."
+    },
+    "login": {
+      "title": "Connexion",
+      "description": "Connectez-vous à Talento pour accéder à vos analyses CV ↔ offre et à votre historique."
+    },
+    "register": {
+      "title": "Créer un compte",
+      "description": "Créez un compte Talento gratuit pour analyser vos candidatures et préparer vos entretiens."
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "description": "Recevez un lien pour choisir un nouveau mot de passe Talento."
+    },
+    "resetPassword": {
+      "title": "Nouveau mot de passe",
+      "description": "Choisissez un nouveau mot de passe Talento."
+    },
+    "verifyEmail": {
+      "title": "Vérification de l’adresse e-mail",
+      "description": "Confirmez votre adresse e-mail Talento."
+    },
+    "legalNotice": {
+      "title": "Mentions légales",
+      "description": "Mentions légales de Talento : éditeur, hébergement, propriété intellectuelle et responsabilité."
+    },
+    "terms": {
+      "title": "CGV / CGU",
+      "description": "Conditions générales d’utilisation du service Talento (analyse ATS, essai gratuit, responsabilités)."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "description": "Politique de confidentialité Talento : compte, historique, Google Gemini, PostHog, conservation et droits RGPD."
+    }
   },
   "cookies": {
     "title": "Cookies & mesure d’usage",
@@ -84,7 +126,9 @@
     "home": "Accueil",
     "legalNotice": "Mentions légales",
     "terms": "CGV / CGU",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "frenchPrevails": "Cette traduction anglaise est fournie à titre indicatif. Seule la version française fait foi.",
+    "viewFrench": "Lire la version française"
   },
   "auth": {
     "label": "Accès",
@@ -258,14 +302,22 @@
         "id": "Module 01",
         "title": "Comparateur CV ↔ Offre",
         "description": "Analysez l'adéquation entre votre CV et une fiche de poste. Identifiez les mots-clés manquants.",
-        "features": ["Diagnostic d'écart sémantique", "Extraction des compétences requises", "Reformulations directes"],
+        "features": [
+          "Diagnostic d'écart sémantique",
+          "Extraction des compétences requises",
+          "Reformulations directes"
+        ],
         "cta": "Lancer une comparaison"
       },
       "interview": {
         "id": "Module 02",
         "title": "Simulateur d'entretien",
         "description": "Préparez l'étape décisive avec des questions générées selon votre profil et l'offre visée.",
-        "features": ["Questions prédictives ciblées", "Chronomètre en direct", "Évaluation des réponses"],
+        "features": [
+          "Questions prédictives ciblées",
+          "Chronomètre en direct",
+          "Évaluation des réponses"
+        ],
         "cta": "Démarrer la simulation"
       }
     },
@@ -385,5 +437,235 @@
   },
   "errors": {
     "readStream": "Impossible de lire la réponse"
+  },
+  "landing": {
+    "nav": {
+      "sections": "Sections de la page",
+      "problem": "Problème",
+      "method": "Méthode",
+      "preview": "Aperçu",
+      "steps": "Étapes",
+      "access": "Accès",
+      "faq": "FAQ",
+      "login": "Connexion",
+      "dashboard": "Tableau de bord",
+      "analyze": "Analyser mon CV"
+    },
+    "hero": {
+      "aria": "Présentation Talento",
+      "kicker": "Conçu pour les candidatures ciblées.",
+      "title": "L'analyse ATS que vous ne referez plus à la main.",
+      "lead": "Chaque candidature repart de zéro : relire l'offre, deviner les mots-clés, réécrire les mêmes phrases. Talento fige les décisions — extraction, correspondance sémantique, scoring, préparation d'entretien — et les rejoue sur chaque offre en une seule passe.",
+      "audience": "Pour ceux qui visent un poste précis, pas cinquante.",
+      "ctaPrimary": "Lancer une analyse gratuite",
+      "ctaSecondary": "Voir la méthode",
+      "badges": [
+        "Gemini · 1 appel",
+        "Flux SSE · < 2 s",
+        "Historique compte",
+        "Licence MIT"
+      ]
+    },
+    "terminal": {
+      "title": "analyse — session en direct",
+      "streaming": "streaming",
+      "readOffer": "lecture offre.pdf …",
+      "readCv": "lecture cv.pdf …",
+      "extract": "extraction des critères …",
+      "found": "18 trouvés",
+      "ok": "ok",
+      "score": "Score de correspondance",
+      "criteria": "18 critères",
+      "covered": "14 couverts",
+      "missing": "4 manquants",
+      "coverage": "Couverture par catégorie",
+      "rewrites": "génération des reformulations",
+      "categories": [
+        "Techniques",
+        "Transverses",
+        "Langues",
+        "Expérience",
+        "Diplômes"
+      ],
+      "rows": [
+        "TypeScript",
+        "Vue 3",
+        "Tests unitaires",
+        "Docker"
+      ],
+      "status": {
+        "covered": "couvert",
+        "partial": "partiel",
+        "missing": "manquant"
+      }
+    },
+    "problem": {
+      "log": "temps-perdu.log",
+      "total": "Temps perdu estimé : ~12 heures par candidature (1,5 jour)",
+      "kicker": "Problèmes courants",
+      "title": "Adapter un CV à une offre coûte une journée. À chaque fois.",
+      "p1": "Ce n'est jamais la partie facile qui fait mal. C'est relire l'offre ligne par ligne pour deviner ce que le filtre attend. C'est réécrire les mêmes expériences sous un intitulé différent. C'est le PDF que l'ATS découpe mal, et le refus automatique avant qu'un humain n'ouvre le dossier.",
+      "p2": "Personne ne compte ces heures, et tout le monde les repaie à la candidature suivante.",
+      "sinks": [
+        "Relire l'offre et isoler les vrais critères",
+        "Réécrire le CV pour l'intitulé du poste",
+        "Deviner les mots-clés attendus par le filtre",
+        "Vérifier que le PDF passe le parsing",
+        "Repérer honnêtement les compétences manquantes",
+        "Reformuler les expériences en résultats mesurables",
+        "Préparer les questions techniques probables",
+        "Tout recommencer à la candidature suivante"
+      ]
+    },
+    "method": {
+      "kicker": "Architecture",
+      "title": "Chaque décision déjà prise. Pour passer directement à l'entretien.",
+      "lead": "Un générateur de CV vous donne des gabarits. Ici, ce sont des décisions : comment l'offre est découpée, comment une compétence est reconnue comme équivalente, quels écarts comptent, dans quel ordre les résultats arrivent à l'écran. Fixées une fois, appliquées à chaque analyse. C'est ce qui rend le modèle utile : un LLM sans contraintes improvise, un LLM dans une structure figée produit un résultat comparable d'une offre à l'autre.",
+      "decisions": [
+        {
+          "title": "Une seule passe",
+          "body": "L'offre et le CV partent ensemble dans un appel structuré unique. Pas de chaîne de prompts, pas de latence cumulée : la première réponse arrive en moins de deux secondes."
+        },
+        {
+          "title": "Correspondance sémantique",
+          "body": "« Vue 3 » et « Vue.js », « Postgres » et « PostgreSQL », « anglais courant » et « bilingue » sont reconnus comme équivalents. L'intention compte, pas la chaîne de caractères."
+        },
+        {
+          "title": "Cinq catégories d'écart",
+          "body": "Compétences techniques, compétences transverses, langues, niveau d'expérience, diplômes et certifications. Les mêmes cases à chaque analyse, avec le même seuil de correspondance."
+        },
+        {
+          "title": "Reformulations prêtes à coller",
+          "body": "Chaque critère faible ou manquant reçoit une formulation orientée résultat, lisible par un ATS comme par un recruteur, que vous copiez directement dans votre document."
+        },
+        {
+          "title": "Entretien dérivé de l'écart",
+          "body": "Les questions ne sortent pas d'une banque générique : elles sont générées depuis la différence exacte entre votre profil et l'offre, avec un retour sur chaque réponse."
+        },
+        {
+          "title": "Résultats au fil du flux",
+          "body": "Les critères s'affichent au fur et à mesure via un flux SSE. Vous lisez les premiers résultats pendant que les suivants arrivent, sans écran d'attente."
+        },
+        {
+          "title": "Contrôle des données",
+          "body": "Les fichiers ne sont pas archivés hors session. Gemini reçoit le texte pour l'analyse ; les comptes connectés peuvent conserver un historique. Aucun CV revendu, suppression possible depuis le profil."
+        }
+      ]
+    },
+    "preview": {
+      "kicker": "Aperçu réel",
+      "title": "Voici l'outil, pas une maquette.",
+      "tabsLabel": "Démonstration",
+      "tabAnalysis": "01 · Analyse",
+      "tabInterview": "02 · Entretien",
+      "windowAnalysis": "comparateur — résultat",
+      "windowInterview": "simulateur — session",
+      "videoAnalysis": "Démonstration de l'analyse CV et offre d'emploi Talento (interface en français)",
+      "videoInterview": "Démonstration du simulateur d'entretien Talento (interface en français)"
+    },
+    "stats": {
+      "aria": "Indicateurs et étapes",
+      "items": [
+        {
+          "value": "< 2 s",
+          "label": "Première réponse"
+        },
+        {
+          "value": "1",
+          "label": "Appel modèle par analyse"
+        },
+        {
+          "value": "5",
+          "label": "Catégories d'écart"
+        },
+        {
+          "value": "0",
+          "label": "Document conservé"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Déposez",
+          "body": "Votre CV en PDF et le texte de l'offre. Le texte est extrait et nettoyé automatiquement."
+        },
+        {
+          "title": "Lisez",
+          "body": "Score global, détail par critère, écarts classés et reformulations, affichés au fil du flux."
+        },
+        {
+          "title": "Préparez",
+          "body": "Dix questions d'entretien construites sur vos points faibles réels, avec un retour immédiat."
+        }
+      ]
+    },
+    "access": {
+      "kicker": "Accès",
+      "title": "Gratuit à l'essai. Ouvert au code.",
+      "lead": "Le projet est publié sous licence MIT. Vous pouvez l'utiliser en ligne, lire le code, l'héberger vous-même ou contribuer.",
+      "plan": "Compte gratuit",
+      "price": "0 €",
+      "perks": [
+        "Essai sans carte bancaire",
+        "Analyse complète en flux continu",
+        "Écarts classés et reformulations",
+        "Simulateur d'entretien et retours",
+        "Import PDF et extraction automatique",
+        "Code source ouvert, auto-hébergeable"
+      ],
+      "register": "Créer mon compte",
+      "code": "Voir le code"
+    },
+    "faq": {
+      "kicker": "Avant de commencer",
+      "title": "Les questions qu'on nous pose.",
+      "cta": "Lancer une analyse gratuite",
+      "items": [
+        {
+          "id": "Q.001",
+          "question": "Sur quelle stack est-ce construit ?",
+          "answer": "Vue 3, TypeScript, Pinia et Tailwind côté interface. FastAPI, PostgreSQL et le modèle Gemini via google-genai côté serveur. Déploiement Docker sur Railway."
+        },
+        {
+          "id": "Q.002",
+          "question": "En quoi est-ce différent des générateurs de CV ?",
+          "answer": "Un générateur vous donne une mise en page. Ici, vous obtenez un diagnostic : ce que l'offre demande, ce que votre CV couvre réellement, ce qui manque, et quoi écrire à la place."
+        },
+        {
+          "id": "Q.003",
+          "question": "Mes documents sont-ils conservés ?",
+          "answer": "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique des analyses peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité."
+        },
+        {
+          "id": "Q.007",
+          "question": "Utilisez-vous des outils d’analytics ?",
+          "answer": "Oui. PostHog (région UE) mesure l'usage produit et les erreurs. Après connexion, votre compte peut être associé aux événements. Voir la politique de confidentialité."
+        },
+        {
+          "id": "Q.004",
+          "question": "Le score est-il fiable ?",
+          "answer": "C'est une estimation calibrée sur les critères extraits de l'offre, pas le score exact d'un ATS propriétaire. Il sert à hiérarchiser vos corrections, pas à prédire une embauche."
+        },
+        {
+          "id": "Q.005",
+          "question": "Puis-je héberger le projet moi-même ?",
+          "answer": "Oui. Le dépôt est public sous licence MIT et contient les Dockerfile, le guide de démarrage et les variables d'environnement nécessaires."
+        },
+        {
+          "id": "Q.006",
+          "question": "Comment contribuer ?",
+          "answer": "Les issues et pull requests sont ouvertes. Le guide de contribution décrit la mise en place locale, les conventions de commit et le processus de revue."
+        }
+      ]
+    },
+    "footer": {
+      "slogan": "Candidatez juste.",
+      "license": "© 2026 — Licence MIT",
+      "legalNotice": "Mentions légales",
+      "terms": "CGV",
+      "privacy": "Confidentialité",
+      "github": "GitHub",
+      "contact": "Contact",
+      "login": "Connexion"
+    }
   }
 }

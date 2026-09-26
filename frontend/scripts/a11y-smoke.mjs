@@ -14,11 +14,15 @@ const ROUTES = [
   '/mentions-legales',
   '/cgv',
   '/confidentialite',
+  '/en',
   '/en/free-trial',
   '/en/login',
   '/en/register',
   '/en/forgot-password',
   '/en/reset-password',
+  '/en/mentions-legales',
+  '/en/cgv',
+  '/en/confidentialite',
 ]
 const BLOCKING = new Set(['serious', 'critical'])
 

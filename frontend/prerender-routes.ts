@@ -1,4 +1,4 @@
-/** Routes publiques générées en HTML statique (SEO). */
+/** Routes publiques générées en HTML statique (SEO), en français puis sous /en. */
 const frenchRoutes = [
   '/',
   '/free-trial',
@@ -9,7 +9,6 @@ const frenchRoutes = [
   '/confidentialite',
 ]
 
-/** Versions anglaises (/en) des pages déjà traduites. Landing et pages légales : PR suivante (#17). */
-const englishRoutes = ['/en/free-trial', '/en/login', '/en/register']
+const toEnglish = (path: string) => (path === '/' ? '/en' : `/en${path}`)
 
-export const prerenderRoutes = [...frenchRoutes, ...englishRoutes]
+export const prerenderRoutes = [...frenchRoutes, ...frenchRoutes.map(toEnglish)]

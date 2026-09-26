@@ -51,20 +51,62 @@
       "tagline": "ATS resume ↔ job offer analysis & interview prep",
       "description": "Talento compares your resume with a job offer using Gemini: matches, gaps, ATS-friendly rewrites and an interview simulator. Open source, free trial."
     },
-    "dashboard": { "title": "Dashboard", "description": "Your Talento workspace: resume ↔ job offer comparisons and interview simulations." },
-    "compare": { "title": "Resume ↔ job offer comparison", "description": "Compare your resume with a job offer and get a detailed ATS diagnosis." },
-    "interviewSimulator": { "title": "Interview simulator", "description": "Practice with interview questions generated from your resume and the job offer." },
-    "interviewResults": { "title": "Simulation results", "description": "Assessment of your interview answers and ways to improve." },
-    "freeTrial": { "title": "Free trial", "description": "Check for free how well your resume matches a job offer with Talento." },
-    "profile": { "title": "My profile", "description": "Manage your Talento account." },
-    "login": { "title": "Sign in", "description": "Sign in to Talento to access your resume ↔ job offer analyses and history." },
-    "register": { "title": "Create an account", "description": "Create a free Talento account to analyze your applications and prepare for interviews." },
-    "forgotPassword": { "title": "Forgot password", "description": "Get a link to choose a new Talento password." },
-    "resetPassword": { "title": "New password", "description": "Choose a new Talento password." },
-    "verifyEmail": { "title": "Email verification", "description": "Confirm your Talento email address." },
-    "legalNotice": { "title": "Legal notice", "description": "Talento legal notice: publisher, hosting and liability." },
-    "terms": { "title": "Terms of use", "description": "Terms of use of the Talento service." },
-    "privacy": { "title": "Privacy policy", "description": "Talento privacy policy: data, Gemini, PostHog and GDPR rights." }
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Your Talento workspace: resume ↔ job offer comparisons and interview simulations."
+    },
+    "compare": {
+      "title": "Resume ↔ job offer comparison",
+      "description": "Compare your resume with a job offer and get a detailed ATS diagnosis."
+    },
+    "interviewSimulator": {
+      "title": "Interview simulator",
+      "description": "Practice with interview questions generated from your resume and the job offer."
+    },
+    "interviewResults": {
+      "title": "Simulation results",
+      "description": "Assessment of your interview answers and ways to improve."
+    },
+    "freeTrial": {
+      "title": "Free trial",
+      "description": "Check for free how well your resume matches a job offer with Talento."
+    },
+    "profile": {
+      "title": "My profile",
+      "description": "Manage your Talento account."
+    },
+    "login": {
+      "title": "Sign in",
+      "description": "Sign in to Talento to access your resume ↔ job offer analyses and history."
+    },
+    "register": {
+      "title": "Create an account",
+      "description": "Create a free Talento account to analyze your applications and prepare for interviews."
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "description": "Get a link to choose a new Talento password."
+    },
+    "resetPassword": {
+      "title": "New password",
+      "description": "Choose a new Talento password."
+    },
+    "verifyEmail": {
+      "title": "Email verification",
+      "description": "Confirm your Talento email address."
+    },
+    "legalNotice": {
+      "title": "Legal notice",
+      "description": "Talento legal notice: publisher, hosting, intellectual property and liability."
+    },
+    "terms": {
+      "title": "Terms of use",
+      "description": "Terms of use of the Talento service (ATS analysis, free trial, responsibilities)."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "description": "Talento privacy policy: account, history, Google Gemini, PostHog, retention and GDPR rights."
+    }
   },
   "cookies": {
     "title": "Cookies & usage analytics",
@@ -84,7 +126,9 @@
     "home": "Home",
     "legalNotice": "Legal notice",
     "terms": "Terms of use",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "frenchPrevails": "This English translation is provided for convenience. The French version is the only legally binding one.",
+    "viewFrench": "Read the French version"
   },
   "auth": {
     "label": "Access",
@@ -258,14 +302,22 @@
         "id": "Module 01",
         "title": "Resume ↔ Job offer comparison",
         "description": "Analyze how well your resume fits a job description. Spot the missing keywords.",
-        "features": ["Semantic gap diagnosis", "Required skills extraction", "Ready-to-use rewrites"],
+        "features": [
+          "Semantic gap diagnosis",
+          "Required skills extraction",
+          "Ready-to-use rewrites"
+        ],
         "cta": "Run a comparison"
       },
       "interview": {
         "id": "Module 02",
         "title": "Interview simulator",
         "description": "Prepare for the decisive step with questions generated from your profile and the target job.",
-        "features": ["Targeted predictive questions", "Live timer", "Answer assessment"],
+        "features": [
+          "Targeted predictive questions",
+          "Live timer",
+          "Answer assessment"
+        ],
         "cta": "Start the simulation"
       }
     },
@@ -385,5 +437,235 @@
   },
   "errors": {
     "readStream": "Could not read the response"
+  },
+  "landing": {
+    "nav": {
+      "sections": "Page sections",
+      "problem": "Problem",
+      "method": "Method",
+      "preview": "Preview",
+      "steps": "Steps",
+      "access": "Access",
+      "faq": "FAQ",
+      "login": "Sign in",
+      "dashboard": "Dashboard",
+      "analyze": "Analyze my resume"
+    },
+    "hero": {
+      "aria": "Talento overview",
+      "kicker": "Built for targeted applications.",
+      "title": "The ATS analysis you will never do by hand again.",
+      "lead": "Every application starts from scratch: re-reading the job offer, guessing the keywords, rewriting the same sentences. Talento locks in the decisions — extraction, semantic matching, scoring, interview prep — and replays them on every offer in a single pass.",
+      "audience": "For people aiming at one specific job, not fifty.",
+      "ctaPrimary": "Run a free analysis",
+      "ctaSecondary": "See the method",
+      "badges": [
+        "Gemini · 1 call",
+        "SSE stream · < 2 s",
+        "Account history",
+        "MIT License"
+      ]
+    },
+    "terminal": {
+      "title": "analysis — live session",
+      "streaming": "streaming",
+      "readOffer": "reading offer.pdf …",
+      "readCv": "reading resume.pdf …",
+      "extract": "extracting criteria …",
+      "found": "18 found",
+      "ok": "ok",
+      "score": "Match score",
+      "criteria": "18 criteria",
+      "covered": "14 covered",
+      "missing": "4 missing",
+      "coverage": "Coverage by category",
+      "rewrites": "generating rewrites",
+      "categories": [
+        "Technical",
+        "Soft skills",
+        "Languages",
+        "Experience",
+        "Degrees"
+      ],
+      "rows": [
+        "TypeScript",
+        "Vue 3",
+        "Unit testing",
+        "Docker"
+      ],
+      "status": {
+        "covered": "covered",
+        "partial": "partial",
+        "missing": "missing"
+      }
+    },
+    "problem": {
+      "log": "time-lost.log",
+      "total": "Estimated time lost: ~12 hours per application (1.5 days)",
+      "kicker": "Common problems",
+      "title": "Tailoring a resume to a job offer costs a day. Every time.",
+      "p1": "It is never the easy part that hurts. It is re-reading the offer line by line to guess what the filter expects. It is rewriting the same experience under a different job title. It is the PDF the ATS parses badly, and the automatic rejection before a human ever opens the file.",
+      "p2": "Nobody counts those hours, and everyone pays them again on the next application.",
+      "sinks": [
+        "Re-read the offer and isolate the real criteria",
+        "Rewrite the resume for the job title",
+        "Guess the keywords the filter expects",
+        "Check that the PDF survives parsing",
+        "Honestly spot the missing skills",
+        "Rephrase experience as measurable results",
+        "Prepare the likely technical questions",
+        "Start all over on the next application"
+      ]
+    },
+    "method": {
+      "kicker": "Architecture",
+      "title": "Every decision already made. So you can go straight to the interview.",
+      "lead": "A resume builder gives you templates. Here, you get decisions: how the offer is broken down, how a skill is recognized as equivalent, which gaps matter, in what order results reach the screen. Set once, applied to every analysis. That is what makes the model useful: an unconstrained LLM improvises, an LLM inside a fixed structure produces results you can compare from one offer to the next.",
+      "decisions": [
+        {
+          "title": "A single pass",
+          "body": "The offer and the resume go out together in one structured call. No prompt chain, no stacked latency: the first answer arrives in under two seconds."
+        },
+        {
+          "title": "Semantic matching",
+          "body": "“Vue 3” and “Vue.js”, “Postgres” and “PostgreSQL”, “fluent English” and “bilingual” are recognized as equivalent. Intent matters, not the exact string."
+        },
+        {
+          "title": "Five gap categories",
+          "body": "Technical skills, soft skills, languages, experience level, degrees and certifications. The same boxes on every analysis, with the same matching threshold."
+        },
+        {
+          "title": "Ready-to-paste rewrites",
+          "body": "Every weak or missing criterion gets a results-oriented wording, readable by an ATS and a recruiter alike, that you paste straight into your document."
+        },
+        {
+          "title": "Interview built from the gap",
+          "body": "Questions do not come from a generic bank: they are generated from the exact difference between your profile and the offer, with feedback on every answer."
+        },
+        {
+          "title": "Results as they stream",
+          "body": "Criteria appear one by one through an SSE stream. You read the first results while the next ones arrive, with no loading screen."
+        },
+        {
+          "title": "Data control",
+          "body": "Files are not archived beyond the session. Gemini receives the text for the analysis; signed-in accounts can keep a history. No resume is ever sold, and you can delete everything from your profile."
+        }
+      ]
+    },
+    "preview": {
+      "kicker": "Real preview",
+      "title": "This is the tool, not a mockup.",
+      "tabsLabel": "Demo",
+      "tabAnalysis": "01 · Analysis",
+      "tabInterview": "02 · Interview",
+      "windowAnalysis": "comparison — result",
+      "windowInterview": "simulator — session",
+      "videoAnalysis": "Demo of the Talento resume and job offer analysis (French interface)",
+      "videoInterview": "Demo of the Talento interview simulator (French interface)"
+    },
+    "stats": {
+      "aria": "Key figures and steps",
+      "items": [
+        {
+          "value": "< 2 s",
+          "label": "First answer"
+        },
+        {
+          "value": "1",
+          "label": "Model call per analysis"
+        },
+        {
+          "value": "5",
+          "label": "Gap categories"
+        },
+        {
+          "value": "0",
+          "label": "Documents stored"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Upload",
+          "body": "Your resume as a PDF and the job offer text. The text is extracted and cleaned up automatically."
+        },
+        {
+          "title": "Read",
+          "body": "Overall score, per-criterion details, ranked gaps and rewrites, displayed as they stream."
+        },
+        {
+          "title": "Prepare",
+          "body": "Ten interview questions built on your actual weak spots, with instant feedback."
+        }
+      ]
+    },
+    "access": {
+      "kicker": "Access",
+      "title": "Free to try. Open source.",
+      "lead": "The project is released under the MIT License. You can use it online, read the code, host it yourself or contribute.",
+      "plan": "Free account",
+      "price": "€0",
+      "perks": [
+        "Trial without a credit card",
+        "Full analysis, streamed live",
+        "Ranked gaps and rewrites",
+        "Interview simulator with feedback",
+        "PDF import and automatic extraction",
+        "Open source, self-hostable"
+      ],
+      "register": "Create my account",
+      "code": "View the code"
+    },
+    "faq": {
+      "kicker": "Before you start",
+      "title": "Questions people ask us.",
+      "cta": "Run a free analysis",
+      "items": [
+        {
+          "id": "Q.001",
+          "question": "What stack is it built on?",
+          "answer": "Vue 3, TypeScript, Pinia and Tailwind on the frontend. FastAPI, PostgreSQL and the Gemini model via google-genai on the backend. Docker deployment on Railway."
+        },
+        {
+          "id": "Q.002",
+          "question": "How is it different from resume builders?",
+          "answer": "A builder gives you a layout. Here, you get a diagnosis: what the offer asks for, what your resume actually covers, what is missing, and what to write instead."
+        },
+        {
+          "id": "Q.003",
+          "question": "Are my documents stored?",
+          "answer": "The resume and the offer are sent to Google Gemini for the analysis, then processed in memory on the server. For signed-in accounts, the analysis history can be saved. Only your account (and that history) is stored long-term; you can delete everything from your profile. Details: Privacy page."
+        },
+        {
+          "id": "Q.007",
+          "question": "Do you use analytics tools?",
+          "answer": "Yes. PostHog (EU region) measures product usage and errors. Once you sign in, your account can be linked to events. See the privacy policy."
+        },
+        {
+          "id": "Q.004",
+          "question": "Is the score reliable?",
+          "answer": "It is an estimate calibrated on the criteria extracted from the offer, not the exact score of a proprietary ATS. It helps you prioritize your fixes, not predict a hire."
+        },
+        {
+          "id": "Q.005",
+          "question": "Can I host the project myself?",
+          "answer": "Yes. The repository is public under the MIT License and includes the Dockerfiles, the getting-started guide and the required environment variables."
+        },
+        {
+          "id": "Q.006",
+          "question": "How can I contribute?",
+          "answer": "Issues and pull requests are open. The contributing guide covers the local setup, commit conventions and the review process."
+        }
+      ]
+    },
+    "footer": {
+      "slogan": "Apply with precision.",
+      "license": "© 2026 — MIT License",
+      "legalNotice": "Legal notice",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "github": "GitHub",
+      "contact": "Contact",
+      "login": "Sign in"
+    }
   }
 }
