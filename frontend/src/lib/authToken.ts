@@ -1,13 +1,13 @@
-const TOKEN_KEY = 'cv_offer_access_token'
+import { STORAGE_KEYS, readStorage, removeStorage } from '@/lib/storageKeys'
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
+  return readStorage(STORAGE_KEYS.accessToken)
 }
 
 export function setAccessToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(STORAGE_KEYS.accessToken, token)
 }
 
 export function clearAccessToken(): void {
-  localStorage.removeItem(TOKEN_KEY)
+  removeStorage(STORAGE_KEYS.accessToken)
 }

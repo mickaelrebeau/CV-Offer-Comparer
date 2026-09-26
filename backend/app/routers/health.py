@@ -9,7 +9,7 @@ async def health_check():
     """Point de terminaison de santé"""
     return {
         "status": "healthy", 
-        "message": "Comparateur CV ↔ Offre d'emploi",
+        "message": "Talento API",
         "features": {
             "sse": True,
             "streaming": True,

@@ -87,6 +87,26 @@ Ne committez jamais de fichiers `.env` ni de clés API.
 - Utiliser `env.example` comme référence
 - Pas de credentials dans les issues / PRs / screenshots
 
+## Branding
+
+Le produit s’appelle **Talento**. Le dépôt GitHub garde son nom historique `CV-Offer-Comparer` : les URL du dépôt (issues, clone, badges) restent inchangées.
+
+Avant d’ouvrir une PR qui ajoute du texte visible, des métadonnées ou des clés techniques :
+
+- [ ] Textes UI, titres de page, e-mails et messages d’API utilisent « Talento » (jamais « CV-Offer-Comparer » ni « Comparateur CV ↔ Offre » comme nom de produit)
+- [ ] Titre et description OpenAPI (`backend/app/main.py`) et réponse de `/api/health` cohérents
+- [ ] Nouvelles clés `localStorage` préfixées `talento_` et déclarées dans `frontend/src/lib/storageKeys.ts`
+- [ ] Renommage d’une clé existante : ajouter l’ancienne dans `LEGACY_KEYS` (migration douce, pas de déconnexion)
+- [ ] Nouvelles origines CORS : uniquement des domaines actifs (`ALLOWED_ORIGINS`, `backend/env.example`)
+- [ ] Métadonnées SEO et JSON-LD via `frontend/src/lib/site.ts` (`SITE_NAME`, `SITE_URL`)
+
+Clés historiques migrées automatiquement côté front :
+
+| Ancienne clé | Nouvelle clé |
+|---|---|
+| `cv_offer_access_token` | `talento_access_token` |
+| `cv-offer-compare-free-analysis-used` | `talento_free_analysis_used` |
+
 ## Pull Requests
 
 Une bonne PR :
