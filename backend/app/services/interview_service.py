@@ -26,7 +26,7 @@ class InterviewService:
                 return {
                     "success": False,
                     "error": "Impossible d'extraire le texte du CV",
-                    "message": "Le fichier CV semble être vide ou corrompu"
+                    "code": "upload.empty_file",
                 }
             
             if not job_text.strip():
@@ -34,7 +34,7 @@ class InterviewService:
                 return {
                     "success": False,
                     "error": "Le texte de l'offre d'emploi est vide",
-                    "message": "Veuillez fournir une description de l'offre d'emploi"
+                    "code": "interview.job_empty",
                 }
             
             # Générer les questions avec l'IA
@@ -57,7 +57,6 @@ class InterviewService:
             return {
                 "success": True,
                 "interview_session": interview_session,
-                "message": f"{len(questions)} questions générées avec succès"
             }
             
         except Exception as e:
@@ -67,7 +66,7 @@ class InterviewService:
             return {
                 "success": False,
                 "error": str(e),
-                "message": "Erreur lors de la génération des questions"
+                "code": "interview.questions_failed",
             }
     
     async def analyze_responses(self, questions: list, answers: list, cv_text: str, job_text: str) -> Dict[str, Any]:
@@ -97,6 +96,6 @@ class InterviewService:
             return {
                 "success": False,
                 "error": str(e),
-                "message": "Erreur lors de l'analyse des réponses"
+                "code": "interview.analysis_failed",
             }
     

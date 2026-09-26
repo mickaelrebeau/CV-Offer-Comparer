@@ -6,7 +6,7 @@
   >
     <div class="mx-auto flex max-w-[100rem] flex-wrap items-center justify-between gap-2">
       <p>
-        Confirmez votre adresse e-mail ({{ authStore.user?.email }}) pour lancer des analyses et des simulations d’entretien.
+        {{ t('emailBanner.message', { email: authStore.user?.email }) }}
       </p>
       <div class="flex items-center gap-3">
         <span v-if="feedback">{{ feedback }}</span>
@@ -17,7 +17,7 @@
           :disabled="sending"
           @click="resend"
         >
-          {{ sending ? 'Envoi…' : 'Renvoyer le lien' }}
+          {{ sending ? t('emailBanner.sending') : t('emailBanner.resend') }}
         </button>
       </div>
     </div>
@@ -26,8 +26,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const sending = ref(false)
 const feedback = ref('')
@@ -37,7 +39,7 @@ const visible = computed(() => authStore.isAuthenticated && authStore.user?.emai
 async function resend() {
   sending.value = true
   const { message, error } = await authStore.resendVerification()
-  feedback.value = error ? error.message : message || 'E-mail envoyé'
+  feedback.value = error ? error.message : message || t('emailBanner.sent')
   sending.value = false
 }
 </script>

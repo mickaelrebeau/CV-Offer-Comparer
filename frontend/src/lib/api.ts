@@ -1,5 +1,10 @@
 import axios from 'axios'
+import { currentLocale, t } from '@/i18n'
+import { localizePath } from '@/i18n/routing'
 import { getAccessToken, clearAccessToken } from './authToken'
+
+/** Langue de l'interface : le backend traduit ses messages (erreurs, statuts SSE, e-mails). */
+const localeHeaders = () => ({ 'Accept-Language': currentLocale() })
 
 export const getApiBaseURL = () => {
   const apiUrl = (import.meta as any).env?.VITE_API_URL as string | undefined
@@ -22,6 +27,7 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.headers['Accept-Language'] = currentLocale();
   return config;
 });
 
@@ -32,7 +38,7 @@ api.interceptors.response.use(
     const isAuthRoute = url.includes("/auth/login") || url.includes("/auth/register") || url.includes("/auth/me")
     if (error.response?.status === 401 && !isAuthRoute) {
       clearAccessToken()
-      window.location.href = "/login";
+      window.location.href = localizePath("/login", currentLocale());
     }
     return Promise.reject(error);
   }
@@ -134,6 +140,7 @@ export async function streamCompare(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
         Accept: "text/event-stream",
+        ...localeHeaders(),
       },
       body: JSON.stringify({
         offer_text: offerText,
@@ -148,7 +155,7 @@ export async function streamCompare(
 
     const reader = response.body?.getReader();
     if (!reader) {
-      throw new Error("Impossible de lire la réponse");
+      throw new Error(t("errors.readStream"));
     }
 
     const decoder = new TextDecoder();
@@ -194,7 +201,7 @@ export async function streamCompare(
       }
     }
   } catch (error: any) {
-    onError(error.message || "Erreur lors de la comparaison");
+    onError(error.message || t("comparison.errors.generic"));
   }
 }
 
@@ -214,6 +221,7 @@ export async function streamFreeCompare(
       headers: {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
+        ...localeHeaders(),
       },
       body: JSON.stringify({
         offer_text: offerText,
@@ -224,14 +232,14 @@ export async function streamFreeCompare(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       if (response.status === 429 && !errorData.detail) {
-        throw new Error("Vous avez déjà utilisé votre analyse gratuite. Veuillez créer un compte pour continuer.");
+        throw new Error(t("freeTrial.errors.alreadyUsed"));
       }
       throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
 
     const reader = response.body?.getReader();
     if (!reader) {
-      throw new Error("Impossible de lire la réponse");
+      throw new Error(t("errors.readStream"));
     }
 
     const decoder = new TextDecoder();
@@ -277,7 +285,7 @@ export async function streamFreeCompare(
       }
     }
   } catch (error: any) {
-    onError(error.message || "Erreur lors de la comparaison gratuite");
+    onError(error.message || t("freeTrial.errors.generic"));
   }
 }
 
@@ -287,6 +295,7 @@ export async function checkFreeAnalysisStatus() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...localeHeaders(),
       },
     });
 
@@ -299,7 +308,7 @@ export async function checkFreeAnalysisStatus() {
     console.error("Erreur lors de la vérification du statut:", error);
     return { 
       can_use_free_analysis: false, 
-      message: "Erreur de vérification - Essai offert utilisé",
+      message: t("freeTrial.errors.statusCheck"),
       error: error.message 
     };
   }
@@ -312,6 +321,7 @@ export async function uploadFreeCV(file: File): Promise<{ success: boolean; text
 
     const response = await fetch(`${getApiBaseURL()}/free-upload-cv`, {
       method: "POST",
+      headers: localeHeaders(),
       body: formData,
     });
 
@@ -326,7 +336,7 @@ export async function uploadFreeCV(file: File): Promise<{ success: boolean; text
     return {
       success: false,
       text: "",
-      message: error.message || "Erreur lors de l'upload du CV"
+      message: error.message || t("upload.uploadError")
     };
   }
 }
@@ -353,7 +363,7 @@ export async function generateInterviewQuestions(
     console.error("Erreur lors de la génération des questions d'entretien:", error);
     return {
       success: false,
-      message: error.response?.data?.detail || error.message || "Erreur lors de la génération des questions"
+      message: error.response?.data?.detail || error.message || t("interview.errors.generate")
     };
   }
 }
@@ -384,7 +394,7 @@ export async function analyzeInterviewResponses(
     console.error("Erreur lors de l'analyse des réponses:", error);
     return {
       success: false,
-      message: error.response?.data?.detail || error.message || "Erreur lors de l'analyse des réponses"
+      message: error.response?.data?.detail || error.message || t("interview.errors.analyze")
     };
   }
 }

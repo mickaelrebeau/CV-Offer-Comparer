@@ -4,6 +4,7 @@ import { api, getApiBaseURL } from '@/lib/api'
 import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/authToken'
 import posthog from 'posthog-js'
 import type { AuthResponse, AuthUser } from '@/types/auth'
+import { t } from '@/i18n'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -85,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error: any) {
       return {
         data: null,
-        error: new Error(error.response?.data?.detail || 'Erreur lors de la création du compte'),
+        error: new Error(error.response?.data?.detail || t('auth.register.errors.generic')),
       }
     } finally {
       loading.value = false
@@ -101,7 +102,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error: any) {
       return {
         data: null,
-        error: new Error(error.response?.data?.detail || 'Email ou mot de passe incorrect'),
+        error: new Error(error.response?.data?.detail || t('auth.login.invalidCredentials')),
       }
     } finally {
       loading.value = false
@@ -131,7 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (user.value?.id === data.id) user.value = data
       return { error: null }
     } catch (error: any) {
-      return { error: new Error(error.response?.data?.detail || 'Lien de vérification invalide ou expiré') }
+      return { error: new Error(error.response?.data?.detail || t('auth.verify.error')) }
     }
   }
 
@@ -140,7 +141,7 @@ export const useAuthStore = defineStore('auth', () => {
       const { data } = await api.post<{ message: string }>('/auth/resend-verification')
       return { message: data.message, error: null }
     } catch (error: any) {
-      return { message: null, error: new Error(error.response?.data?.detail || 'Envoi impossible, réessayez plus tard') }
+      return { message: null, error: new Error(error.response?.data?.detail || t('auth.errors.sendFailed')) }
     }
   }
 
@@ -149,7 +150,7 @@ export const useAuthStore = defineStore('auth', () => {
       const { data } = await api.post<{ message: string }>('/auth/forgot-password', { email })
       return { message: data.message, error: null }
     } catch (error: any) {
-      return { message: null, error: new Error(error.response?.data?.detail || 'Envoi impossible, réessayez plus tard') }
+      return { message: null, error: new Error(error.response?.data?.detail || t('auth.errors.sendFailed')) }
     }
   }
 
@@ -159,7 +160,7 @@ export const useAuthStore = defineStore('auth', () => {
       applyAuth(data)
       return { error: null }
     } catch (error: any) {
-      return { error: new Error(error.response?.data?.detail || 'Lien de réinitialisation invalide ou expiré') }
+      return { error: new Error(error.response?.data?.detail || t('auth.reset.error')) }
     }
   }
 
@@ -184,7 +185,7 @@ export const useAuthStore = defineStore('auth', () => {
       return { error: null }
     } catch (error: any) {
       return {
-        error: new Error(error.response?.data?.detail || 'Erreur lors de la suppression'),
+        error: new Error(error.response?.data?.detail || t('auth.errors.deleteFailed')),
       }
     } finally {
       loading.value = false

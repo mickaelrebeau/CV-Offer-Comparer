@@ -7,6 +7,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.i18n import DEFAULT_LOCALE
 from app.models.auth_token import PURPOSE_RESET_PASSWORD, PURPOSE_VERIFY_EMAIL, AuthToken
 from app.models.user import User
 from app.services.auth_service import get_user_by_id, hash_password
@@ -17,8 +18,10 @@ def _hash(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def _frontend_link(path: str, token: str) -> str:
-    return f"{settings.FRONTEND_URL.rstrip('/')}{path}?{urlencode({'token': token})}"
+def _frontend_link(path: str, token: str, locale: str = DEFAULT_LOCALE) -> str:
+    # Même langue que l'interface d'où vient la demande (/en/verify-email…)
+    prefix = "" if locale == DEFAULT_LOCALE else f"/{locale}"
+    return f"{settings.FRONTEND_URL.rstrip('/')}{prefix}{path}?{urlencode({'token': token})}"
 
 
 def issue_token(db: Session, user: User, purpose: str, ttl: timedelta) -> str:
@@ -51,18 +54,18 @@ def consume_token(db: Session, token: str, purpose: str) -> User | None:
     return get_user_by_id(db, record.user_id)
 
 
-def build_verification_email(db: Session, user: User) -> Email:
+def build_verification_email(db: Session, user: User, locale: str = DEFAULT_LOCALE) -> Email:
     token = issue_token(
         db, user, PURPOSE_VERIFY_EMAIL, timedelta(hours=settings.EMAIL_VERIFICATION_TTL_HOURS)
     )
-    return verification_email(user.email, _frontend_link("/verify-email", token))
+    return verification_email(user.email, _frontend_link("/verify-email", token, locale), locale)
 
 
-def build_password_reset_email(db: Session, user: User) -> Email:
+def build_password_reset_email(db: Session, user: User, locale: str = DEFAULT_LOCALE) -> Email:
     token = issue_token(
         db, user, PURPOSE_RESET_PASSWORD, timedelta(minutes=settings.PASSWORD_RESET_TTL_MINUTES)
     )
-    return password_reset_email(user.email, _frontend_link("/reset-password", token))
+    return password_reset_email(user.email, _frontend_link("/reset-password", token, locale), locale)
 
 
 def mark_email_verified(db: Session, user: User) -> User:

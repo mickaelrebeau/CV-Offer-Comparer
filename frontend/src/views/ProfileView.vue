@@ -1,43 +1,47 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Compte"
-      title="Mon profil"
-      description="Gérez vos identifiants et préférences de compte."
+      :label="t('profile.label')"
+      :title="t('profile.title')"
+      :description="t('profile.description')"
     />
 
     <div class="mx-auto max-w-2xl space-y-6">
       <div class="panel p-6 space-y-4">
-        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">Informations</h2>
+        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">{{ t('profile.info') }}</h2>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div class="space-y-1">
-            <span class="field-label">Adresse email</span>
+            <span class="field-label">{{ t('common.emailLabel') }}</span>
             <p class="text-sm text-ink">{{ user?.email }}</p>
           </div>
           <div class="space-y-1">
-            <span class="field-label">Date d'inscription</span>
+            <span class="field-label">{{ t('profile.signupDate') }}</span>
             <p class="text-sm text-ink">
-              {{ user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : 'N/A' }}
+              {{ user?.created_at ? formatDate(user.created_at, { dateStyle: 'long' }) : t('common.notAvailable') }}
             </p>
+          </div>
+          <div class="space-y-1">
+            <span class="field-label">{{ t('profile.language') }}</span>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
 
       <div class="panel p-6 space-y-4">
-        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">Actions</h2>
+        <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">{{ t('profile.actions') }}</h2>
         <div class="flex flex-col gap-3 pt-2 sm:flex-row">
-          <Button variant="outline" @click="handleSignOut">Se déconnecter</Button>
-          <Button variant="destructive" @click="showDeleteModal = true">Supprimer mon compte</Button>
+          <Button variant="outline" @click="handleSignOut">{{ t('profile.signOut') }}</Button>
+          <Button variant="destructive" @click="showDeleteModal = true">{{ t('profile.deleteAccount') }}</Button>
         </div>
       </div>
     </div>
 
     <Modal
       :is-open="showDeleteModal"
-      title="Confirmer la suppression"
-      message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive."
-      confirm-text="Supprimer définitivement"
-      cancel-text="Annuler"
+      :title="t('profile.modal.title')"
+      :message="t('profile.modal.message')"
+      :confirm-text="t('profile.modal.confirm')"
+      :cancel-text="t('common.cancel')"
       type="error"
       @confirm="handleDeleteAccount"
       @cancel="showDeleteModal = false"
@@ -55,16 +59,19 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { Notification } from '@/components/ui/notification'
+import { useLocale } from '@/i18n/useLocale'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
 
+const { t } = useI18n()
+const { push, formatDate } = useLocale()
 const authStore = useAuthStore()
-const router = useRouter()
 
 const { user } = storeToRefs(authStore)
 const { signOut, deleteAccount } = authStore
@@ -76,7 +83,7 @@ const notificationType = ref<'info' | 'warning' | 'error' | 'success'>('info')
 
 async function handleSignOut() {
   await signOut()
-  router.push('/')
+  push('/')
 }
 
 async function handleDeleteAccount() {
@@ -85,21 +92,21 @@ async function handleDeleteAccount() {
   try {
     const { error } = await deleteAccount()
     if (error) {
-      notificationMessage.value = `Erreur : ${error.message}`
+      notificationMessage.value = t('profile.deleteError', { message: error.message })
       notificationType.value = 'error'
       showNotification.value = true
       return
     }
 
-    notificationMessage.value = 'Votre compte a été supprimé.'
+    notificationMessage.value = t('profile.deleted')
     notificationType.value = 'success'
     showNotification.value = true
 
     setTimeout(() => {
-      router.push('/')
+      push('/')
     }, 1500)
   } catch {
-    notificationMessage.value = 'Une erreur est survenue lors de la suppression.'
+    notificationMessage.value = t('profile.deleteFailed')
     notificationType.value = 'error'
     showNotification.value = true
   }

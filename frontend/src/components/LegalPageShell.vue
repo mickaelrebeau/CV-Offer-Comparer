@@ -2,20 +2,25 @@
   <div class="page-shell">
     <AppPageHeader :label="label" :title="title" :description="description" />
     <article class="panel prose-legal mx-auto max-w-3xl space-y-8 p-6 sm:p-10">
-      <p class="font-mono text-micro uppercase text-ink-soft">Dernière mise à jour · {{ updatedAt }}</p>
+      <p class="font-mono text-micro uppercase text-ink-soft">{{ t('legal.updatedAt', { date: updatedAt }) }}</p>
       <slot />
     </article>
     <nav class="mx-auto mt-10 flex max-w-3xl flex-wrap gap-4 font-mono text-micro uppercase text-ink-soft">
-      <RouterLink to="/mentions-legales" class="hover:text-ink">Mentions légales</RouterLink>
-      <RouterLink to="/cgv" class="hover:text-ink">CGV / CGU</RouterLink>
-      <RouterLink to="/confidentialite" class="hover:text-ink">Confidentialité</RouterLink>
-      <RouterLink to="/" class="hover:text-ink">Accueil</RouterLink>
+      <RouterLink :to="localePath('/mentions-legales')" class="hover:text-ink">{{ t('legal.legalNotice') }}</RouterLink>
+      <RouterLink :to="localePath('/cgv')" class="hover:text-ink">{{ t('legal.terms') }}</RouterLink>
+      <RouterLink :to="localePath('/confidentialite')" class="hover:text-ink">{{ t('legal.privacy') }}</RouterLink>
+      <RouterLink :to="localePath('/')" class="hover:text-ink">{{ t('legal.home') }}</RouterLink>
     </nav>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import { useLocale } from '@/i18n/useLocale'
+
+const { t } = useI18n()
+const { localePath } = useLocale()
 
 defineProps<{
   label: string

@@ -4,13 +4,14 @@
       <!-- Offre -->
       <div class="panel overflow-hidden">
         <div class="panel-header justify-between">
-          <span>01 · Offre d'emploi</span>
+          <label for="compare-offer">{{ t('cvInput.offerHeader') }}</label>
           <FileText class="h-3.5 w-3.5" aria-hidden="true" />
         </div>
         <div class="p-4 sm:p-5">
           <Textarea
+            id="compare-offer"
             :model-value="compareStore.offerText"
-            placeholder="Collez l'offre d'emploi ici..."
+            :placeholder="t('comparison.offerPlaceholder')"
             class="min-h-[220px]"
             @input="handleOfferInput"
           />
@@ -20,21 +21,25 @@
       <!-- CV -->
       <div class="panel overflow-hidden">
         <div class="panel-header justify-between">
-          <span>02 · Mon CV</span>
-          <div class="flex gap-1">
+          <span id="compare-cv-label">{{ t('cvInput.cvHeader') }}</span>
+          <div class="flex gap-1" role="group" :aria-label="t('cvInput.cvFormat')">
             <button
+              type="button"
+              :aria-pressed="activeTab === 'upload'"
               @click="activeTab = 'upload'"
               class="rounded px-2 py-0.5 transition-colors"
               :class="activeTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
             >
-              PDF
+              {{ t('common.pdf') }}
             </button>
             <button
+              type="button"
+              :aria-pressed="activeTab === 'manual'"
               @click="activeTab = 'manual'"
               class="rounded px-2 py-0.5 transition-colors"
               :class="activeTab === 'manual' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
             >
-              Texte
+              {{ t('common.text') }}
             </button>
           </div>
         </div>
@@ -42,8 +47,9 @@
           <PDFUpload v-if="activeTab === 'upload'" :model-value="compareStore.cvText" @update:model-value="(val) => compareStore.updateCVText(val)" />
           <Textarea
             v-else
+            aria-labelledby="compare-cv-label"
             :model-value="compareStore.cvText"
-            placeholder="Collez le texte de votre CV ici..."
+            :placeholder="t('comparison.cvPlaceholder')"
             class="min-h-[220px]"
             @input="handleCVInput"
           />
@@ -57,7 +63,14 @@
           <span>{{ compareStore.status }}</span>
           <span>{{ Math.round(compareStore.progress) }}%</span>
         </div>
-        <div class="progress-track">
+        <div
+          class="progress-track"
+          role="progressbar"
+          :aria-label="t('comparison.progressAria')"
+          :aria-valuenow="Math.round(compareStore.progress)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
           <div class="progress-fill" :style="{ width: compareStore.progress + '%' }"></div>
         </div>
       </div>
@@ -69,7 +82,7 @@
       >
         <Loader2 v-if="compareStore.loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
         <ArrowRightLeft v-else class="mr-2 h-4 w-4" aria-hidden="true" />
-        Lancer la comparaison
+        {{ t('comparison.run') }}
       </Button>
     </div>
 
@@ -87,7 +100,7 @@
 
       <div class="panel-dark">
         <div class="panel-dark-inner">
-          <div class="panel-dark-header">Rapport détaillé par critère</div>
+          <div class="panel-dark-header">{{ t('comparison.report') }}</div>
           <div class="space-y-0 p-4 sm:p-6">
             <div
               v-for="item in compareStore.comparisonResult.items"
@@ -98,22 +111,24 @@
                 <div class="flex-1 space-y-2">
                   <div class="flex flex-wrap items-center gap-3 font-mono text-micro uppercase">
                     <span class="text-paper/60">{{ item.category }}</span>
-                    <span class="text-paper/60">conf. {{ Math.round(item.confidence * 100) }}%</span>
+                    <span class="text-paper/60">{{ t('comparison.confidence', { value: formatPercent(item.confidence) }) }}</span>
                   </div>
                   <p class="text-sm text-paper/90">{{ item.offerText }}</p>
                   <p v-if="item.cvText" class="text-xs text-paper/60">
-                    <span class="text-paper/70">Extrait CV :</span> {{ item.cvText }}
+                    <span class="text-paper/70">{{ t('comparison.cvExcerpt') }}</span> {{ item.cvText }}
                   </p>
                   <div v-if="item.suggestions?.length" class="mt-3 space-y-1.5 border-t border-white/10 pt-3">
-                    <div class="font-mono text-micro uppercase text-paper/60">Reformulations</div>
+                    <div class="font-mono text-micro uppercase text-paper/60">{{ t('comparison.rewrites') }}</div>
                     <ul class="space-y-1.5 text-xs text-paper/70">
                       <li v-for="sug in item.suggestions" :key="sug" class="flex items-start justify-between gap-3">
                         <span>{{ sug }}</span>
                         <button
+                          type="button"
+                          :aria-label="t('comparison.copyAria')"
                           @click="copyToClipboard(sug)"
                           class="shrink-0 font-mono text-micro uppercase text-paper/60 hover:text-paper"
                         >
-                          Copier
+                          {{ t('common.copy') }}
                         </button>
                       </li>
                     </ul>
@@ -133,13 +148,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { FileText, ArrowRightLeft, Loader2 } from 'lucide-vue-next'
+import { useLocale } from '@/i18n/useLocale'
 import { useCompareStore } from '@/stores/compare'
-import { formatPercentage } from '@/lib/utils'
 import PDFUpload from './PDFUpload.vue'
 
+const { t } = useI18n()
+const { formatPercent } = useLocale()
 const compareStore = useCompareStore()
 const activeTab = ref<'upload' | 'manual'>('upload')
 
@@ -147,10 +165,10 @@ const summaryStats = computed(() => {
   const s = compareStore.comparisonResult?.summary
   if (!s) return []
   return [
-    { label: 'Correspondances', value: s.matches, color: 'text-emerald-500' },
-    { label: 'Manquants', value: s.missing, color: 'text-rose-500' },
-    { label: 'À préciser', value: s.unclear, color: 'text-amber-500' },
-    { label: 'Score ATS', value: formatPercentage(s.matchPercentage), color: 'text-ink' },
+    { label: t('comparison.stats.matches'), value: s.matches, color: 'text-emerald-500' },
+    { label: t('comparison.stats.missing'), value: s.missing, color: 'text-rose-500' },
+    { label: t('comparison.stats.unclear'), value: s.unclear, color: 'text-amber-500' },
+    { label: t('comparison.stats.score'), value: formatPercent(s.matchPercentage), color: 'text-ink' },
   ]
 })
 
@@ -169,9 +187,9 @@ const statusTone = (st: string) => {
 }
 
 const statusLabel = (st: string) => {
-  if (st === 'match') return 'couvert'
-  if (st === 'missing') return 'manquant'
-  return 'partiel'
+  if (st === 'match') return t('comparison.status.match')
+  if (st === 'missing') return t('comparison.status.missing')
+  return t('comparison.status.partial')
 }
 
 const copyToClipboard = (text: string) => {

@@ -7,16 +7,12 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.dependencies import require_debug_endpoints
+from app.i18n import ApiError, request_locale, t
 from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
-from app.services.upload_service import (
-    NO_TEXT_PDF_MESSAGE,
-    PDFExtractionError,
-    UploadService,
-    read_upload,
-)
+from app.services.upload_service import PDFExtractionError, UploadService, read_upload
 from app.services.rate_limit_service import rate_limit
 
 router = APIRouter(prefix="/interview", tags=["interview"])
@@ -41,23 +37,21 @@ async def generate_interview_questions(
     job_text: str = Form(...),
     num_questions: Optional[int] = Form(default=10),
     user: User = Depends(get_current_user),
+    locale: str = Depends(request_locale),
 ):
     """Génère des questions d'entretien basées sur le CV et l'offre d'emploi."""
     try:
         if not cv_file.filename or not cv_file.filename.lower().endswith((".pdf", ".txt")):
-            raise HTTPException(status_code=400, detail="Le CV doit être au format PDF ou TXT")
+            raise ApiError(400, "upload.cv_format")
 
         cv_content = await read_upload(cv_file)
         try:
             cv_text = upload_service.extract_cv_text(cv_file.filename, cv_content)
         except PDFExtractionError as e:
-            raise HTTPException(status_code=400, detail=str(e)) from e
+            raise ApiError(400, "upload.pdf_unreadable") from e
         if not cv_text:
             is_pdf = cv_file.filename.lower().endswith(".pdf")
-            raise HTTPException(
-                status_code=400,
-                detail=NO_TEXT_PDF_MESSAGE if is_pdf else "Le fichier CV est vide",
-            )
+            raise ApiError(400, "upload.pdf_no_text" if is_pdf else "upload.empty_file")
 
         interview_service = InterviewService()
         result = await interview_service.generate_interview_questions(
@@ -67,16 +61,17 @@ async def generate_interview_questions(
         )
 
         if result["success"]:
-            return JSONResponse(content=result, status_code=200)
-        raise HTTPException(status_code=500, detail=result["message"])
+            count = len(result["interview_session"]["questions"])
+            content = {**result, "message": t("interview.questions_generated", locale, count=count)}
+            return JSONResponse(content=content, status_code=200)
+        code = result.get("code", "interview.questions_failed")
+        raise ApiError(400 if code in ("interview.job_empty", "upload.empty_file") else 500, code)
 
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur lors de la génération des questions: {str(e)}",
-        ) from e
+        print(f"[Interview] generate-questions: {e!r}")
+        raise ApiError(500, "interview.questions_failed") from e
 
 
 @router.post(
@@ -109,7 +104,7 @@ async def analyze_interview_responses(
         )
 
         if not result["success"]:
-            raise HTTPException(status_code=500, detail=result["message"])
+            raise ApiError(500, result.get("code", "interview.analysis_failed"))
 
         analysis = result.get("analysis") or {}
         record = InterviewRecord.from_session(
@@ -136,9 +131,7 @@ async def analyze_interview_responses(
     except HTTPException:
         raise
     except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail=f"Format JSON invalide: {str(e)}") from e
+        raise ApiError(400, "interview.invalid_payload") from e
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erreur lors de l'analyse des réponses: {str(e)}",
-        ) from e
+        print(f"[Interview] analyze-responses: {e!r}")
+        raise ApiError(500, "interview.analysis_failed") from e

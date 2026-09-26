@@ -1,11 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.db import init_db
+from app.i18n import ApiError, negotiate_locale, t
 from app.routers import auth, compare, comparisons, free_analysis, health, interview, interviews, upload
 
 
@@ -21,6 +23,18 @@ app = FastAPI(
     description="API de Talento : analyse ATS d'un CV face à une offre d'emploi et simulateur d'entretien.",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(ApiError)
+async def api_error_handler(request: Request, exc: ApiError) -> JSONResponse:
+    """Erreur traduite selon Accept-Language, avec un code stable pour le client."""
+    locale = negotiate_locale(request.headers.get("accept-language"))
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": t(exc.code, locale, **exc.params), "code": exc.code},
+        headers=exc.headers,
+    )
+
 
 app.add_middleware(
     CORSMiddleware,

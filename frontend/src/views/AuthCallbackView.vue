@@ -2,24 +2,27 @@
   <div class="flex min-h-[50vh] items-center justify-center px-6">
     <div class="space-y-3 text-center font-mono">
       <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
-      <p class="text-caption uppercase text-ink-soft">Connexion en cours</p>
+      <p class="text-caption uppercase text-ink-soft">{{ t('auth.callback.connecting') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { Loader2 } from 'lucide-vue-next'
 import posthog from 'posthog-js'
+import { useLocale } from '@/i18n/useLocale'
 import { useAuthStore } from '@/stores/auth'
 
 const isPostHogConfigured = Boolean(
   import.meta.env.VITE_POSTHOG_PROJECT_TOKEN && import.meta.env.VITE_POSTHOG_HOST,
 )
 
+const { t } = useI18n()
+const { replace } = useLocale()
 const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
 const handled = ref(false)
 
@@ -32,7 +35,7 @@ onMounted(async () => {
   }
 
   if (authStore.isAuthenticated) {
-    router.replace('/dashboard')
+    replace('/dashboard')
     return
   }
 
@@ -40,7 +43,7 @@ onMounted(async () => {
   // Retire le code de l'URL (historique, referrer, analytics) avant tout appel réseau
   window.history.replaceState(window.history.state, '', route.path)
   if (!code) {
-    router.replace('/login?error=google_oauth')
+    replace('/login?error=google_oauth')
     return
   }
 
@@ -48,6 +51,6 @@ onMounted(async () => {
   if (ok && isPostHogConfigured) {
     posthog.capture('account_signed_in', { sign_in_method: 'google' })
   }
-  router.replace(ok ? '/dashboard' : '/login?error=google_oauth')
+  replace(ok ? '/dashboard' : '/login?error=google_oauth')
 })
 </script>

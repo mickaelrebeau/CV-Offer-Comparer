@@ -2,26 +2,26 @@
   <div class="page-shell">
     <div class="mx-auto max-w-md">
       <AppPageHeader
-        label="Accès"
-        title="Créer un compte"
-        description="Rejoignez la plateforme et débloquez les fonctions avancées."
+        :label="t('auth.label')"
+        :title="t('auth.register.title')"
+        :description="t('auth.register.description')"
       />
 
       <div class="panel p-6 sm:p-8 space-y-6">
         <form @submit.prevent="handleRegister" class="space-y-4">
           <div class="space-y-1.5">
-            <label for="email" class="field-label">Adresse email</label>
-            <Input id="email" v-model="email" type="email" required placeholder="nom@exemple.com" />
+            <label for="email" class="field-label">{{ t('common.emailLabel') }}</label>
+            <Input id="email" v-model="email" type="email" required :placeholder="t('common.emailPlaceholder')" />
           </div>
 
           <div class="space-y-1.5">
-            <label for="password" class="field-label">Mot de passe</label>
-            <Input id="password" v-model="password" type="password" required minlength="6" placeholder="Au moins 8 caractères" :show-password-toggle="true" />
+            <label for="password" class="field-label">{{ t('common.passwordLabel') }}</label>
+            <Input id="password" v-model="password" type="password" required minlength="8" :placeholder="t('auth.register.passwordPlaceholder')" :show-password-toggle="true" />
           </div>
 
           <div class="space-y-1.5">
-            <label for="confirmPassword" class="field-label">Confirmer le mot de passe</label>
-            <Input id="confirmPassword" v-model="confirmPassword" type="password" required placeholder="Confirmez votre mot de passe" :show-password-toggle="true" />
+            <label for="confirmPassword" class="field-label">{{ t('auth.register.confirmLabel') }}</label>
+            <Input id="confirmPassword" v-model="confirmPassword" type="password" required :placeholder="t('auth.register.confirmPlaceholder')" :show-password-toggle="true" />
           </div>
 
           <div role="alert" v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
@@ -39,24 +39,26 @@
               required
               class="mt-1 h-4 w-4 shrink-0 rounded border-ink/30 text-ink focus:ring-ink"
             />
-            <span>
-              J’accepte les
-              <RouterLink to="/cgv" class="text-ink underline underline-offset-2" target="_blank">CGV / CGU</RouterLink>
-              et la
-              <RouterLink to="/confidentialite" class="text-ink underline underline-offset-2" target="_blank">politique de confidentialité</RouterLink>.
-            </span>
+            <i18n-t keypath="auth.register.terms" tag="span" scope="global">
+              <template #terms>
+                <RouterLink :to="localePath('/cgv')" class="text-ink underline underline-offset-2" target="_blank">{{ t('auth.register.termsLink') }}</RouterLink>
+              </template>
+              <template #privacy>
+                <RouterLink :to="localePath('/confidentialite')" class="text-ink underline underline-offset-2" target="_blank">{{ t('auth.register.privacyLink') }}</RouterLink>
+              </template>
+            </i18n-t>
           </label>
 
           <Button type="submit" variant="full" size="lg" :disabled="loading || !acceptTerms">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            Créer mon compte
+            {{ t('auth.register.submit') }}
           </Button>
         </form>
 
         <div class="relative">
           <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-ink/10" /></div>
           <div class="relative flex justify-center font-mono text-micro uppercase">
-            <span class="bg-paper px-2 text-ink-soft">Ou continuer avec</span>
+            <span class="bg-paper px-2 text-ink-soft">{{ t('common.orContinueWith') }}</span>
           </div>
         </div>
 
@@ -68,12 +70,12 @@
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
           <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-          Continuer avec Google
+          {{ t('common.continueWithGoogle') }}
         </Button>
 
         <p class="text-center font-mono text-micro uppercase text-ink-soft">
-          Déjà un compte ?
-          <router-link to="/login" class="text-ink underline underline-offset-2">Se connecter</router-link>
+          {{ t('auth.register.hasAccount') }}
+          <router-link :to="localePath('/login')" class="text-ink underline underline-offset-2">{{ t('auth.register.signIn') }}</router-link>
         </p>
       </div>
     </div>
@@ -82,15 +84,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
+import { useLocale } from '@/i18n/useLocale'
 import { useAuthStore } from '@/stores/auth'
 import posthog from 'posthog-js'
 
-const router = useRouter()
+const { t } = useI18n()
+const { localePath, push } = useLocale()
 const authStore = useAuthStore()
 
 const email = ref('')
@@ -103,17 +108,17 @@ const loading = ref(false)
 
 async function handleRegister() {
   if (!acceptTerms.value) {
-    error.value = 'Veuillez accepter les CGV et la politique de confidentialité'
+    error.value = t('auth.register.errors.acceptTerms')
     return
   }
 
   if (password.value !== confirmPassword.value) {
-    error.value = 'Les mots de passe ne correspondent pas'
+    error.value = t('auth.register.errors.passwordMismatch')
     return
   }
 
   if (password.value.length < 8) {
-    error.value = 'Le mot de passe doit contenir au moins 8 caractères'
+    error.value = t('auth.register.errors.passwordTooShort')
     return
   }
 
@@ -124,12 +129,12 @@ async function handleRegister() {
   const { error: registerError } = await authStore.signUp(email.value, password.value)
 
   if (registerError) {
-    error.value = registerError.message || 'Erreur lors de la création du compte'
+    error.value = registerError.message || t('auth.register.errors.generic')
   } else {
     posthog.capture('account_registered', { registration_method: 'password' })
-    success.value = 'Compte créé ! Un lien de confirmation vient d’être envoyé à votre adresse e-mail.'
+    success.value = t('auth.register.success')
     setTimeout(() => {
-      router.push('/dashboard')
+      push('/dashboard')
     }, 1500)
   }
 
@@ -138,7 +143,7 @@ async function handleRegister() {
 
 async function handleGoogleRegister() {
   if (!acceptTerms.value) {
-    error.value = 'Veuillez accepter les CGV et la politique de confidentialité'
+    error.value = t('auth.register.errors.acceptTerms')
     return
   }
 
@@ -149,7 +154,7 @@ async function handleGoogleRegister() {
   const { error: googleError } = await authStore.signInWithGoogle()
 
   if (googleError) {
-    error.value = 'Erreur lors de l\'inscription avec Google'
+    error.value = t('auth.register.errors.google')
     loading.value = false
   }
 }

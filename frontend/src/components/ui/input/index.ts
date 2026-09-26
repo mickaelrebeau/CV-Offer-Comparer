@@ -1,4 +1,5 @@
 import { defineComponent, h, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 
@@ -36,6 +37,7 @@ export const Input = defineComponent({
   },
   emits: ['update:modelValue'],
   setup(props, { emit, attrs }) {
+    const { t } = useI18n()
     const showPassword = ref(false)
     
     const inputType = computed(() => {
@@ -75,7 +77,7 @@ export const Input = defineComponent({
           inputElement,
           h('button', {
             type: 'button',
-            'aria-label': showPassword.value ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+            'aria-label': showPassword.value ? t('ui.hidePassword') : t('ui.showPassword'),
             'aria-pressed': showPassword.value,
             class: 'absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground',
             onClick: togglePasswordVisibility

@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.i18n import ApiError
 from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user
@@ -49,7 +50,7 @@ def get_comparison(
 ):
     row = db.get(ComparisonRecord, comparison_id)
     if not row or row.user_id != user.id:
-        raise HTTPException(status_code=404, detail="Comparaison introuvable")
+        raise ApiError(404, "history.comparison_not_found")
     return row.to_detail_dict()
 
 
@@ -61,7 +62,7 @@ def delete_comparison(
 ):
     row = db.get(ComparisonRecord, comparison_id)
     if not row or row.user_id != user.id:
-        raise HTTPException(status_code=404, detail="Comparaison introuvable")
+        raise ApiError(404, "history.comparison_not_found")
     db.delete(row)
     db.commit()
     return {"success": True}

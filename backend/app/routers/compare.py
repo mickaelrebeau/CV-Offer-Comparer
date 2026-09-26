@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.dependencies import require_debug_endpoints
+from app.i18n import request_locale
 from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
@@ -58,6 +59,7 @@ async def compare_cv_offer_stream(
     request: ComparisonRequest,
     user: User = Depends(auth_service.verify_token),
     db: Session = Depends(get_db),
+    locale: str = Depends(request_locale),
 ):
     """Compare CV ↔ offre via un seul appel Gemini, puis stream SSE des items."""
 
@@ -76,7 +78,7 @@ async def compare_cv_offer_stream(
         stream_comparison(
             request.offer_text,
             request.cv_text,
-            intro_message="Début de l'analyse…",
+            locale=locale,
             on_result=persist,
         ),
         media_type="text/event-stream",

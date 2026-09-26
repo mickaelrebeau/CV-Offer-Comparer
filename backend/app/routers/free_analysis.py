@@ -1,10 +1,11 @@
 import hashlib
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
 from app.dependencies import require_debug_endpoints
+from app.i18n import ApiError, request_locale, t
 from app.models.comparison import ComparisonRequest
 from app.models.upload import PDFUploadResponse
 from app.services.comparison_service import stream_comparison
@@ -35,15 +36,13 @@ def mark_free_analysis_used(client_id: str):
 async def free_compare_cv_offer_stream(
     request: ComparisonRequest,
     http_request: Request,
+    locale: str = Depends(request_locale),
 ):
     """Essai gratuit — même pipeline Gemini optimisé que /compare-stream."""
     client_id = get_client_identifier(http_request)
 
     if not check_free_analysis_limit(client_id):
-        raise HTTPException(
-            status_code=429,
-            detail="Vous avez déjà utilisé votre analyse gratuite. Veuillez créer un compte pour continuer.",
-        )
+        raise ApiError(429, "free.already_used")
 
     mark_free_analysis_used(client_id)
 
@@ -51,7 +50,8 @@ async def free_compare_cv_offer_stream(
         stream_comparison(
             request.offer_text,
             request.cv_text,
-            intro_message="Début de l'analyse gratuite…",
+            locale=locale,
+            intro_code="analysis.start_free",
         ),
         media_type="text/event-stream",
         headers={
@@ -66,7 +66,7 @@ async def free_compare_cv_offer_stream(
 
 
 @router.get("/free-analysis-status")
-async def get_free_analysis_status(http_request: Request):
+async def get_free_analysis_status(http_request: Request, locale: str = Depends(request_locale)):
     client_id = get_client_identifier(http_request)
     can_use_free = check_free_analysis_limit(client_id)
 
@@ -77,11 +77,7 @@ async def get_free_analysis_status(http_request: Request):
     return {
         "can_use_free_analysis": can_use_free,
         "client_id": client_id,
-        "message": (
-            "Vous pouvez faire une analyse gratuite"
-            if can_use_free
-            else "Vous avez déjà utilisé votre analyse gratuite"
-        ),
+        "message": t("free.available" if can_use_free else "free.used", locale),
         "analysis_info": analysis_info,
     }
 
@@ -116,5 +112,6 @@ async def get_free_analysis_stats():
 async def free_upload_cv_pdf(
     http_request: Request,
     file: UploadFile = File(...),
+    locale: str = Depends(request_locale),
 ):
-    return await upload_service.pdf_upload_response(file)
+    return await upload_service.pdf_upload_response(file, locale)

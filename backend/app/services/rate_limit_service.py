@@ -5,9 +5,10 @@ import uuid
 from collections import deque
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Request
 
 from app.config import settings
+from app.i18n import ApiError
 from app.models.user import User
 from app.services.auth_service import get_current_user
 from app.services.redis_service import redis_service
@@ -118,19 +119,15 @@ class RateLimiter:
 rate_limiter = RateLimiter()
 
 
-def _too_many(message: str, retry_after: int) -> HTTPException:
-    return HTTPException(
-        status_code=429,
-        detail=message,
-        headers={"Retry-After": str(retry_after)},
-    )
+def _too_many(code: str, retry_after: int) -> ApiError:
+    return ApiError(429, code, headers={"Retry-After": str(retry_after)})
 
 
 def _check_ip_window(action: str, request: Request) -> None:
     ip = get_client_ip(request)
     retry = rate_limiter.hit_window(f"rl:{action}:ip:{ip}", settings.RATE_LIMIT_IP_PER_MINUTE, MINUTE)
     if retry:
-        raise _too_many("Trop de requêtes depuis cette adresse IP. Réessayez dans un instant.", retry)
+        raise _too_many("rate.too_many_ip", retry)
 
 
 def rate_limit(action: str, daily_quota_setting: str):
@@ -143,11 +140,11 @@ def rate_limit(action: str, daily_quota_setting: str):
             f"rl:{action}:user:{user.id}", settings.RATE_LIMIT_USER_PER_MINUTE, MINUTE
         )
         if retry:
-            raise _too_many("Trop de requêtes. Réessayez dans un instant.", retry)
+            raise _too_many("rate.too_many", retry)
         _check_ip_window(action, request)
         retry = rate_limiter.hit_daily(f"quota:{action}:user:{user.id}", getattr(settings, daily_quota_setting))
         if retry:
-            raise _too_many("Quota journalier atteint. Réessayez demain.", retry)
+            raise _too_many("rate.daily_quota", retry)
 
     return dependency
 

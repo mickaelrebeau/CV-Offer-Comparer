@@ -1,0 +1,389 @@
+{
+  "common": {
+    "emailLabel": "Email address",
+    "emailPlaceholder": "name{'@'}example.com",
+    "passwordLabel": "Password",
+    "orContinueWith": "Or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "notAvailable": "N/A",
+    "copy": "Copy",
+    "refresh": "Refresh",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "pdf": "PDF",
+    "text": "Text"
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": {
+      "fr": "Passer en français",
+      "en": "Switch to English"
+    },
+    "unavailable": "This page is not available in this language yet"
+  },
+  "nav": {
+    "skipToContent": "Skip to content",
+    "homeAria": "Talento — home",
+    "primary": "Main navigation",
+    "mobile": "Mobile navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "dashboard": "Dashboard",
+    "compare": "Comparison",
+    "simulator": "Simulator",
+    "profile": "Profile",
+    "login": "Sign in",
+    "getStarted": "Get started",
+    "signOut": "Sign out",
+    "footerTagline": "Talento — precision ATS analysis",
+    "footerLicense": "© 2026 — MIT License",
+    "legalNotice": "Legal notice",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "contact": "Contact",
+    "github": "GitHub"
+  },
+  "session": {
+    "loading": "Loading your session"
+  },
+  "seo": {
+    "default": {
+      "tagline": "ATS resume ↔ job offer analysis & interview prep",
+      "description": "Talento compares your resume with a job offer using Gemini: matches, gaps, ATS-friendly rewrites and an interview simulator. Open source, free trial."
+    },
+    "dashboard": { "title": "Dashboard", "description": "Your Talento workspace: resume ↔ job offer comparisons and interview simulations." },
+    "compare": { "title": "Resume ↔ job offer comparison", "description": "Compare your resume with a job offer and get a detailed ATS diagnosis." },
+    "interviewSimulator": { "title": "Interview simulator", "description": "Practice with interview questions generated from your resume and the job offer." },
+    "interviewResults": { "title": "Simulation results", "description": "Assessment of your interview answers and ways to improve." },
+    "freeTrial": { "title": "Free trial", "description": "Check for free how well your resume matches a job offer with Talento." },
+    "profile": { "title": "My profile", "description": "Manage your Talento account." },
+    "login": { "title": "Sign in", "description": "Sign in to Talento to access your resume ↔ job offer analyses and history." },
+    "register": { "title": "Create an account", "description": "Create a free Talento account to analyze your applications and prepare for interviews." },
+    "forgotPassword": { "title": "Forgot password", "description": "Get a link to choose a new Talento password." },
+    "resetPassword": { "title": "New password", "description": "Choose a new Talento password." },
+    "verifyEmail": { "title": "Email verification", "description": "Confirm your Talento email address." },
+    "legalNotice": { "title": "Legal notice", "description": "Talento legal notice: publisher, hosting and liability." },
+    "terms": { "title": "Terms of use", "description": "Terms of use of the Talento service." },
+    "privacy": { "title": "Privacy policy", "description": "Talento privacy policy: data, Gemini, PostHog and GDPR rights." }
+  },
+  "cookies": {
+    "title": "Cookies & usage analytics",
+    "description": "We use PostHog (EU) to understand how the product is used and to diagnose errors. Accept to enable cookies / local storage; decline for anonymized, cookieless tracking. Details in the {link}.",
+    "privacyLink": "privacy policy",
+    "decline": "Decline",
+    "accept": "Accept"
+  },
+  "emailBanner": {
+    "message": "Confirm your email address ({email}) to run analyses and interview simulations.",
+    "resend": "Resend the link",
+    "sending": "Sending…",
+    "sent": "Email sent"
+  },
+  "legal": {
+    "updatedAt": "Last updated · {date}",
+    "home": "Home",
+    "legalNotice": "Legal notice",
+    "terms": "Terms of use",
+    "privacy": "Privacy"
+  },
+  "auth": {
+    "label": "Access",
+    "login": {
+      "title": "Sign in",
+      "description": "Access your comparison workspace and your analysis history.",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "noAccount": "No account yet?",
+      "createAccount": "Create an account",
+      "invalidCredentials": "Incorrect email or password",
+      "googleError": "Error while signing in with Google",
+      "googleErrors": {
+        "no_code": "Google did not return a code. Check the redirect URIs in the Google console.",
+        "exchange_failed": "Google code exchange failed. Check GOOGLE_CLIENT_SECRET and the localhost URI in Google Cloud.",
+        "server_error": "Server error during Google sign-in. Check the uvicorn logs.",
+        "invalid_state": "Google sign-in session expired or invalid. Please try again.",
+        "default": "Google sign-in failed. Try again or use email / password."
+      }
+    },
+    "register": {
+      "title": "Create an account",
+      "description": "Join the platform and unlock the advanced features.",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmLabel": "Confirm password",
+      "confirmPlaceholder": "Confirm your password",
+      "terms": "I accept the {terms} and the {privacy}.",
+      "termsLink": "terms of use",
+      "privacyLink": "privacy policy",
+      "submit": "Create my account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "success": "Account created! A confirmation link has been sent to your email address.",
+      "errors": {
+        "acceptTerms": "Please accept the terms of use and the privacy policy",
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters long",
+        "generic": "Error while creating the account",
+        "google": "Error while signing up with Google"
+      }
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "description": "Enter your email address: we will send you a link to choose a new password.",
+      "submit": "Send the link",
+      "sent": "If an account exists for this address, an email has just been sent.",
+      "backToLogin": "Back to sign in",
+      "error": "Could not send, please try again later"
+    },
+    "reset": {
+      "title": "New password",
+      "description": "Choose a new password of at least 8 characters.",
+      "newPassword": "New password",
+      "submit": "Save password",
+      "incompleteLink": "Incomplete reset link. Request a new link.",
+      "requestNewLink": "Request a new link",
+      "error": "Invalid or expired reset link"
+    },
+    "verify": {
+      "label": "Account",
+      "title": "Email verification",
+      "pending": "Verifying",
+      "success": "Email address confirmed. You can now run your analyses.",
+      "incompleteLink": "Incomplete verification link.",
+      "error": "Invalid or expired verification link",
+      "errorHint": "{message}. Sign in to receive a new link.",
+      "toDashboard": "Go to the dashboard",
+      "toLogin": "Sign in"
+    },
+    "callback": {
+      "connecting": "Signing you in"
+    },
+    "errors": {
+      "sendFailed": "Could not send, please try again later",
+      "deleteFailed": "Error while deleting"
+    }
+  },
+  "upload": {
+    "dropAria": "Upload your resume as a PDF (10 MB max)",
+    "dropTitle": "Drop your resume (PDF) here",
+    "dropHint": "or click · 10 MB max",
+    "extracting": "Extracting the PDF...",
+    "extractingHint": "Analysis in progress",
+    "success": "Resume extracted successfully!",
+    "fileInfo": "{name} ({count} characters)",
+    "replace": "Replace file",
+    "errorTitle": "Extraction error",
+    "preview": "Extracted preview",
+    "show": "Show",
+    "hide": "Hide",
+    "onlyPdf": "Only PDF files are accepted",
+    "tooLarge": "The file exceeds the 10 MB limit",
+    "extractError": "Error while extracting the PDF",
+    "uploadError": "Upload error",
+    "live": {
+      "extracting": "Extracting the PDF",
+      "error": "Extraction error: {message}",
+      "success": "Resume extracted successfully: {name}"
+    }
+  },
+  "cvInput": {
+    "offerHeader": "01 · Job offer",
+    "cvHeader": "02 · My resume",
+    "cvFormat": "Resume format",
+    "cvTextLabel": "Your resume text"
+  },
+  "comparison": {
+    "offerPlaceholder": "Paste the job offer here...",
+    "cvPlaceholder": "Paste your resume text here...",
+    "run": "Run the comparison",
+    "report": "Detailed report by criterion",
+    "confidence": "conf. {value}",
+    "cvExcerpt": "Resume excerpt:",
+    "rewrites": "Suggested rewrites",
+    "copyAria": "Copy the suggestion",
+    "stats": {
+      "matches": "Matches",
+      "missing": "Missing",
+      "unclear": "To clarify",
+      "score": "ATS score"
+    },
+    "status": {
+      "match": "covered",
+      "missing": "missing",
+      "partial": "partial"
+    },
+    "progressAria": "Analysis progress",
+    "errors": {
+      "missingInput": "Please enter the job offer and resume text",
+      "generic": "Error during the comparison",
+      "loadHistory": "Could not load this comparison"
+    },
+    "statusStart": "Starting the analysis...",
+    "statusDone": "Comparison complete",
+    "historyLoaded": "History loaded"
+  },
+  "compare": {
+    "label": "Comparison",
+    "title": "Resume ↔ Job offer",
+    "description": "Measure the exact semantic fit between your profile and the job description.",
+    "historyLoading": "Loading history…"
+  },
+  "freeTrial": {
+    "label": "Free trial",
+    "title": "Free analysis",
+    "description": "Try the diagnosis engine right away. One full analysis is on us.",
+    "offerPlaceholder": "Paste the full job description...",
+    "cvPlaceholder": "Paste your resume text...",
+    "run": "Run the free diagnosis",
+    "alreadyUsed": "Free trial already used",
+    "report": "Detailed report",
+    "running": "Diagnosis in progress...",
+    "upsell": {
+      "title": "Take it further",
+      "text": "Create a free account to save your analyses, get unlimited comparisons and use the interview simulator.",
+      "register": "Create an account",
+      "login": "Sign in"
+    },
+    "errors": {
+      "alreadyUsed": "You have already used your free analysis. Please create an account to continue.",
+      "statusCheck": "Verification error - free trial used",
+      "generic": "Error during the free comparison"
+    }
+  },
+  "dashboard": {
+    "label": "Candidate workspace",
+    "title": "Dashboard",
+    "description": "Pick the module that fits where you are in your application.",
+    "modules": {
+      "compare": {
+        "id": "Module 01",
+        "title": "Resume ↔ Job offer comparison",
+        "description": "Analyze how well your resume fits a job description. Spot the missing keywords.",
+        "features": ["Semantic gap diagnosis", "Required skills extraction", "Ready-to-use rewrites"],
+        "cta": "Run a comparison"
+      },
+      "interview": {
+        "id": "Module 02",
+        "title": "Interview simulator",
+        "description": "Prepare for the decisive step with questions generated from your profile and the target job.",
+        "features": ["Targeted predictive questions", "Live timer", "Answer assessment"],
+        "cta": "Start the simulation"
+      }
+    },
+    "history": "History",
+    "comparisons": {
+      "title": "Recent comparisons",
+      "loading": "Loading history…",
+      "empty": "No comparison saved yet. Run an analysis from the comparison module — it will show up here automatically.",
+      "cta": "Run a comparison",
+      "match": "{value} match",
+      "criteria": "{matches}/{total} criteria",
+      "view": "View the comparison from {date}",
+      "delete": "Delete the comparison from {date}",
+      "loadError": "Could not load the history"
+    },
+    "interviews": {
+      "title": "Recent interview simulations",
+      "loading": "Loading simulations…",
+      "empty": "No simulation saved yet. Finish an interview in the simulator — the report will show up here automatically.",
+      "cta": "Start a simulation",
+      "questions": "{count} questions",
+      "view": "View the simulation from {date}",
+      "delete": "Delete the simulation from {date}",
+      "loadError": "Could not load the simulations"
+    },
+    "view": "View",
+    "delete": "Delete",
+    "noOfferExcerpt": "Job offer without excerpt",
+    "noCvExcerpt": "Resume without excerpt",
+    "deleteError": "Could not delete"
+  },
+  "interview": {
+    "label": "Simulator",
+    "title": "Practice studio",
+    "description": "Get ready for targeted questions generated from the weak spots of your application.",
+    "jobPlaceholder": "Paste the job offer...",
+    "cvPlaceholder": "Paste your resume text...",
+    "generate": "Generate the questions",
+    "changeTopic": "Change topic",
+    "start": "Start the simulation",
+    "estimate": "~{minutes} min · {count} questions",
+    "questionOf": "Question {current} / {total} · {category}",
+    "elapsed": "Elapsed time:",
+    "answerLabel": "Your answer",
+    "answerPlaceholder": "Write down the key points of your answer...",
+    "previous": "Previous",
+    "pause": "Pause",
+    "resume": "Resume",
+    "next": "Next",
+    "progress": "Progress",
+    "progressAria": "Simulation progress",
+    "progressValue": "Question {current} of {total}",
+    "completeTitle": "All questions are done",
+    "completeText": "Get a detailed assessment of your answers.",
+    "getReport": "Get the report",
+    "analyzing": "Analyzing...",
+    "questionN": "Question {n}",
+    "announce": {
+      "generated": "{count} questions generated. Start the simulation when you are ready.",
+      "question": "Question {current} of {total}: {text}"
+    },
+    "errors": {
+      "missingInput": "Please provide your resume and the job offer",
+      "generate": "Error while generating the questions",
+      "analyze": "Error while analyzing your answers"
+    }
+  },
+  "results": {
+    "label": "Report",
+    "title": "Simulation results",
+    "description": "Summary assessment and recommendations to sharpen your arguments.",
+    "loading": "Fetching results...",
+    "newSimulator": "New simulation",
+    "globalScore": "Overall score",
+    "questions": "Questions",
+    "duration": "Duration",
+    "strengths": "Strengths",
+    "improvements": "Areas for improvement",
+    "answersDetail": "Answer details",
+    "questionN": "Question {n} · {category}",
+    "noAnswer": "No answer written.",
+    "backToDashboard": "Dashboard",
+    "newSimulation": "New simulation",
+    "score": {
+      "none": "Not assessed",
+      "excellent": "Excellent command",
+      "good": "Good performance",
+      "work": "Needs work"
+    },
+    "noSession": "No recent session found.",
+    "loadError": "Error while loading"
+  },
+  "profile": {
+    "label": "Account",
+    "title": "My profile",
+    "description": "Manage your credentials and account preferences.",
+    "info": "Details",
+    "signupDate": "Sign-up date",
+    "language": "Interface language",
+    "actions": "Actions",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete my account",
+    "modal": {
+      "title": "Confirm deletion",
+      "message": "Are you sure you want to delete your account? This cannot be undone.",
+      "confirm": "Delete permanently"
+    },
+    "deleted": "Your account has been deleted.",
+    "deleteError": "Error: {message}",
+    "deleteFailed": "Something went wrong while deleting your account."
+  },
+  "ui": {
+    "close": "Close",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "confirm": "Confirm"
+  },
+  "errors": {
+    "readStream": "Could not read the response"
+  }
+}

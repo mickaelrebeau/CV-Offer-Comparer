@@ -6,6 +6,7 @@
 export const STORAGE_KEYS = {
   accessToken: 'talento_access_token',
   freeAnalysisUsed: 'talento_free_analysis_used',
+  locale: 'talento_locale',
 } as const
 
 const LEGACY_KEYS: Record<string, string> = {
