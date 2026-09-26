@@ -1,9 +1,9 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Espace candidat"
-      title="Tableau de bord"
-      description="Sélectionnez le module adapté à l'avancement de votre candidature."
+      :label="t('dashboard.label')"
+      :title="t('dashboard.title')"
+      :description="t('dashboard.description')"
     />
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -15,7 +15,7 @@
         <div class="mb-6 font-mono text-micro uppercase text-ink-soft">{{ module.id }}</div>
         <h2 class="mb-3 font-medium text-title transition-colors group-hover:text-ink-soft">
           <!-- Lien étiré : toute la carte est cliquable, un seul arrêt clavier -->
-          <RouterLink :to="module.path" class="after:absolute after:inset-0 after:content-[''] focus:outline-none">
+          <RouterLink :to="localePath(module.path)" class="after:absolute after:inset-0 after:content-[''] focus:outline-none">
             {{ module.title }}
           </RouterLink>
         </h2>
@@ -36,8 +36,8 @@
     <section class="mt-12">
       <div class="mb-5 flex items-end justify-between gap-4">
         <div>
-          <p class="font-mono text-micro uppercase text-ink-soft">Historique</p>
-          <h2 class="mt-1 font-medium text-title">Comparaisons récentes</h2>
+          <p class="font-mono text-micro uppercase text-ink-soft">{{ t('dashboard.history') }}</p>
+          <h2 class="mt-1 font-medium text-title">{{ t('dashboard.comparisons.title') }}</h2>
         </div>
         <button
           v-if="history.length"
@@ -46,12 +46,12 @@
           :disabled="historyLoading"
           @click="loadHistory"
         >
-          Actualiser
+          {{ t('common.refresh') }}
         </button>
       </div>
 
       <div v-if="historyLoading" class="panel p-6 font-mono text-micro uppercase text-ink-soft">
-        Chargement de l'historique…
+        {{ t('dashboard.comparisons.loading') }}
       </div>
 
       <div role="alert"
@@ -63,11 +63,10 @@
 
       <div v-else-if="!history.length" class="panel p-6 sm:p-8">
         <p class="text-lead text-ink-soft">
-          Aucune comparaison enregistrée pour le moment. Lancez une analyse depuis le module comparateur
-          — elle apparaîtra ici automatiquement.
+          {{ t('dashboard.comparisons.empty') }}
         </p>
-        <button type="button" class="btn-primary mt-6" @click="router.push('/compare')">
-          Lancer une comparaison
+        <button type="button" class="btn-primary mt-6" @click="push('/compare')">
+          {{ t('dashboard.comparisons.cta') }}
         </button>
       </div>
 
@@ -80,29 +79,29 @@
           <div class="min-w-0 flex-1">
             <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
               <span>{{ formatDate(item.created_at) }}</span>
-              <span>{{ Math.round(item.match_percentage) }}% match</span>
-              <span>{{ item.matches }}/{{ item.total_items }} critères</span>
+              <span>{{ t('dashboard.comparisons.match', { value: formatPercent(item.match_percentage) }) }}</span>
+              <span>{{ t('dashboard.comparisons.criteria', { matches: item.matches, total: item.total_items }) }}</span>
             </div>
-            <p class="truncate text-sm text-ink">{{ item.offer_excerpt || 'Offre sans extrait' }}</p>
-            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || 'CV sans extrait' }}</p>
+            <p class="truncate text-sm text-ink">{{ item.offer_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
           </div>
           <div class="flex shrink-0 gap-2">
             <button
               type="button"
               class="btn-secondary h-9 px-4 text-micro"
-              :aria-label="`Voir la comparaison du ${formatDate(item.created_at)}`"
+              :aria-label="t('dashboard.comparisons.view', { date: formatDate(item.created_at) })"
               @click="openHistory(item.id)"
             >
-              Voir
+              {{ t('dashboard.view') }}
             </button>
             <button
               type="button"
               class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
               :disabled="deletingId === item.id"
-              :aria-label="`Supprimer la comparaison du ${formatDate(item.created_at)}`"
+              :aria-label="t('dashboard.comparisons.delete', { date: formatDate(item.created_at) })"
               @click="removeHistory(item.id)"
             >
-              Supprimer
+              {{ t('dashboard.delete') }}
             </button>
           </div>
         </li>
@@ -112,8 +111,8 @@
     <section class="mt-12">
       <div class="mb-5 flex items-end justify-between gap-4">
         <div>
-          <p class="font-mono text-micro uppercase text-ink-soft">Historique</p>
-          <h2 class="mt-1 font-medium text-title">Simulations d’entretien récentes</h2>
+          <p class="font-mono text-micro uppercase text-ink-soft">{{ t('dashboard.history') }}</p>
+          <h2 class="mt-1 font-medium text-title">{{ t('dashboard.interviews.title') }}</h2>
         </div>
         <button
           v-if="interviewHistory.length"
@@ -122,12 +121,12 @@
           :disabled="interviewLoading"
           @click="loadInterviewHistory"
         >
-          Actualiser
+          {{ t('common.refresh') }}
         </button>
       </div>
 
       <div v-if="interviewLoading" class="panel p-6 font-mono text-micro uppercase text-ink-soft">
-        Chargement des simulations…
+        {{ t('dashboard.interviews.loading') }}
       </div>
 
       <div role="alert"
@@ -139,11 +138,10 @@
 
       <div v-else-if="!interviewHistory.length" class="panel p-6 sm:p-8">
         <p class="text-lead text-ink-soft">
-          Aucune simulation enregistrée pour le moment. Terminez un entretien depuis le simulateur —
-          le rapport apparaîtra ici automatiquement.
+          {{ t('dashboard.interviews.empty') }}
         </p>
-        <button type="button" class="btn-primary mt-6" @click="router.push('/interview-simulator')">
-          Démarrer une simulation
+        <button type="button" class="btn-primary mt-6" @click="push('/interview-simulator')">
+          {{ t('dashboard.interviews.cta') }}
         </button>
       </div>
 
@@ -157,29 +155,29 @@
             <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
               <span>{{ formatDate(item.created_at) }}</span>
               <span>{{ formatScore(item.score_global) }}/10</span>
-              <span>{{ item.num_questions }} questions</span>
+              <span>{{ t('dashboard.interviews.questions', { count: item.num_questions }) }}</span>
               <span>{{ formatDuration(item.duration_seconds) }}</span>
             </div>
-            <p class="truncate text-sm text-ink">{{ item.job_excerpt || 'Offre sans extrait' }}</p>
-            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || 'CV sans extrait' }}</p>
+            <p class="truncate text-sm text-ink">{{ item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
           </div>
           <div class="flex shrink-0 gap-2">
             <button
               type="button"
               class="btn-secondary h-9 px-4 text-micro"
-              :aria-label="`Voir la simulation du ${formatDate(item.created_at)}`"
+              :aria-label="t('dashboard.interviews.view', { date: formatDate(item.created_at) })"
               @click="openInterviewHistory(item.id)"
             >
-              Voir
+              {{ t('dashboard.view') }}
             </button>
             <button
               type="button"
               class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
               :disabled="deletingInterviewId === item.id"
-              :aria-label="`Supprimer la simulation du ${formatDate(item.created_at)}`"
+              :aria-label="t('dashboard.interviews.delete', { date: formatDate(item.created_at) })"
               @click="removeInterviewHistory(item.id)"
             >
-              Supprimer
+              {{ t('dashboard.delete') }}
             </button>
           </div>
         </li>
@@ -189,10 +187,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ArrowRight } from 'lucide-vue-next'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import { useLocale } from '@/i18n/useLocale'
 import {
   deleteComparison,
   deleteInterview,
@@ -202,7 +201,8 @@ import {
   type InterviewHistoryItem,
 } from '@/lib/api'
 
-const router = useRouter()
+const { t, tm, rt } = useI18n()
+const { localePath, push, formatDate, formatNumber, formatPercent } = useLocale()
 const history = ref<ComparisonHistoryItem[]>([])
 const historyLoading = ref(true)
 const historyError = ref('')
@@ -213,24 +213,16 @@ const interviewLoading = ref(true)
 const interviewError = ref('')
 const deletingInterviewId = ref<string | null>(null)
 
-const modules = [
-  {
-    id: 'Module 01',
-    path: '/compare',
-    title: 'Comparateur CV ↔ Offre',
-    description: "Analysez l'adéquation entre votre CV et une fiche de poste. Identifiez les mots-clés manquants.",
-    features: ['Diagnostic d\'écart sémantique', 'Extraction des compétences requises', 'Reformulations directes'],
-    cta: 'Lancer une comparaison',
-  },
-  {
-    id: 'Module 02',
-    path: '/interview-simulator',
-    title: "Simulateur d'entretien",
-    description: 'Préparez l\'étape décisive avec des questions générées selon votre profil et l\'offre visée.',
-    features: ['Questions prédictives ciblées', 'Chronomètre en direct', 'Évaluation des réponses'],
-    cta: 'Démarrer la simulation',
-  },
-]
+const modules = computed(() =>
+  (['compare', 'interview'] as const).map((key) => ({
+    path: key === 'compare' ? '/compare' : '/interview-simulator',
+    id: t(`dashboard.modules.${key}.id`),
+    title: t(`dashboard.modules.${key}.title`),
+    description: t(`dashboard.modules.${key}.description`),
+    features: (tm(`dashboard.modules.${key}.features`) as unknown[]).map((feature) => rt(feature as string)),
+    cta: t(`dashboard.modules.${key}.cta`),
+  })),
+)
 
 async function loadHistory() {
   historyLoading.value = true
@@ -239,7 +231,7 @@ async function loadHistory() {
     const data = await listComparisons(10)
     history.value = data.items
   } catch (err: any) {
-    historyError.value = err.response?.data?.detail || 'Impossible de charger l\'historique'
+    historyError.value = err.response?.data?.detail || t('dashboard.comparisons.loadError')
   } finally {
     historyLoading.value = false
   }
@@ -252,22 +244,14 @@ async function loadInterviewHistory() {
     const data = await listInterviews(10)
     interviewHistory.value = data.items
   } catch (err: any) {
-    interviewError.value = err.response?.data?.detail || 'Impossible de charger les simulations'
+    interviewError.value = err.response?.data?.detail || t('dashboard.interviews.loadError')
   } finally {
     interviewLoading.value = false
   }
 }
 
-function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('fr-FR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
-
 function formatScore(score: number) {
-  return Number.isFinite(score) ? Math.round(score * 10) / 10 : '—'
+  return formatNumber(score, { maximumFractionDigits: 1 })
 }
 
 function formatDuration(seconds: number) {
@@ -277,11 +261,11 @@ function formatDuration(seconds: number) {
 }
 
 function openHistory(id: string) {
-  router.push({ path: '/compare', query: { history: id } })
+  push({ path: '/compare', query: { history: id } })
 }
 
 function openInterviewHistory(id: string) {
-  router.push({ path: '/interview-results', query: { history: id } })
+  push({ path: '/interview-results', query: { history: id } })
 }
 
 async function removeHistory(id: string) {
@@ -290,7 +274,7 @@ async function removeHistory(id: string) {
     await deleteComparison(id)
     history.value = history.value.filter((item) => item.id !== id)
   } catch (err: any) {
-    historyError.value = err.response?.data?.detail || 'Suppression impossible'
+    historyError.value = err.response?.data?.detail || t('dashboard.deleteError')
   } finally {
     deletingId.value = null
   }
@@ -302,7 +286,7 @@ async function removeInterviewHistory(id: string) {
     await deleteInterview(id)
     interviewHistory.value = interviewHistory.value.filter((item) => item.id !== id)
   } catch (err: any) {
-    interviewError.value = err.response?.data?.detail || 'Suppression impossible'
+    interviewError.value = err.response?.data?.detail || t('dashboard.deleteError')
   } finally {
     deletingInterviewId.value = null
   }

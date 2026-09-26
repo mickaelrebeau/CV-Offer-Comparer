@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import get_db
+from app.i18n import ApiError, request_locale, t
 from app.models.auth_token import PURPOSE_RESET_PASSWORD, PURPOSE_VERIFY_EMAIL
 from app.models.user import User
 from app.schemas.auth import (
@@ -60,9 +61,14 @@ def _auth_payload(user: User) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse)
-def register(payload: RegisterRequest, background: BackgroundTasks, db: Session = Depends(get_db)):
+def register(
+    payload: RegisterRequest,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+    locale: str = Depends(request_locale),
+):
     user = register_user(db, payload.email, payload.password)
-    background.add_task(send_email, build_verification_email(db, user))
+    background.add_task(send_email, build_verification_email(db, user, locale))
     return _auth_payload(user)
 
 
@@ -92,29 +98,25 @@ def _login_error_redirect(reason: str) -> RedirectResponse:
     return response
 
 
-FORGOT_PASSWORD_MESSAGE = (
-    "Si un compte existe pour cette adresse, un e-mail de réinitialisation vient d'être envoyé."
-)
-
-
 @router.post("/forgot-password", dependencies=[Depends(ip_rate_limit("forgot_password"))])
 def forgot_password(
     payload: ForgotPasswordRequest,
     background: BackgroundTasks,
     db: Session = Depends(get_db),
+    locale: str = Depends(request_locale),
 ):
     """Réponse identique que le compte existe ou non (pas d'énumération d'adresses)."""
     user = get_user_by_email(db, payload.email)
     if user:
-        background.add_task(send_email, build_password_reset_email(db, user))
-    return {"success": True, "message": FORGOT_PASSWORD_MESSAGE}
+        background.add_task(send_email, build_password_reset_email(db, user, locale))
+    return {"success": True, "message": t("auth.forgot_password_sent", locale)}
 
 
 @router.post("/reset-password", response_model=AuthResponse)
 def reset_password_route(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
     user = consume_token(db, payload.token, PURPOSE_RESET_PASSWORD)
     if not user:
-        raise HTTPException(status_code=400, detail="Lien de réinitialisation invalide ou expiré")
+        raise ApiError(400, "auth.invalid_reset_link")
     return _auth_payload(reset_password(db, user, payload.password))
 
 
@@ -122,7 +124,7 @@ def reset_password_route(payload: ResetPasswordRequest, db: Session = Depends(ge
 def verify_email(payload: VerifyEmailRequest, db: Session = Depends(get_db)):
     user = consume_token(db, payload.token, PURPOSE_VERIFY_EMAIL)
     if not user:
-        raise HTTPException(status_code=400, detail="Lien de vérification invalide ou expiré")
+        raise ApiError(400, "auth.invalid_verification_link")
     return UserResponse(**mark_email_verified(db, user).to_public_dict())
 
 
@@ -131,11 +133,12 @@ def resend_verification(
     background: BackgroundTasks,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    locale: str = Depends(request_locale),
 ):
     if user.email_verified:
-        return {"success": True, "message": "Adresse e-mail déjà vérifiée"}
-    background.add_task(send_email, build_verification_email(db, user))
-    return {"success": True, "message": "E-mail de vérification envoyé"}
+        return {"success": True, "message": t("auth.already_verified", locale)}
+    background.add_task(send_email, build_verification_email(db, user, locale))
+    return {"success": True, "message": t("auth.verification_sent", locale)}
 
 
 @router.get("/google")
@@ -196,7 +199,7 @@ def google_code_exchange(
     user_id = oauth_code_store.consume(payload.code)
     user = get_user_by_id(db, user_id) if user_id else None
     if not user:
-        raise HTTPException(status_code=400, detail="Code de connexion invalide ou expiré")
+        raise ApiError(400, "auth.invalid_login_code")
     return _auth_payload(user)
 
 
@@ -220,6 +223,7 @@ def me(user: User = Depends(get_current_user)):
 def delete_me(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    locale: str = Depends(request_locale),
 ):
     delete_user(db, user)
-    return {"success": True, "message": "Compte supprimé"}
+    return {"success": True, "message": t("auth.account_deleted", locale)}

@@ -4,7 +4,7 @@
       href="#main-content"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:font-mono focus:text-caption focus:uppercase focus:text-paper"
     >
-      Aller au contenu
+      {{ t('nav.skipToContent') }}
     </a>
     <div
       v-if="authStore.loading"
@@ -14,7 +14,7 @@
     >
       <div class="space-y-4 text-center font-mono">
         <div class="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-ink/20 border-t-ink" aria-hidden="true"></div>
-        <p class="text-caption uppercase text-ink-soft">Chargement de la session</p>
+        <p class="text-caption uppercase text-ink-soft">{{ t('session.loading') }}</p>
       </div>
     </div>
 
@@ -24,23 +24,23 @@
     >
       <div class="mx-auto flex h-14 max-w-[100rem] items-center justify-between px-5 sm:px-8 lg:px-16">
         <RouterLink
-          :to="authStore.isAuthenticated ? '/dashboard' : '/'"
-          aria-label="Talento — accueil"
+          :to="localePath(authStore.isAuthenticated ? '/dashboard' : '/')"
+          :aria-label="t('nav.homeAria')"
           class="group transition-opacity hover:opacity-70"
         >
           <BrandLogo tag="span" size="sm" />
         </RouterLink>
 
-        <nav aria-label="Navigation principale" class="hidden items-center gap-6 font-mono text-caption uppercase md:flex">
+        <nav :aria-label="t('nav.primary')" class="hidden items-center gap-6 font-mono text-caption uppercase md:flex">
           <template v-if="authStore.isAuthenticated">
             <RouterLink
               v-for="link in appLinks"
               :key="link.path"
-              :to="link.path"
+              :to="localePath(link.path)"
               class="transition-colors"
-              :class="route.path === link.path ? 'text-ink' : 'text-ink-soft hover:text-ink'"
+              :class="currentPath === link.path ? 'text-ink' : 'text-ink-soft hover:text-ink'"
             >
-              {{ link.label }}
+              {{ t(link.label) }}
             </RouterLink>
           </template>
         </nav>
@@ -48,20 +48,21 @@
         <div class="flex items-center gap-3">
           <template v-if="!authStore.isAuthenticated">
             <RouterLink
-              to="/login"
+              :to="localePath('/login')"
               class="hidden font-mono text-caption uppercase text-ink-soft transition-colors hover:text-ink sm:block"
             >
-              Connexion
+              {{ t('nav.login') }}
             </RouterLink>
-            <RouterLink to="/register" class="btn-primary !h-9 !px-4 !text-micro">
-              Commencer
+            <RouterLink :to="localePath('/register')" class="btn-primary !h-9 !px-4 !text-micro">
+              {{ t('nav.getStarted') }}
             </RouterLink>
           </template>
           <UserMenu v-else />
+          <LanguageSwitcher class="hidden md:flex" />
           <button
             type="button"
             class="p-1.5 md:hidden"
-            :aria-label="isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
+            :aria-label="isMobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')"
             :aria-expanded="isMobileMenuOpen"
             aria-controls="mobile-menu"
             @click="isMobileMenuOpen = !isMobileMenuOpen"
@@ -75,25 +76,26 @@
       <nav
         v-if="isMobileMenuOpen"
         id="mobile-menu"
-        aria-label="Navigation mobile"
+        :aria-label="t('nav.mobile')"
         class="flex flex-col items-start gap-3 border-t border-ink/10 px-5 py-4 font-mono text-caption uppercase md:hidden"
       >
         <template v-if="!authStore.isAuthenticated">
-          <RouterLink to="/login" class="text-ink-soft">Connexion</RouterLink>
-          <RouterLink to="/register" class="text-ink">Commencer</RouterLink>
+          <RouterLink :to="localePath('/login')" class="text-ink-soft">{{ t('nav.login') }}</RouterLink>
+          <RouterLink :to="localePath('/register')" class="text-ink">{{ t('nav.getStarted') }}</RouterLink>
         </template>
         <template v-else>
           <RouterLink
             v-for="link in appLinks"
             :key="link.path"
-            :to="link.path"
-            :class="route.path === link.path ? 'text-ink' : 'text-ink-soft'"
+            :to="localePath(link.path)"
+            :class="currentPath === link.path ? 'text-ink' : 'text-ink-soft'"
           >
-            {{ link.label }}
+            {{ t(link.label) }}
           </RouterLink>
-          <RouterLink to="/profile" class="text-ink-soft">Profil</RouterLink>
-          <button type="button" class="uppercase text-rose-700" @click="handleSignOut">Déconnexion</button>
+          <RouterLink :to="localePath('/profile')" class="text-ink-soft">{{ t('nav.profile') }}</RouterLink>
+          <button type="button" class="uppercase text-rose-700" @click="handleSignOut">{{ t('nav.signOut') }}</button>
         </template>
+        <LanguageSwitcher />
       </nav>
     </header>
 
@@ -107,13 +109,13 @@
 
     <footer v-if="!isLanding" class="border-t border-ink/10 py-8 font-mono text-micro uppercase">
       <div class="mx-auto flex max-w-[100rem] flex-col items-center justify-between gap-4 px-5 text-ink-soft sm:flex-row sm:px-8 lg:px-16">
-        <span>Talento — analyse ATS de précision</span>
-        <span>© 2026 — Licence MIT</span>
+        <span>{{ t('nav.footerTagline') }}</span>
+        <span>{{ t('nav.footerLicense') }}</span>
         <div class="flex flex-wrap justify-center gap-5">
-          <RouterLink to="/mentions-legales" class="transition-colors hover:text-ink">Mentions légales</RouterLink>
-          <RouterLink to="/cgv" class="transition-colors hover:text-ink">CGV</RouterLink>
-          <RouterLink to="/confidentialite" class="transition-colors hover:text-ink">Confidentialité</RouterLink>
-          <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">Contact</a>
+          <RouterLink :to="localePath('/mentions-legales')" class="transition-colors hover:text-ink">{{ t('nav.legalNotice') }}</RouterLink>
+          <RouterLink :to="localePath('/cgv')" class="transition-colors hover:text-ink">{{ t('nav.terms') }}</RouterLink>
+          <RouterLink :to="localePath('/confidentialite')" class="transition-colors hover:text-ink">{{ t('nav.privacy') }}</RouterLink>
+          <a href="mailto:rebeau.mickael@gmail.com" class="transition-colors hover:text-ink">{{ t('nav.contact') }}</a>
           <a
             href="https://github.com/mickaelrebeau/CV-Offer-Comparer"
             target="_blank"
@@ -130,28 +132,33 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import BrandLogo from '@/components/BrandLogo.vue'
 import CookieConsentBanner from '@/components/CookieConsentBanner.vue'
 import EmailVerificationBanner from '@/components/EmailVerificationBanner.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePageSeo } from '@/composables/usePageSeo'
-import { SITE_DESCRIPTION } from '@/lib/site'
+import { stripLocale } from '@/i18n/routing'
+import { useLocale } from '@/i18n/useLocale'
 
+const { t } = useI18n()
+const { localePath, push } = useLocale()
 const authStore = useAuthStore()
-const router = useRouter()
 const route = useRoute()
 
 const isMobileMenuOpen = ref(false)
-const isLanding = computed(() => route.path === '/')
+// Chemin sans préfixe de langue (/en/compare → /compare)
+const currentPath = computed(() => stripLocale(route.path))
+const isLanding = computed(() => currentPath.value === '/')
 
 usePageSeo(
   computed(() => ({
-    title: typeof route.meta.title === 'string' ? route.meta.title : undefined,
-    description:
-      typeof route.meta.description === 'string' ? route.meta.description : SITE_DESCRIPTION,
+    title: route.meta.seo ? t(`seo.${route.meta.seo}.title`) : undefined,
+    description: route.meta.seo ? t(`seo.${route.meta.seo}.description`) : undefined,
     path: route.path,
     // La home gère son propre JSON-LD ; les espaces connectés restent hors index.
     noindex: Boolean(route.meta.noindex || route.meta.requiresAuth),
@@ -166,14 +173,14 @@ watch(
 )
 
 const appLinks = [
-  { path: '/dashboard', label: 'Tableau de bord' },
-  { path: '/compare', label: 'Comparateur' },
-  { path: '/interview-simulator', label: 'Simulateur' },
+  { path: '/dashboard', label: 'nav.dashboard' },
+  { path: '/compare', label: 'nav.compare' },
+  { path: '/interview-simulator', label: 'nav.simulator' },
 ]
 
 const handleSignOut = async () => {
   await authStore.signOut()
-  router.push('/')
+  push('/')
   isMobileMenuOpen.value = false
 }
 

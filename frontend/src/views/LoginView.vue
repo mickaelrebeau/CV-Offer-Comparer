@@ -2,23 +2,23 @@
   <div class="page-shell">
     <div class="mx-auto max-w-md">
       <AppPageHeader
-        label="Accès"
-        title="Connexion"
-        description="Accédez à votre espace de comparaison et à l’historique de vos analyses."
+        :label="t('auth.label')"
+        :title="t('auth.login.title')"
+        :description="t('auth.login.description')"
       />
 
       <div class="panel p-6 sm:p-8 space-y-6">
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div class="space-y-1.5">
-            <label for="email" class="field-label">Adresse email</label>
-            <Input id="email" v-model="email" type="email" required placeholder="nom@exemple.com" />
+            <label for="email" class="field-label">{{ t('common.emailLabel') }}</label>
+            <Input id="email" v-model="email" type="email" required :placeholder="t('common.emailPlaceholder')" />
           </div>
 
           <div class="space-y-1.5">
             <div class="flex items-baseline justify-between">
-              <label for="password" class="field-label">Mot de passe</label>
-              <router-link to="/forgot-password" class="font-mono text-micro text-ink-soft hover:text-ink hover:underline">
-                Mot de passe oublié ?
+              <label for="password" class="field-label">{{ t('common.passwordLabel') }}</label>
+              <router-link :to="localePath('/forgot-password')" class="font-mono text-micro text-ink-soft hover:text-ink hover:underline">
+                {{ t('auth.login.forgotPassword') }}
               </router-link>
             </div>
             <Input id="password" v-model="password" type="password" required placeholder="••••••••" :show-password-toggle="true" />
@@ -30,14 +30,14 @@
 
           <Button type="submit" variant="full" size="lg" :disabled="loading">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            Se connecter
+            {{ t('auth.login.submit') }}
           </Button>
         </form>
 
         <div class="relative">
           <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-ink/10" /></div>
           <div class="relative flex justify-center font-mono text-micro uppercase">
-            <span class="bg-paper px-2 text-ink-soft">Ou continuer avec</span>
+            <span class="bg-paper px-2 text-ink-soft">{{ t('common.orContinueWith') }}</span>
           </div>
         </div>
 
@@ -49,12 +49,12 @@
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
           <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-          Continuer avec Google
+          {{ t('common.continueWithGoogle') }}
         </Button>
 
         <p class="text-center font-mono text-micro uppercase text-ink-soft">
-          Pas encore de compte ?
-          <router-link to="/register" class="text-ink underline underline-offset-2">Créer un compte</router-link>
+          {{ t('auth.login.noAccount') }}
+          <router-link :to="localePath('/register')" class="text-ink underline underline-offset-2">{{ t('auth.login.createAccount') }}</router-link>
         </p>
       </div>
     </div>
@@ -63,15 +63,18 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
+import { useLocale } from '@/i18n/useLocale'
 import { useAuthStore } from '@/stores/auth'
 import posthog from 'posthog-js'
 
-const router = useRouter()
+const { t, te } = useI18n()
+const { localePath, push } = useLocale()
 const route = useRoute()
 const authStore = useAuthStore()
 
@@ -83,15 +86,8 @@ const loading = ref(false)
 onMounted(() => {
   if (route.query.error === 'google_oauth') {
     const reason = typeof route.query.reason === 'string' ? route.query.reason : ''
-    const hints: Record<string, string> = {
-      no_code: 'Google n’a pas renvoyé de code. Vérifie les URI de redirection dans la console Google.',
-      exchange_failed: 'Échange du code Google échoué. Vérifie GOOGLE_CLIENT_SECRET et l’URI localhost dans Google Cloud.',
-      server_error: 'Erreur serveur pendant l’auth Google. Regarde les logs uvicorn.',
-      invalid_state: 'Session de connexion Google expirée ou invalide. Relancez la connexion.',
-    }
-    error.value =
-      hints[reason] ||
-      'Connexion Google impossible. Réessayez ou utilisez email / mot de passe.'
+    const key = `auth.login.googleErrors.${reason}`
+    error.value = reason && te(key) ? t(key) : t('auth.login.googleErrors.default')
   }
 })
 
@@ -102,10 +98,10 @@ async function handleLogin() {
   const { error: loginError } = await authStore.signIn(email.value, password.value)
 
   if (loginError) {
-    error.value = 'Email ou mot de passe incorrect'
+    error.value = t('auth.login.invalidCredentials')
   } else {
     posthog.capture('account_signed_in', { sign_in_method: 'password' })
-    router.push('/dashboard')
+    push('/dashboard')
   }
 
   loading.value = false
@@ -118,7 +114,7 @@ async function handleGoogleLogin() {
   const { error: googleError } = await authStore.signInWithGoogle()
 
   if (googleError) {
-    error.value = 'Erreur lors de la connexion avec Google'
+    error.value = t('auth.login.googleError')
     loading.value = false
   }
 }

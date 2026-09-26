@@ -2,18 +2,14 @@ import io
 
 import PyPDF2
 import pdfplumber
-from fastapi import HTTPException, UploadFile
+from fastapi import UploadFile
 
 from app.config import settings
+from app.i18n import DEFAULT_LOCALE, ApiError, t
 from app.models.upload import PDFUploadResponse
 
-UNREADABLE_PDF_MESSAGE = (
-    "PDF illisible ou corrompu. Réexportez votre CV en PDF, ou collez son texte directement."
-)
-NO_TEXT_PDF_MESSAGE = (
-    "Ce PDF ne contient pas de texte lisible (PDF scanné ou image ?). "
-    "Exportez votre CV en PDF texte, ou collez son texte directement."
-)
+UNREADABLE_PDF_MESSAGE = t("upload.pdf_unreadable")
+NO_TEXT_PDF_MESSAGE = t("upload.pdf_no_text")
 UPLOAD_CHUNK_SIZE = 1024 * 1024
 
 
@@ -24,10 +20,7 @@ class PDFExtractionError(Exception):
 async def read_upload(file: UploadFile, max_size: int | None = None) -> bytes:
     """Lit un upload par blocs en refusant (413) tout fichier au-delà de MAX_FILE_SIZE."""
     limit = max_size or settings.MAX_FILE_SIZE
-    too_large = HTTPException(
-        status_code=413,
-        detail=f"Le fichier est trop volumineux (max {limit // (1024 * 1024)} Mo)",
-    )
+    too_large = ApiError(413, "upload.too_large", max_mb=limit // (1024 * 1024))
     if file.size is not None and file.size > limit:
         raise too_large
     content = bytearray()
@@ -65,21 +58,21 @@ class UploadService:
         except UnicodeDecodeError:
             return content.decode("latin-1").strip()
 
-    async def pdf_upload_response(self, file: UploadFile) -> PDFUploadResponse:
+    async def pdf_upload_response(self, file: UploadFile, locale: str = DEFAULT_LOCALE) -> PDFUploadResponse:
         """Traitement commun des routes d'upload de CV PDF."""
         if not file.filename or not file.filename.lower().endswith(".pdf"):
-            raise HTTPException(status_code=400, detail="Seuls les fichiers PDF sont acceptés")
+            raise ApiError(400, "upload.only_pdf")
 
         content = await read_upload(file)
         try:
             text = self.extract_text_from_bytes(content)
-        except PDFExtractionError as e:
-            return PDFUploadResponse(success=False, text="", message=str(e))
+        except PDFExtractionError:
+            return PDFUploadResponse(success=False, text="", message=t("upload.pdf_unreadable", locale))
 
         if not text:
-            return PDFUploadResponse(success=False, text="", message=NO_TEXT_PDF_MESSAGE)
+            return PDFUploadResponse(success=False, text="", message=t("upload.pdf_no_text", locale))
         return PDFUploadResponse(
             success=True,
             text=text,
-            message=f"Texte extrait avec succès ({len(text)} caractères)",
+            message=t("upload.extracted", locale, count=len(text)),
         )

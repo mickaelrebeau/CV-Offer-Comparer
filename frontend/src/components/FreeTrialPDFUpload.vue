@@ -9,7 +9,7 @@
       @keydown.space.prevent="isIdle && triggerFileInput()"
       :role="isIdle ? 'button' : undefined"
       :tabindex="isIdle ? 0 : undefined"
-      :aria-label="isIdle ? 'Importer votre CV au format PDF (10 Mo maximum)' : undefined"
+      :aria-label="isIdle ? t('upload.dropAria') : undefined"
       class="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/60"
       :class="{
         'border-ink/40 bg-ink/5': isDragOver,
@@ -33,15 +33,15 @@
           <Upload class="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
-          <p class="text-sm font-medium text-ink">Glissez votre CV (PDF) ici</p>
-          <p class="mt-1 font-mono text-micro uppercase text-ink-soft">ou cliquez · max 10 Mo</p>
+          <p class="text-sm font-medium text-ink">{{ t('upload.dropTitle') }}</p>
+          <p class="mt-1 font-mono text-micro uppercase text-ink-soft">{{ t('upload.dropHint') }}</p>
         </div>
       </div>
 
       <div v-else-if="uploading" class="space-y-3 py-2">
         <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
-        <p class="text-sm font-medium text-ink">Extraction du PDF...</p>
-        <p class="font-mono text-micro uppercase text-ink-soft">Analyse en cours</p>
+        <p class="text-sm font-medium text-ink">{{ t('upload.extracting') }}</p>
+        <p class="font-mono text-micro uppercase text-ink-soft">{{ t('upload.extractingHint') }}</p>
       </div>
 
       <div v-else-if="uploadedFile" class="space-y-3">
@@ -50,14 +50,14 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-foreground">
-            CV extrait avec succès !
+            {{ t('upload.success') }}
           </p>
           <p class="text-xs font-mono text-muted-foreground mt-1">
-            {{ uploadedFile.name }} ({{ extractedText.length }} caractères)
+            {{ t('upload.fileInfo', { name: uploadedFile.name, count: extractedText.length }) }}
           </p>
         </div>
         <Button variant="outline" size="sm" class="mt-2 text-xs" @click.stop="removeFile">
-          Remplacer le fichier
+          {{ t('upload.replace') }}
         </Button>
       </div>
 
@@ -67,14 +67,14 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-rose-700">
-            Erreur lors de l'extraction
+            {{ t('upload.errorTitle') }}
           </p>
           <p class="text-xs text-muted-foreground mt-1">
             {{ uploadError }}
           </p>
         </div>
         <Button variant="outline" size="sm" class="mt-2 text-xs" @click.stop="resetUpload">
-          Réessayer
+          {{ t('common.retry') }}
         </Button>
       </div>
     </div>
@@ -84,9 +84,9 @@
     <!-- Extracted Text Drawer / Preview -->
     <div v-if="extractedText && showPreview" class="mt-4 rounded-lg border border-ink/10 bg-paper-dim p-4">
       <div class="mb-2 flex items-center justify-between">
-        <span class="field-label">Aperçu extrait</span>
+        <span class="field-label">{{ t('upload.preview') }}</span>
         <button type="button" :aria-expanded="showPreview" @click="showPreview = !showPreview" class="font-mono text-micro uppercase text-ink-soft hover:text-ink">
-          {{ showPreview ? 'Masquer' : 'Afficher' }}
+          {{ showPreview ? t('upload.hide') : t('upload.show') }}
         </button>
       </div>
       <pre class="max-h-36 overflow-y-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-ink-soft">{{ extractedText }}</pre>
@@ -96,6 +96,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-vue-next'
 import { uploadFreeCV } from '@/lib/api'
@@ -112,6 +113,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const { t } = useI18n()
 const fileInput = ref<HTMLInputElement>()
 const isDragOver = ref(false)
 const uploading = ref(false)
@@ -124,9 +126,9 @@ const isIdle = computed(() => !uploadedFile.value && !uploading.value && !upload
 
 // Annonce l'état de l'upload aux lecteurs d'écran
 const liveMessage = computed(() => {
-  if (uploading.value) return 'Extraction du PDF en cours'
-  if (uploadError.value) return `Erreur lors de l'extraction : ${uploadError.value}`
-  if (uploadedFile.value) return `CV extrait avec succès : ${uploadedFile.value.name}`
+  if (uploading.value) return t('upload.live.extracting')
+  if (uploadError.value) return t('upload.live.error', { message: uploadError.value })
+  if (uploadedFile.value) return t('upload.live.success', { name: uploadedFile.value.name })
   return ''
 })
 
@@ -163,12 +165,12 @@ const handleFileSelect = (e: Event) => {
 
 const handleFile = async (file: File) => {
   if (!file.name.toLowerCase().endsWith('.pdf')) {
-    uploadError.value = 'Seuls les fichiers PDF sont acceptés'
+    uploadError.value = t('upload.onlyPdf')
     return
   }
 
   if (file.size > 10 * 1024 * 1024) {
-    uploadError.value = 'Le fichier dépasse la limite de 10MB'
+    uploadError.value = t('upload.tooLarge')
     return
   }
 
@@ -189,7 +191,7 @@ const handleFile = async (file: File) => {
       uploadedFile.value = null
     }
   } catch (error: any) {
-    uploadError.value = error.message || 'Erreur lors de l\'upload'
+    uploadError.value = error.message || t('upload.uploadError')
     uploadedFile.value = null
   } finally {
     uploading.value = false

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
+import { t } from '@/i18n'
 
 export const useInterviewStore = defineStore('interview', () => {
   const currentInterview = ref<any>(null)
@@ -24,7 +25,7 @@ export const useInterviewStore = defineStore('interview', () => {
         throw new Error(result.message)
       }
     } catch (err: any) {
-      error.value = err.message || 'Erreur lors de la génération des questions'
+      error.value = err.message || t('interview.errors.generate')
       return { success: false, error: error.value }
     } finally {
       isLoading.value = false
@@ -44,7 +45,7 @@ export const useInterviewStore = defineStore('interview', () => {
         throw new Error(result.message)
       }
     } catch (err: any) {
-      error.value = err.message || 'Erreur lors de l\'analyse des réponses'
+      error.value = err.message || t('interview.errors.analyze')
       return { success: false, error: error.value }
     } finally {
       isLoading.value = false

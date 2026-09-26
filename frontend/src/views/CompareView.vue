@@ -1,15 +1,15 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Comparateur"
-      title="CV ↔ Offre d'emploi"
-      description="Évaluez l'adéquation sémantique exacte entre votre profil et la fiche de poste."
+      :label="t('compare.label')"
+      :title="t('compare.title')"
+      :description="t('compare.description')"
     />
     <div
       v-if="historyLoading"
       class="panel mb-6 p-4 font-mono text-micro uppercase text-ink-soft"
     >
-      Chargement de l'historique…
+      {{ t('compare.historyLoading') }}
     </div>
     <ComparisonView />
   </div>
@@ -17,13 +17,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import ComparisonView from '@/components/ComparisonView.vue'
+import { useLocale } from '@/i18n/useLocale'
 import { useCompareStore } from '@/stores/compare'
 
+const { t } = useI18n()
+const { replace } = useLocale()
 const route = useRoute()
-const router = useRouter()
 const compareStore = useCompareStore()
 const historyLoading = ref(false)
 
@@ -34,7 +37,7 @@ onMounted(async () => {
   historyLoading.value = true
   try {
     await compareStore.loadFromHistory(historyId)
-    router.replace({ path: '/compare', query: {} })
+    replace({ path: '/compare', query: {} })
   } catch {
     // L'erreur est déjà exposée par le store
   } finally {

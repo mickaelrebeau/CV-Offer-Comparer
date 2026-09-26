@@ -1,9 +1,9 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Essai offert"
-      title="Analyse gratuite"
-      description="Testez le moteur de diagnostic immédiatement. Une analyse complète vous est offerte."
+      :label="t('freeTrial.label')"
+      :title="t('freeTrial.title')"
+      :description="t('freeTrial.description')"
     >
       <div role="status"
         v-if="freeAnalysisStatus"
@@ -26,11 +26,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { CheckCircle, AlertCircle } from 'lucide-vue-next'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import FreeTrialComparison from '@/components/FreeTrialComparison.vue'
 import { checkFreeAnalysisStatus } from '@/lib/api'
 
+const { t } = useI18n()
 const freeAnalysisStatus = ref<any>(null)
 
 onMounted(async () => {

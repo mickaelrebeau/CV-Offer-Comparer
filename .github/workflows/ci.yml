@@ -31,6 +31,8 @@ jobs:
           VITE_API_URL: http://localhost:8000
           VITE_POSTHOG_PROJECT_TOKEN: phc_ci_dummy
           VITE_POSTHOG_HOST: https://eu.i.posthog.com
+      - name: Locale catalogs check
+        run: pnpm test:locales
       - name: Prerender head check
         run: pnpm test:prerender
       # Même serveur et même config qu'en production (frontend/start.sh + dist/serve.json)
@@ -45,6 +47,7 @@ jobs:
         run: |
           curl -fsS http://127.0.0.1:4173/ | grep -q "Talento"
           curl -fsS http://127.0.0.1:4173/login | grep -q "<title>Connexion · Talento</title>"
+          curl -fsS http://127.0.0.1:4173/en/login | grep -q "<title>Sign in · Talento</title>"
           curl -fsS http://127.0.0.1:4173/dashboard | grep -q '<div id="app"></div>'
       - name: Install Chromium (axe-core)
         run: pnpm exec playwright install --with-deps chromium

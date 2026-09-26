@@ -138,6 +138,14 @@ Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par
 - IP réelle lue dans `CLIENT_IP_HEADER` (`X-Real-IP`, posé par Railway). Derrière un autre proxy, adapter ; sans proxy, laisser vide pour utiliser l’IP de la socket.
 - Sans Redis, les compteurs sont gardés en mémoire (par instance).
 
+### Langues (FR / EN)
+
+- Interface bilingue via `vue-i18n` : catalogues `frontend/src/locales/fr.json` et `en.json`.
+- URL : le français est à la racine (`/login`), l’anglais sous `/en` (`/en/login`). Chaque page publique traduite est prégénérée dans les deux langues, avec `hreflang` fr / en / x-default et un sitemap généré au build.
+- Langue au premier passage : celle du navigateur (sauf robots d’indexation), puis le choix du sélecteur (en-tête, profil), mémorisé dans `localStorage`.
+- API : le front envoie `Accept-Language`. Les erreurs renvoient `{ "detail": "<message traduit>", "code": "<code stable>" }` ; les statuts SSE et les e-mails suivent la même langue.
+- Les contenus générés par Gemini (analyse, questions) restent dans la langue du CV et de l’offre.
+
 ## Contribuer
 
 Les contributions sont les bienvenues — bugs, docs, features, UX.

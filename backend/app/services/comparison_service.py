@@ -7,6 +7,7 @@ import json
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
+from app.i18n import DEFAULT_LOCALE, t
 from app.services.ai_service import ai_service
 
 PersistCallback = Callable[[list[Any], dict[str, Any]], None]
@@ -20,7 +21,8 @@ async def stream_comparison(
     offer_text: str,
     cv_text: str,
     *,
-    intro_message: str = "Début de l'analyse…",
+    locale: str = DEFAULT_LOCALE,
+    intro_code: str = "analysis.start",
     on_result: PersistCallback | None = None,
 ) -> AsyncIterator[str]:
     """
@@ -30,13 +32,8 @@ async def stream_comparison(
     3) summary + complete
     """
     try:
-        yield _sse({"type": "status", "message": intro_message})
-        yield _sse(
-            {
-                "type": "status",
-                "message": "Analyse ATS par Gemini (extraction + matching)…",
-            }
-        )
+        yield _sse({"type": "status", "message": t(intro_code, locale)})
+        yield _sse({"type": "status", "message": t("analysis.gemini", locale)})
         yield _sse({"type": "progress", "value": 12, "current": 0, "total": 1})
 
         result = await asyncio.to_thread(
@@ -55,12 +52,7 @@ async def stream_comparison(
             except Exception as persist_exc:
                 print(f"Erreur persistance comparaison: {persist_exc}")
 
-        yield _sse(
-            {
-                "type": "status",
-                "message": f"{total} exigences analysées — diffusion des résultats…",
-            }
-        )
+        yield _sse({"type": "status", "message": t("analysis.streaming", locale, total=total)})
         yield _sse({"type": "progress", "value": 35, "current": 0, "total": total})
 
         for index, item in enumerate(items):
@@ -83,8 +75,9 @@ async def stream_comparison(
         yield _sse({"type": "complete"})
 
     except Exception as exc:
-        print(f"Erreur stream_comparison: {exc}")
-        yield _sse({"type": "error", "message": str(exc)})
+        print(f"Erreur stream_comparison: {exc!r}")
+        # Détail technique dans les logs uniquement
+        yield _sse({"type": "error", "message": t("analysis.failed", locale)})
 
 
 class ComparisonService:

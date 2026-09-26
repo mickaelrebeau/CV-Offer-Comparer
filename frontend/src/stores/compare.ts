@@ -10,6 +10,7 @@ import {
 import { useAuthStore } from "./auth";
 import posthog from "posthog-js";
 import { STORAGE_KEYS, readStorage, removeStorage } from "@/lib/storageKeys";
+import { t } from "@/i18n";
 
 
 export interface ComparisonItem {
@@ -89,7 +90,7 @@ export const useCompareStore = defineStore("compare", () => {
     const cv = String(cvText.value || "");
 
     if (!offer.trim() || !cv.trim()) {
-      error.value = "Veuillez saisir le texte de l'offre et du CV";
+      error.value = t("comparison.errors.missingInput");
       return;
     }
 
@@ -110,7 +111,7 @@ export const useCompareStore = defineStore("compare", () => {
       }
     } catch (err: any) {
       error.value =
-        err.response?.data?.detail || "Erreur lors de la comparaison";
+        err.response?.data?.detail || t("comparison.errors.generic");
       console.error("Erreur de comparaison:", err);
     } finally {
       loading.value = false;
@@ -122,7 +123,7 @@ export const useCompareStore = defineStore("compare", () => {
     const cv = String(cvText.value || "");
 
     if (!offer.trim() || !cv.trim()) {
-      error.value = "Veuillez saisir le texte de l'offre et du CV";
+      error.value = t("comparison.errors.missingInput");
       return;
     }
 
@@ -130,7 +131,7 @@ export const useCompareStore = defineStore("compare", () => {
     error.value = null;
     comparisonResult.value = null;
     progress.value = 0;
-    status.value = "Début de l'analyse...";
+    status.value = t("comparison.statusStart");
 
     const items: ComparisonItem[] = [];
     let summary: any = null;
@@ -174,7 +175,7 @@ export const useCompareStore = defineStore("compare", () => {
           };
         },
         () => {
-          status.value = "Comparaison terminée";
+          status.value = t("comparison.statusDone");
 
           if (isAuthenticated) {
             posthog.capture("comparison_completed", { comparison_mode: "authenticated" });
@@ -188,7 +189,7 @@ export const useCompareStore = defineStore("compare", () => {
         }
       );
     } catch (err: any) {
-      error.value = err.message || "Erreur lors de la comparaison";
+      error.value = err.message || t("comparison.errors.generic");
       console.error("Erreur de comparaison:", err);
     } finally {
       loading.value = false;
@@ -230,10 +231,10 @@ export const useCompareStore = defineStore("compare", () => {
           ),
         },
       };
-      status.value = "Historique chargé";
+      status.value = t("comparison.historyLoaded");
     } catch (err: any) {
       error.value =
-        err.response?.data?.detail || "Impossible de charger cette comparaison";
+        err.response?.data?.detail || t("comparison.errors.loadHistory");
       throw err;
     } finally {
       loading.value = false;

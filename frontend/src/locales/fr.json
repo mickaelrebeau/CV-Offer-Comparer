@@ -1,0 +1,389 @@
+{
+  "common": {
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "nom{'@'}exemple.com",
+    "passwordLabel": "Mot de passe",
+    "orContinueWith": "Ou continuer avec",
+    "continueWithGoogle": "Continuer avec Google",
+    "notAvailable": "N/A",
+    "copy": "Copier",
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "pdf": "PDF",
+    "text": "Texte"
+  },
+  "language": {
+    "label": "Langue",
+    "switchTo": {
+      "fr": "Passer en français",
+      "en": "Switch to English"
+    },
+    "unavailable": "Cette page n'est pas encore disponible dans cette langue"
+  },
+  "nav": {
+    "skipToContent": "Aller au contenu",
+    "homeAria": "Talento — accueil",
+    "primary": "Navigation principale",
+    "mobile": "Navigation mobile",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "dashboard": "Tableau de bord",
+    "compare": "Comparateur",
+    "simulator": "Simulateur",
+    "profile": "Profil",
+    "login": "Connexion",
+    "getStarted": "Commencer",
+    "signOut": "Déconnexion",
+    "footerTagline": "Talento — analyse ATS de précision",
+    "footerLicense": "© 2026 — Licence MIT",
+    "legalNotice": "Mentions légales",
+    "terms": "CGV",
+    "privacy": "Confidentialité",
+    "contact": "Contact",
+    "github": "GitHub"
+  },
+  "session": {
+    "loading": "Chargement de la session"
+  },
+  "seo": {
+    "default": {
+      "tagline": "Analyse ATS CV ↔ offre & préparation d’entretien",
+      "description": "Talento compare votre CV à une offre d’emploi avec Gemini : correspondances, lacunes, reformulations ATS et simulateur d’entretien. Open source, essai gratuit."
+    },
+    "dashboard": { "title": "Tableau de bord", "description": "Votre espace Talento : comparaisons CV ↔ offre et simulations d’entretien." },
+    "compare": { "title": "Comparateur CV ↔ offre", "description": "Comparez votre CV à une offre d’emploi et obtenez un diagnostic ATS détaillé." },
+    "interviewSimulator": { "title": "Simulateur d’entretien", "description": "Entraînez-vous avec des questions d’entretien générées d’après votre CV et l’offre." },
+    "interviewResults": { "title": "Résultats de la simulation", "description": "Évaluation de vos réponses d’entretien et pistes d’amélioration." },
+    "freeTrial": { "title": "Essai gratuit", "description": "Analysez gratuitement la compatibilité entre votre CV et une offre d’emploi avec Talento." },
+    "profile": { "title": "Mon profil", "description": "Gérez votre compte Talento." },
+    "login": { "title": "Connexion", "description": "Connectez-vous à Talento pour accéder à vos analyses CV ↔ offre et à votre historique." },
+    "register": { "title": "Créer un compte", "description": "Créez un compte Talento gratuit pour analyser vos candidatures et préparer vos entretiens." },
+    "forgotPassword": { "title": "Mot de passe oublié", "description": "Recevez un lien pour choisir un nouveau mot de passe Talento." },
+    "resetPassword": { "title": "Nouveau mot de passe", "description": "Choisissez un nouveau mot de passe Talento." },
+    "verifyEmail": { "title": "Vérification de l’adresse e-mail", "description": "Confirmez votre adresse e-mail Talento." },
+    "legalNotice": { "title": "Mentions légales", "description": "Mentions légales de Talento : éditeur, hébergement et responsabilité." },
+    "terms": { "title": "CGV / CGU", "description": "Conditions générales d’utilisation du service Talento." },
+    "privacy": { "title": "Politique de confidentialité", "description": "Politique de confidentialité Talento : données, Gemini, PostHog et droits RGPD." }
+  },
+  "cookies": {
+    "title": "Cookies & mesure d’usage",
+    "description": "Nous utilisons PostHog (UE) pour comprendre l’usage du produit et diagnostiquer les erreurs. Acceptez pour activer les cookies / stockage local ; refusez pour un suivi anonymisé sans cookies. Détails dans la {link}.",
+    "privacyLink": "politique de confidentialité",
+    "decline": "Refuser",
+    "accept": "Accepter"
+  },
+  "emailBanner": {
+    "message": "Confirmez votre adresse e-mail ({email}) pour lancer des analyses et des simulations d’entretien.",
+    "resend": "Renvoyer le lien",
+    "sending": "Envoi…",
+    "sent": "E-mail envoyé"
+  },
+  "legal": {
+    "updatedAt": "Dernière mise à jour · {date}",
+    "home": "Accueil",
+    "legalNotice": "Mentions légales",
+    "terms": "CGV / CGU",
+    "privacy": "Confidentialité"
+  },
+  "auth": {
+    "label": "Accès",
+    "login": {
+      "title": "Connexion",
+      "description": "Accédez à votre espace de comparaison et à l’historique de vos analyses.",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte",
+      "invalidCredentials": "Email ou mot de passe incorrect",
+      "googleError": "Erreur lors de la connexion avec Google",
+      "googleErrors": {
+        "no_code": "Google n’a pas renvoyé de code. Vérifie les URI de redirection dans la console Google.",
+        "exchange_failed": "Échange du code Google échoué. Vérifie GOOGLE_CLIENT_SECRET et l’URI localhost dans Google Cloud.",
+        "server_error": "Erreur serveur pendant l’auth Google. Regarde les logs uvicorn.",
+        "invalid_state": "Session de connexion Google expirée ou invalide. Relancez la connexion.",
+        "default": "Connexion Google impossible. Réessayez ou utilisez email / mot de passe."
+      }
+    },
+    "register": {
+      "title": "Créer un compte",
+      "description": "Rejoignez la plateforme et débloquez les fonctions avancées.",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "confirmLabel": "Confirmer le mot de passe",
+      "confirmPlaceholder": "Confirmez votre mot de passe",
+      "terms": "J’accepte les {terms} et la {privacy}.",
+      "termsLink": "CGV / CGU",
+      "privacyLink": "politique de confidentialité",
+      "submit": "Créer mon compte",
+      "hasAccount": "Déjà un compte ?",
+      "signIn": "Se connecter",
+      "success": "Compte créé ! Un lien de confirmation vient d’être envoyé à votre adresse e-mail.",
+      "errors": {
+        "acceptTerms": "Veuillez accepter les CGV et la politique de confidentialité",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+        "generic": "Erreur lors de la création du compte",
+        "google": "Erreur lors de l'inscription avec Google"
+      }
+    },
+    "forgot": {
+      "title": "Mot de passe oublié",
+      "description": "Indiquez votre adresse : nous vous envoyons un lien pour choisir un nouveau mot de passe.",
+      "submit": "Envoyer le lien",
+      "sent": "Si un compte existe pour cette adresse, un e-mail vient d’être envoyé.",
+      "backToLogin": "Retour à la connexion",
+      "error": "Envoi impossible, réessayez plus tard"
+    },
+    "reset": {
+      "title": "Nouveau mot de passe",
+      "description": "Choisissez un nouveau mot de passe d’au moins 8 caractères.",
+      "newPassword": "Nouveau mot de passe",
+      "submit": "Enregistrer le mot de passe",
+      "incompleteLink": "Lien de réinitialisation incomplet. Demandez un nouveau lien.",
+      "requestNewLink": "Demander un nouveau lien",
+      "error": "Lien de réinitialisation invalide ou expiré"
+    },
+    "verify": {
+      "label": "Compte",
+      "title": "Vérification de l’adresse e-mail",
+      "pending": "Vérification en cours",
+      "success": "Adresse e-mail confirmée. Vous pouvez lancer vos analyses.",
+      "incompleteLink": "Lien de vérification incomplet.",
+      "error": "Lien de vérification invalide ou expiré",
+      "errorHint": "{message}. Connectez-vous pour recevoir un nouveau lien.",
+      "toDashboard": "Aller au tableau de bord",
+      "toLogin": "Se connecter"
+    },
+    "callback": {
+      "connecting": "Connexion en cours"
+    },
+    "errors": {
+      "sendFailed": "Envoi impossible, réessayez plus tard",
+      "deleteFailed": "Erreur lors de la suppression"
+    }
+  },
+  "upload": {
+    "dropAria": "Importer votre CV au format PDF (10 Mo maximum)",
+    "dropTitle": "Glissez votre CV (PDF) ici",
+    "dropHint": "ou cliquez · max 10 Mo",
+    "extracting": "Extraction du PDF...",
+    "extractingHint": "Analyse en cours",
+    "success": "CV extrait avec succès !",
+    "fileInfo": "{name} ({count} caractères)",
+    "replace": "Remplacer le fichier",
+    "errorTitle": "Erreur lors de l'extraction",
+    "preview": "Aperçu extrait",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "onlyPdf": "Seuls les fichiers PDF sont acceptés",
+    "tooLarge": "Le fichier dépasse la limite de 10 Mo",
+    "extractError": "Erreur lors de l'extraction PDF",
+    "uploadError": "Erreur lors de l'upload",
+    "live": {
+      "extracting": "Extraction du PDF en cours",
+      "error": "Erreur lors de l'extraction : {message}",
+      "success": "CV extrait avec succès : {name}"
+    }
+  },
+  "cvInput": {
+    "offerHeader": "01 · Offre d'emploi",
+    "cvHeader": "02 · Mon CV",
+    "cvFormat": "Format du CV",
+    "cvTextLabel": "Texte de votre CV"
+  },
+  "comparison": {
+    "offerPlaceholder": "Collez l'offre d'emploi ici...",
+    "cvPlaceholder": "Collez le texte de votre CV ici...",
+    "run": "Lancer la comparaison",
+    "report": "Rapport détaillé par critère",
+    "confidence": "conf. {value}",
+    "cvExcerpt": "Extrait CV :",
+    "rewrites": "Reformulations",
+    "copyAria": "Copier la reformulation",
+    "stats": {
+      "matches": "Correspondances",
+      "missing": "Manquants",
+      "unclear": "À préciser",
+      "score": "Score ATS"
+    },
+    "status": {
+      "match": "couvert",
+      "missing": "manquant",
+      "partial": "partiel"
+    },
+    "progressAria": "Progression de l'analyse",
+    "errors": {
+      "missingInput": "Veuillez saisir le texte de l'offre et du CV",
+      "generic": "Erreur lors de la comparaison",
+      "loadHistory": "Impossible de charger cette comparaison"
+    },
+    "statusStart": "Début de l'analyse...",
+    "statusDone": "Comparaison terminée",
+    "historyLoaded": "Historique chargé"
+  },
+  "compare": {
+    "label": "Comparateur",
+    "title": "CV ↔ Offre d'emploi",
+    "description": "Évaluez l'adéquation sémantique exacte entre votre profil et la fiche de poste.",
+    "historyLoading": "Chargement de l'historique…"
+  },
+  "freeTrial": {
+    "label": "Essai offert",
+    "title": "Analyse gratuite",
+    "description": "Testez le moteur de diagnostic immédiatement. Une analyse complète vous est offerte.",
+    "offerPlaceholder": "Collez la description complète de l'offre...",
+    "cvPlaceholder": "Collez le texte de votre CV...",
+    "run": "Lancer le diagnostic gratuit",
+    "alreadyUsed": "Essai gratuit déjà utilisé",
+    "report": "Rapport détaillé",
+    "running": "Diagnostic en cours...",
+    "upsell": {
+      "title": "Passez à la vitesse supérieure",
+      "text": "Créez un compte gratuit pour enregistrer vos analyses, accéder aux comparaisons illimitées et lancer le simulateur d'entretien.",
+      "register": "Créer un compte",
+      "login": "Connexion"
+    },
+    "errors": {
+      "alreadyUsed": "Vous avez déjà utilisé votre analyse gratuite. Veuillez créer un compte pour continuer.",
+      "statusCheck": "Erreur de vérification - Essai offert utilisé",
+      "generic": "Erreur lors de la comparaison gratuite"
+    }
+  },
+  "dashboard": {
+    "label": "Espace candidat",
+    "title": "Tableau de bord",
+    "description": "Sélectionnez le module adapté à l'avancement de votre candidature.",
+    "modules": {
+      "compare": {
+        "id": "Module 01",
+        "title": "Comparateur CV ↔ Offre",
+        "description": "Analysez l'adéquation entre votre CV et une fiche de poste. Identifiez les mots-clés manquants.",
+        "features": ["Diagnostic d'écart sémantique", "Extraction des compétences requises", "Reformulations directes"],
+        "cta": "Lancer une comparaison"
+      },
+      "interview": {
+        "id": "Module 02",
+        "title": "Simulateur d'entretien",
+        "description": "Préparez l'étape décisive avec des questions générées selon votre profil et l'offre visée.",
+        "features": ["Questions prédictives ciblées", "Chronomètre en direct", "Évaluation des réponses"],
+        "cta": "Démarrer la simulation"
+      }
+    },
+    "history": "Historique",
+    "comparisons": {
+      "title": "Comparaisons récentes",
+      "loading": "Chargement de l'historique…",
+      "empty": "Aucune comparaison enregistrée pour le moment. Lancez une analyse depuis le module comparateur — elle apparaîtra ici automatiquement.",
+      "cta": "Lancer une comparaison",
+      "match": "{value} match",
+      "criteria": "{matches}/{total} critères",
+      "view": "Voir la comparaison du {date}",
+      "delete": "Supprimer la comparaison du {date}",
+      "loadError": "Impossible de charger l'historique"
+    },
+    "interviews": {
+      "title": "Simulations d’entretien récentes",
+      "loading": "Chargement des simulations…",
+      "empty": "Aucune simulation enregistrée pour le moment. Terminez un entretien depuis le simulateur — le rapport apparaîtra ici automatiquement.",
+      "cta": "Démarrer une simulation",
+      "questions": "{count} questions",
+      "view": "Voir la simulation du {date}",
+      "delete": "Supprimer la simulation du {date}",
+      "loadError": "Impossible de charger les simulations"
+    },
+    "view": "Voir",
+    "delete": "Supprimer",
+    "noOfferExcerpt": "Offre sans extrait",
+    "noCvExcerpt": "CV sans extrait",
+    "deleteError": "Suppression impossible"
+  },
+  "interview": {
+    "label": "Simulateur",
+    "title": "Studio d'entraînement",
+    "description": "Préparez-vous aux questions ciblées générées d'après les zones d'attention de votre candidature.",
+    "jobPlaceholder": "Collez l'offre d'emploi...",
+    "cvPlaceholder": "Collez le texte de votre CV...",
+    "generate": "Générer les questions",
+    "changeTopic": "Changer de sujet",
+    "start": "Lancer la simulation",
+    "estimate": "~{minutes} min · {count} questions",
+    "questionOf": "Question {current} / {total} · {category}",
+    "elapsed": "Temps écoulé :",
+    "answerLabel": "Votre réponse",
+    "answerPlaceholder": "Rédigez les éléments clés de votre réponse...",
+    "previous": "Précédente",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "next": "Suivante",
+    "progress": "Progression",
+    "progressAria": "Progression de la simulation",
+    "progressValue": "Question {current} sur {total}",
+    "completeTitle": "Toutes les questions sont complétées",
+    "completeText": "Obtenez une évaluation détaillée de vos réponses.",
+    "getReport": "Obtenir le rapport",
+    "analyzing": "Analyse en cours...",
+    "questionN": "Question {n}",
+    "announce": {
+      "generated": "{count} questions générées. Lancez la simulation quand vous êtes prêt.",
+      "question": "Question {current} sur {total} : {text}"
+    },
+    "errors": {
+      "missingInput": "Veuillez renseigner le CV et l'offre d'emploi",
+      "generate": "Erreur lors de la génération des questions",
+      "analyze": "Erreur lors de l'analyse des réponses"
+    }
+  },
+  "results": {
+    "label": "Rapport",
+    "title": "Résultats de la simulation",
+    "description": "Évaluation synthétique et recommandations pour perfectionner vos arguments.",
+    "loading": "Récupération des résultats...",
+    "newSimulator": "Nouveau simulateur",
+    "globalScore": "Score global",
+    "questions": "Questions",
+    "duration": "Durée",
+    "strengths": "Points forts",
+    "improvements": "Pistes d'amélioration",
+    "answersDetail": "Détail des réponses",
+    "questionN": "Question {n} · {category}",
+    "noAnswer": "Aucune réponse rédigée.",
+    "backToDashboard": "Tableau de bord",
+    "newSimulation": "Nouvelle simulation",
+    "score": {
+      "none": "Non évalué",
+      "excellent": "Excellente maîtrise",
+      "good": "Bonne prestation",
+      "work": "À travailler"
+    },
+    "noSession": "Aucune session récente trouvée.",
+    "loadError": "Erreur lors du chargement"
+  },
+  "profile": {
+    "label": "Compte",
+    "title": "Mon profil",
+    "description": "Gérez vos identifiants et préférences de compte.",
+    "info": "Informations",
+    "signupDate": "Date d'inscription",
+    "language": "Langue de l'interface",
+    "actions": "Actions",
+    "signOut": "Se déconnecter",
+    "deleteAccount": "Supprimer mon compte",
+    "modal": {
+      "title": "Confirmer la suppression",
+      "message": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive.",
+      "confirm": "Supprimer définitivement"
+    },
+    "deleted": "Votre compte a été supprimé.",
+    "deleteError": "Erreur : {message}",
+    "deleteFailed": "Une erreur est survenue lors de la suppression."
+  },
+  "ui": {
+    "close": "Fermer",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "confirm": "Confirmer"
+  },
+  "errors": {
+    "readStream": "Impossible de lire la réponse"
+  }
+}

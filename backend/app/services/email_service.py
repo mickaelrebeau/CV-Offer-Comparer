@@ -4,6 +4,7 @@ from html import escape
 import httpx
 
 from app.config import settings
+from app.i18n import DEFAULT_LOCALE
 
 RESEND_API_URL = "https://api.resend.com/emails"
 
@@ -48,39 +49,65 @@ def _send_resend(email: Email) -> None:
     response.raise_for_status()
 
 
-def _action_email(to: str, subject: str, intro: str, cta: str, url: str, outro: str) -> Email:
-    text = f"{intro}\n\n{cta} : {url}\n\n{outro}\n\n— Talento"
+def _action_email(to: str, subject: str, intro: str, cta: str, url: str, outro: str, copy_link: str) -> Email:
+    text = f"{intro}\n\n{cta}\n{url}\n\n{outro}\n\n— Talento"
     html = f"""<div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;color:#111">
   <p>{escape(intro)}</p>
   <p><a href="{escape(url)}" style="display:inline-block;padding:12px 20px;background:#111;color:#fff;
      text-decoration:none;border-radius:8px">{escape(cta)}</a></p>
-  <p style="font-size:13px;color:#555">Ou copiez ce lien : {escape(url)}</p>
+  <p style="font-size:13px;color:#555">{escape(copy_link)} {escape(url)}</p>
   <p style="font-size:13px;color:#555">{escape(outro)}</p>
   <p>— Talento</p>
 </div>"""
     return Email(to=to, subject=subject, text=text, html=html)
 
 
-def verification_email(to: str, url: str) -> Email:
-    hours = settings.EMAIL_VERIFICATION_TTL_HOURS
-    return _action_email(
-        to,
-        "Confirmez votre adresse e-mail — Talento",
-        "Bienvenue sur Talento ! Confirmez votre adresse e-mail pour lancer vos analyses.",
-        "Confirmer mon adresse",
-        url,
-        f"Ce lien expire dans {hours} h. Si vous n'avez pas créé de compte, ignorez cet e-mail.",
-    )
+COPY_LINK = {"fr": "Ou copiez ce lien :", "en": "Or copy this link:"}
+
+EMAIL_TEXTS = {
+    "verification": {
+        "fr": {
+            "subject": "Confirmez votre adresse e-mail — Talento",
+            "intro": "Bienvenue sur Talento ! Confirmez votre adresse e-mail pour lancer vos analyses.",
+            "cta": "Confirmer mon adresse",
+            "outro": "Ce lien expire dans {hours} h. Si vous n'avez pas créé de compte, ignorez cet e-mail.",
+        },
+        "en": {
+            "subject": "Confirm your email address — Talento",
+            "intro": "Welcome to Talento! Confirm your email address to start your analyses.",
+            "cta": "Confirm my address",
+            "outro": "This link expires in {hours} h. If you did not create an account, ignore this email.",
+        },
+    },
+    "password_reset": {
+        "fr": {
+            "subject": "Réinitialisation de votre mot de passe — Talento",
+            "intro": "Vous avez demandé à réinitialiser votre mot de passe Talento.",
+            "cta": "Choisir un nouveau mot de passe",
+            "outro": "Ce lien expire dans {minutes} min et ne fonctionne qu'une fois. "
+            "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
+        },
+        "en": {
+            "subject": "Reset your password — Talento",
+            "intro": "You asked to reset your Talento password.",
+            "cta": "Choose a new password",
+            "outro": "This link expires in {minutes} min and works only once. "
+            "If you did not make this request, ignore this email.",
+        },
+    },
+}
 
 
-def password_reset_email(to: str, url: str) -> Email:
-    minutes = settings.PASSWORD_RESET_TTL_MINUTES
-    return _action_email(
-        to,
-        "Réinitialisation de votre mot de passe — Talento",
-        "Vous avez demandé à réinitialiser votre mot de passe Talento.",
-        "Choisir un nouveau mot de passe",
-        url,
-        f"Ce lien expire dans {minutes} min et ne fonctionne qu'une fois. "
-        "Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
-    )
+def _localized_email(kind: str, to: str, url: str, locale: str, **params) -> Email:
+    texts = EMAIL_TEXTS[kind].get(locale, EMAIL_TEXTS[kind][DEFAULT_LOCALE])
+    copy_link = COPY_LINK.get(locale, COPY_LINK[DEFAULT_LOCALE])
+    outro = texts["outro"].format(**params)
+    return _action_email(to, texts["subject"], texts["intro"], texts["cta"], url, outro, copy_link)
+
+
+def verification_email(to: str, url: str, locale: str = DEFAULT_LOCALE) -> Email:
+    return _localized_email("verification", to, url, locale, hours=settings.EMAIL_VERIFICATION_TTL_HOURS)
+
+
+def password_reset_email(to: str, url: str, locale: str = DEFAULT_LOCALE) -> Email:
+    return _localized_email("password_reset", to, url, locale, minutes=settings.PASSWORD_RESET_TTL_MINUTES)

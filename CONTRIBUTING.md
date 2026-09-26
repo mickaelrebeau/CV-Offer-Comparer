@@ -107,6 +107,25 @@ Clés historiques migrées automatiquement côté front :
 | `cv_offer_access_token` | `talento_access_token` |
 | `cv-offer-compare-free-analysis-used` | `talento_free_analysis_used` |
 
+## Langues (i18n)
+
+Contrat de locale : **aucun texte visible en dur**, côté front comme côté API.
+
+**Frontend**
+
+- Ajouter chaque texte dans `frontend/src/locales/fr.json` **et** `en.json` (mêmes clés, mêmes paramètres `{nom}`), puis l’utiliser via `t('section.cle')` (`useI18n()` dans les composants, `t` de `@/i18n` dans les stores et `lib/api`).
+- Liens et redirections : `localePath()` / `push()` / `replace()` de `useLocale()` (jamais de chemin `'/…'` en dur).
+- Dates et nombres : `formatDate`, `formatNumber`, `formatPercent` de `useLocale()`.
+- Caractères réservés de vue-i18n : écrire `{'@'}` pour un « @ » littéral, éviter `|`.
+- Nouvelle page publique : route dans `src/router/index.ts` (clé `seo`), traduite par défaut ; `translated: false` tant que le contenu n’existe qu’en français. Ajouter les chemins à prégénérer dans `prerender-routes.ts`.
+- `pnpm test:locales` vérifie la cohérence des catalogues et les clés utilisées ; `pnpm test:prerender` vérifie `lang`, canonical et `hreflang` des pages générées.
+
+**Backend**
+
+- Message exposé au client : `raise ApiError(status, "domaine.code", **params)` avec le texte fr/en dans `backend/app/i18n.py` (`MESSAGES`). La réponse contient `detail` (traduit selon `Accept-Language`) et `code` (stable, pour la logique côté client).
+- Messages de réponse (`message`, statuts SSE, e-mails) : dépendance `locale: str = Depends(request_locale)` puis `t(code, locale)`.
+- Ne jamais renvoyer `str(exception)` au client : journaliser le détail, renvoyer un code générique.
+
 ## Pull Requests
 
 Une bonne PR :

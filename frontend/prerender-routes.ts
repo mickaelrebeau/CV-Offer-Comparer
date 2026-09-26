@@ -1,5 +1,5 @@
 /** Routes publiques générées en HTML statique (SEO). */
-export const prerenderRoutes = [
+const frenchRoutes = [
   '/',
   '/free-trial',
   '/login',
@@ -8,3 +8,8 @@ export const prerenderRoutes = [
   '/cgv',
   '/confidentialite',
 ]
+
+/** Versions anglaises (/en) des pages déjà traduites. Landing et pages légales : PR suivante (#17). */
+const englishRoutes = ['/en/free-trial', '/en/login', '/en/register']
+
+export const prerenderRoutes = [...frenchRoutes, ...englishRoutes]

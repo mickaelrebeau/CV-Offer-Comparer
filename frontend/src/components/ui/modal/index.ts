@@ -1,4 +1,5 @@
 import { defineComponent, h, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
@@ -30,11 +31,11 @@ export const Modal = defineComponent({
     },
     confirmText: {
       type: String,
-      default: 'Confirmer'
+      default: ''
     },
     cancelText: {
       type: String,
-      default: 'Annuler'
+      default: ''
     },
     type: {
       type: String as () => 'info' | 'warning' | 'error' | 'success',
@@ -47,6 +48,7 @@ export const Modal = defineComponent({
   },
   emits: ['confirm', 'cancel', 'close'],
   setup(props, { slots, emit }) {
+    const { t } = useI18n()
     const isVisible = ref(props.isOpen)
     const dialogRef = ref<HTMLElement | null>(null)
     const cancelRef = ref<HTMLElement | null>(null)
@@ -169,7 +171,7 @@ export const Modal = defineComponent({
             }, props.title),
             h('button', {
               type: 'button',
-              'aria-label': 'Fermer',
+              'aria-label': t('ui.close'),
               class: 'text-gray-600 hover:text-gray-900',
               onClick: handleClose
             }, h('span', { 'aria-hidden': 'true' }, '×'))
@@ -253,7 +255,7 @@ export const Modal = defineComponent({
               type: 'button',
               class: 'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
               onClick: handleCancel
-            }, props.cancelText),
+            }, props.cancelText || t('common.cancel')),
             h('button', {
               class: `px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 props.type === 'error' 
@@ -266,7 +268,7 @@ export const Modal = defineComponent({
               }`,
               type: 'button',
               onClick: handleConfirm
-            }, props.confirmText)
+            }, props.confirmText || t('ui.confirm'))
           ])
         ])
       ])

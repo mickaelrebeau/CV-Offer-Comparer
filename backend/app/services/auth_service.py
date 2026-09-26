@@ -5,7 +5,7 @@ from uuid import UUID
 
 import bcrypt
 import httpx
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy import select
@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import get_db
+from app.i18n import ApiError
 from app.models.user import User
 
 security = HTTPBearer()
@@ -47,10 +48,7 @@ def decode_token(token: str) -> dict[str, Any]:
     try:
         return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     except JWTError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token invalide",
-        ) from exc
+        raise ApiError(status.HTTP_401_UNAUTHORIZED, "auth.invalid_token") from exc
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:
@@ -68,10 +66,7 @@ def get_user_by_id(db: Session, user_id: str | UUID) -> User | None:
 def register_user(db: Session, email: str, password: str) -> User:
     email = email.lower().strip()
     if get_user_by_email(db, email):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Un compte existe déjà avec cet email",
-        )
+        raise ApiError(status.HTTP_409_CONFLICT, "auth.email_taken")
     user = User(email=email, password_hash=hash_password(password))
     db.add(user)
     db.commit()
@@ -82,19 +77,13 @@ def register_user(db: Session, email: str, password: str) -> User:
 def authenticate_user(db: Session, email: str, password: str) -> User:
     user = get_user_by_email(db, email.lower().strip())
     if not user or not verify_password(password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou mot de passe incorrect",
-        )
+        raise ApiError(status.HTTP_401_UNAUTHORIZED, "auth.invalid_credentials")
     return user
 
 
 def google_authorize_url(state: str | None = None) -> str:
     if not settings.GOOGLE_CLIENT_ID or not settings.GOOGLE_CLIENT_SECRET:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Google OAuth non configuré (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET)",
-        )
+        raise ApiError(status.HTTP_503_SERVICE_UNAVAILABLE, "auth.google_not_configured")
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
         "redirect_uri": settings.GOOGLE_REDIRECT_URI,
@@ -127,10 +116,7 @@ async def exchange_google_code(code: str) -> dict[str, Any]:
                 f"[OAuth] token exchange failed ({token_response.status_code}): {err_body} "
                 f"| redirect_uri={settings.GOOGLE_REDIRECT_URI}"
             )
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Échec de l'échange du code Google: {err_body}",
-            )
+            raise ApiError(status.HTTP_400_BAD_REQUEST, "auth.google_exchange_failed")
         tokens = token_response.json()
         access_token = tokens.get("access_token")
         id_token = tokens.get("id_token")
@@ -150,10 +136,7 @@ async def exchange_google_code(code: str) -> dict[str, Any]:
             info = await verify_google_id_token(id_token)
             return info
 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Token Google manquant",
-        )
+        raise ApiError(status.HTTP_400_BAD_REQUEST, "auth.google_token_missing")
 
 
 
@@ -165,22 +148,13 @@ async def verify_google_id_token(id_token: str) -> dict[str, Any]:
             params={"id_token": id_token},
         )
         if response.status_code != 200:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="ID token Google invalide",
-            )
+            raise ApiError(status.HTTP_401_UNAUTHORIZED, "auth.google_invalid_token")
         data = response.json()
         audience = data.get("aud")
         if settings.GOOGLE_CLIENT_ID and audience != settings.GOOGLE_CLIENT_ID:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Audience Google invalide",
-            )
+            raise ApiError(status.HTTP_401_UNAUTHORIZED, "auth.google_invalid_audience")
         if data.get("email_verified") not in (True, "true"):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Email Google non vérifié",
-            )
+            raise ApiError(status.HTTP_401_UNAUTHORIZED, "auth.google_email_not_verified")
         return data
 
 
@@ -188,10 +162,7 @@ def upsert_google_user(db: Session, profile: dict[str, Any]) -> User:
     email = (profile.get("email") or "").lower().strip()
     google_id = profile.get("sub") or profile.get("id")
     if not email or not google_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Profil Google incomplet",
-        )
+        raise ApiError(status.HTTP_400_BAD_REQUEST, "auth.google_incomplete_profile")
 
     user = db.scalar(select(User).where(User.google_id == str(google_id)))
     if not user:
@@ -236,20 +207,17 @@ async def get_current_user(
     payload = decode_token(credentials.credentials)
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Token invalide")
+        raise ApiError(401, "auth.invalid_token")
     user = get_user_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="Utilisateur non trouvé")
+        raise ApiError(401, "auth.user_not_found")
     return user
 
 
 async def require_verified_user(user: User = Depends(get_current_user)) -> User:
     """Comptes non vérifiés : connexion possible, mais pas d'accès aux fonctionnalités IA."""
     if not user.email_verified:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Confirmez votre adresse e-mail pour utiliser cette fonctionnalité.",
-        )
+        raise ApiError(status.HTTP_403_FORBIDDEN, "auth.email_not_verified")
     return user
 
 

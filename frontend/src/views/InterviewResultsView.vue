@@ -1,14 +1,14 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Rapport"
-      title="Résultats de la simulation"
-      description="Évaluation synthétique et recommandations pour perfectionner vos arguments."
+      :label="t('results.label')"
+      :title="t('results.title')"
+      :description="t('results.description')"
     />
 
     <div v-if="isLoading" class="py-16 text-center">
       <Loader2 class="mx-auto h-8 w-8 animate-spin text-ink-soft" aria-hidden="true" />
-      <p class="mt-4 font-mono text-micro uppercase text-ink-soft">Récupération des résultats...</p>
+      <p class="mt-4 font-mono text-micro uppercase text-ink-soft">{{ t('results.loading') }}</p>
     </div>
 
     <div v-else-if="error" class="py-16 text-center space-y-6">
@@ -16,23 +16,23 @@
       <p class="text-lead text-ink-soft">{{ error }}</p>
       <Button @click="startNewInterview">
         <MessageSquare class="mr-2 h-4 w-4" aria-hidden="true" />
-        Nouveau simulateur
+        {{ t('results.newSimulator') }}
       </Button>
     </div>
 
     <div v-else-if="interviewData" class="space-y-8">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div class="panel p-6 text-center md:col-span-2">
-          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">Score global</div>
-          <div class="text-4xl font-medium tabular-nums">{{ analysisResult?.score_global || 'N/A' }}/10</div>
+          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">{{ t('results.globalScore') }}</div>
+          <div class="text-4xl font-medium tabular-nums">{{ analysisResult?.score_global || t('common.notAvailable') }}/10</div>
           <p class="mt-1 font-mono text-micro uppercase text-emerald-600">{{ getScoreMessage(analysisResult?.score_global) }}</p>
         </div>
         <div class="panel p-6 text-center">
-          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">Questions</div>
+          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">{{ t('results.questions') }}</div>
           <div class="text-3xl font-medium tabular-nums">{{ interviewData.num_questions }}</div>
         </div>
         <div class="panel p-6 text-center">
-          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">Durée</div>
+          <div class="mb-1 font-mono text-micro uppercase text-ink-soft">{{ t('results.duration') }}</div>
           <div class="text-3xl font-medium tabular-nums">{{ formatTime(interviewData.duration) }}</div>
         </div>
       </div>
@@ -40,7 +40,7 @@
       <div v-if="analysisResult?.points_forts?.length" class="panel p-6 space-y-4">
         <h3 class="flex items-center gap-2 font-mono text-caption uppercase">
           <CheckCircle class="h-4 w-4 text-emerald-500" aria-hidden="true" />
-          Points forts
+          {{ t('results.strengths') }}
         </h3>
         <div class="space-y-2">
           <div v-for="(pf, idx) in analysisResult.points_forts" :key="idx" class="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm text-emerald-800">
@@ -52,7 +52,7 @@
       <div v-if="analysisResult?.points_amelioration?.length" class="panel p-6 space-y-4">
         <h3 class="flex items-center gap-2 font-mono text-caption uppercase">
           <MessageSquare class="h-4 w-4 text-amber-600" aria-hidden="true" />
-          Pistes d'amélioration
+          {{ t('results.improvements') }}
         </h3>
         <div class="space-y-2">
           <div v-for="(pa, idx) in analysisResult.points_amelioration" :key="idx" class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-amber-800">
@@ -63,15 +63,15 @@
 
       <div class="panel-dark">
         <div class="panel-dark-inner">
-          <div class="panel-dark-header">Détail des réponses</div>
+          <div class="panel-dark-header">{{ t('results.answersDetail') }}</div>
           <div class="space-y-0 p-4 sm:p-6">
             <div v-for="(ans, idx) in interviewData.answers" :key="idx" class="border-b border-white/5 py-4 last:border-0">
               <div class="mb-2 font-mono text-micro uppercase text-paper/60">
-                Question {{ idx + 1 }} · {{ ans.category }}
+                {{ t('results.questionN', { n: idx + 1, category: ans.category }) }}
               </div>
               <p class="mb-3 text-sm font-medium text-paper/90">{{ ans.question }}</p>
               <div class="rounded-lg border border-white/10 p-3 text-xs text-paper/60">
-                {{ ans.answer || 'Aucune réponse rédigée.' }}
+                {{ ans.answer || t('results.noAnswer') }}
               </div>
             </div>
           </div>
@@ -81,11 +81,11 @@
       <div class="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button variant="outline" @click="goToDashboard">
           <ArrowLeft class="mr-2 h-4 w-4" aria-hidden="true" />
-          Tableau de bord
+          {{ t('results.backToDashboard') }}
         </Button>
         <Button @click="startNewInterview">
           <RotateCcw class="mr-2 h-4 w-4" aria-hidden="true" />
-          Nouvelle simulation
+          {{ t('results.newSimulation') }}
         </Button>
       </div>
     </div>
@@ -94,13 +94,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
+import { useLocale } from '@/i18n/useLocale'
 import { getInterview } from '@/lib/api'
 import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare, AlertCircle, Loader2 } from 'lucide-vue-next'
 
-const router = useRouter()
+const { t } = useI18n()
+const { push } = useLocale()
 const route = useRoute()
 
 const isLoading = ref(true)
@@ -115,10 +118,10 @@ const formatTime = (seconds: number) => {
 }
 
 const getScoreMessage = (score: number | undefined) => {
-  if (!score) return 'Non évalué'
-  if (score >= 8) return 'Excellente maîtrise'
-  if (score >= 6) return 'Bonne prestation'
-  return 'À travailler'
+  if (!score) return t('results.score.none')
+  if (score >= 8) return t('results.score.excellent')
+  if (score >= 6) return t('results.score.good')
+  return t('results.score.work')
 }
 
 function applySession(payload: {
@@ -172,16 +175,16 @@ const loadInterviewData = async () => {
       return
     }
 
-    error.value = 'Aucune session récente trouvée.'
+    error.value = t('results.noSession')
   } catch (err: any) {
-    error.value = err.response?.data?.detail || err.message || 'Erreur lors du chargement'
+    error.value = err.response?.data?.detail || err.message || t('results.loadError')
   } finally {
     isLoading.value = false
   }
 }
 
-const goToDashboard = () => router.push('/dashboard')
-const startNewInterview = () => router.push('/interview-simulator')
+const goToDashboard = () => push('/dashboard')
+const startNewInterview = () => push('/interview-simulator')
 
 onMounted(() => {
   loadInterviewData()

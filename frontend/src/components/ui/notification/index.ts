@@ -1,4 +1,5 @@
 import { defineComponent, h, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export interface NotificationProps {
   isOpen: boolean
@@ -29,6 +30,7 @@ export const Notification = defineComponent({
   },
   emits: ['close'],
   setup(props, { emit }) {
+    const { t } = useI18n()
     const isVisible = ref(props.isOpen)
     let timeoutId: number | null = null
 
@@ -151,7 +153,7 @@ export const Notification = defineComponent({
                 class: 'inline-flex text-gray-600 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-900',
                 onClick: handleClose
               }, [
-                h('span', { class: 'sr-only' }, 'Fermer'),
+                h('span', { class: 'sr-only' }, t('ui.close')),
                 h('svg', {
                   class: 'h-5 w-5',
                   fill: 'currentColor',

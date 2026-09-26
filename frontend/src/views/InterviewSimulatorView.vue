@@ -1,9 +1,9 @@
 <template>
   <div class="page-shell">
     <AppPageHeader
-      label="Simulateur"
-      title="Studio d'entraînement"
-      description="Préparez-vous aux questions ciblées générées d'après les zones d'attention de votre candidature."
+      :label="t('interview.label')"
+      :title="t('interview.title')"
+      :description="t('interview.description')"
     />
 
     <!-- Annonce le changement d'étape et de question aux lecteurs d'écran -->
@@ -13,16 +13,16 @@
     <div v-if="currentStep === 1" class="space-y-8">
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="panel overflow-hidden">
-          <label for="job-text" class="panel-header">01 · Offre d'emploi</label>
+          <label for="job-text" class="panel-header">{{ t('cvInput.offerHeader') }}</label>
           <div class="p-4 sm:p-5">
-            <Textarea id="job-text" :model-value="jobText" placeholder="Collez l'offre d'emploi..." class="min-h-[200px]" @input="handleJobInput" />
+            <Textarea id="job-text" :model-value="jobText" :placeholder="t('interview.jobPlaceholder')" class="min-h-[200px]" @input="handleJobInput" />
           </div>
         </div>
 
         <div class="panel overflow-hidden">
           <div class="panel-header justify-between">
-            <span id="cv-label">02 · Mon CV</span>
-            <div class="flex gap-1" role="group" aria-label="Format du CV">
+            <span id="cv-label">{{ t('cvInput.cvHeader') }}</span>
+            <div class="flex gap-1" role="group" :aria-label="t('cvInput.cvFormat')">
               <button
                 type="button"
                 :aria-pressed="cvActiveTab === 'upload'"
@@ -30,7 +30,7 @@
                 class="rounded px-2 py-0.5 transition-colors"
                 :class="cvActiveTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
               >
-                PDF
+                {{ t('common.pdf') }}
               </button>
               <button
                 type="button"
@@ -39,13 +39,13 @@
                 class="rounded px-2 py-0.5 transition-colors"
                 :class="cvActiveTab === 'manual' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
               >
-                Texte
+                {{ t('common.text') }}
               </button>
             </div>
           </div>
           <div class="p-4 sm:p-5">
             <PDFUpload v-if="cvActiveTab === 'upload'" :model-value="cvText" @update:model-value="handleCVTextUpdate" />
-            <Textarea v-else aria-labelledby="cv-label" :model-value="cvText" placeholder="Collez le texte de votre CV..." class="min-h-[200px]" @input="handleCVInput" />
+            <Textarea v-else aria-labelledby="cv-label" :model-value="cvText" :placeholder="t('interview.cvPlaceholder')" class="min-h-[200px]" @input="handleCVInput" />
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@
         <Button :disabled="!cvText || !jobText || isLoading" size="lg" @click="generateQuestions">
           <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
           <MessageSquare v-else class="mr-2 h-4 w-4" aria-hidden="true" />
-          Générer les questions
+          {{ t('interview.generate') }}
         </Button>
       </div>
     </div>
@@ -69,15 +69,15 @@
         <div class="flex flex-wrap items-center gap-3">
           <Button variant="outline" size="sm" @click="resetSimulator">
             <ArrowLeft class="mr-1.5 h-4 w-4" aria-hidden="true" />
-            Changer de sujet
+            {{ t('interview.changeTopic') }}
           </Button>
           <Button v-if="!isInterviewStarted" size="sm" @click="startInterview">
             <Play class="mr-1.5 h-4 w-4" aria-hidden="true" />
-            Lancer la simulation
+            {{ t('interview.start') }}
           </Button>
         </div>
         <div class="font-mono text-micro uppercase text-ink-soft">
-          ~{{ estimatedTime }} min · {{ questions.length }} questions
+          {{ t('interview.estimate', { minutes: estimatedTime, count: questions.length }) }}
         </div>
       </div>
 
@@ -85,41 +85,41 @@
         <div class="panel-dark">
           <div class="panel-dark-inner">
             <div class="panel-dark-header justify-between">
-              <span>Question {{ currentQuestionIndex + 1 }} / {{ questions.length }} · {{ currentQuestionCategory }}</span>
+              <span>{{ t('interview.questionOf', { current: currentQuestionIndex + 1, total: questions.length, category: currentQuestionCategory }) }}</span>
               <span role="timer">
                 <span aria-hidden="true">⏱</span>
-                <span class="sr-only">Temps écoulé :</span>
+                <span class="sr-only">{{ t('interview.elapsed') }}</span>
                 {{ formatTime(interviewTimer) }}
               </span>
             </div>
             <div class="space-y-5 p-5 sm:p-6">
               <p class="font-sans text-lg font-medium leading-snug text-paper">{{ currentQuestion }}</p>
               <div class="space-y-2">
-                <label for="answer" class="field-label !text-paper/60">Votre réponse</label>
+                <label for="answer" class="field-label !text-paper/60">{{ t('interview.answerLabel') }}</label>
                 <Textarea
                   id="answer"
                   v-model="currentAnswer"
-                  placeholder="Rédigez les éléments clés de votre réponse..."
+                  :placeholder="t('interview.answerPlaceholder')"
                   class="min-h-[160px] !border-white/10 !bg-ink-deep !text-paper placeholder:!text-paper/60"
                 />
               </div>
               <div class="flex items-center justify-between pt-2">
                 <Button variant="outline" size="sm" :disabled="currentQuestionIndex === 0" @click="previousQuestion">
                   <ChevronLeft class="mr-1 h-4 w-4" aria-hidden="true" />
-                  Précédente
+                  {{ t('interview.previous') }}
                 </Button>
                 <div class="flex gap-2">
                   <Button v-if="!isPaused" variant="outline" size="sm" @click="pauseInterview">
                     <Pause class="mr-1 h-4 w-4" aria-hidden="true" />
-                    Pause
+                    {{ t('interview.pause') }}
                   </Button>
                   <Button v-else variant="outline" size="sm" @click="resumeInterview">
                     <Play class="mr-1 h-4 w-4" aria-hidden="true" />
-                    Reprendre
+                    {{ t('interview.resume') }}
                   </Button>
                 </div>
                 <Button size="sm" :disabled="currentQuestionIndex === questions.length - 1" @click="nextQuestion">
-                  Suivante
+                  {{ t('interview.next') }}
                   <ChevronRight class="ml-1 h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
@@ -129,17 +129,17 @@
 
         <div class="space-y-2">
           <div class="flex justify-between font-mono text-micro uppercase text-ink-soft">
-            <span>Progression</span>
-            <span>{{ Math.round(((currentQuestionIndex + 1) / questions.length) * 100) }}%</span>
+            <span>{{ t('interview.progress') }}</span>
+            <span>{{ formatPercent((currentQuestionIndex + 1) / questions.length) }}</span>
           </div>
           <div
             class="progress-track"
             role="progressbar"
-            aria-label="Progression de la simulation"
+            :aria-label="t('interview.progressAria')"
             :aria-valuenow="currentQuestionIndex + 1"
             aria-valuemin="1"
             :aria-valuemax="questions.length"
-            :aria-valuetext="`Question ${currentQuestionIndex + 1} sur ${questions.length}`"
+            :aria-valuetext="t('interview.progressValue', { current: currentQuestionIndex + 1, total: questions.length })"
           >
             <div class="progress-fill" :style="{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }"></div>
           </div>
@@ -147,14 +147,14 @@
 
         <div v-if="currentQuestionIndex === questions.length - 1" class="panel p-8 text-center">
           <CheckCircle class="mx-auto mb-4 h-10 w-10 text-emerald-500" aria-hidden="true" />
-          <h3 class="mb-2 font-medium text-title">Toutes les questions sont complétées</h3>
-          <p class="mb-6 text-lead text-ink-soft">Obtenez une évaluation détaillée de vos réponses.</p>
+          <h3 class="mb-2 font-medium text-title">{{ t('interview.completeTitle') }}</h3>
+          <p class="mb-6 text-lead text-ink-soft">{{ t('interview.completeText') }}</p>
           <div v-if="error" role="alert" class="mb-4 rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
             {{ error }}
           </div>
           <Button size="lg" :disabled="isLoading" @click="finishInterview">
             <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            {{ isLoading ? 'Analyse en cours...' : 'Obtenir le rapport' }}
+            {{ isLoading ? t('interview.analyzing') : t('interview.getReport') }}
           </Button>
         </div>
       </div>
@@ -162,7 +162,7 @@
       <div v-else class="space-y-3">
         <div v-for="(q, idx) in questions" :key="idx" class="panel p-5">
           <div class="mb-2 flex items-center gap-2 font-mono text-micro uppercase">
-            <span class="text-ink-soft">Question {{ idx + 1 }}</span>
+            <span class="text-ink-soft">{{ t('interview.questionN', { n: idx + 1 }) }}</span>
             <span class="text-ink-soft">· {{ q.category }}</span>
           </div>
           <p class="text-sm font-medium text-ink">{{ q.text }}</p>
@@ -174,7 +174,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -183,9 +183,11 @@ import {
 } from 'lucide-vue-next'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 import PDFUpload from '@/components/PDFUpload.vue'
+import { useLocale } from '@/i18n/useLocale'
 import posthog from 'posthog-js'
 
-const router = useRouter()
+const { t } = useI18n()
+const { push, formatPercent } = useLocale()
 
 const currentStep = ref(1)
 const cvText = ref('')
@@ -207,8 +209,12 @@ const currentQuestion = computed(() => questions.value[currentQuestionIndex.valu
 
 const stepAnnouncement = computed(() => {
   if (currentStep.value === 1) return ''
-  if (!isInterviewStarted.value) return `${questions.value.length} questions générées. Lancez la simulation quand vous êtes prêt.`
-  return `Question ${currentQuestionIndex.value + 1} sur ${questions.value.length} : ${currentQuestion.value}`
+  if (!isInterviewStarted.value) return t('interview.announce.generated', { count: questions.value.length })
+  return t('interview.announce.question', {
+    current: currentQuestionIndex.value + 1,
+    total: questions.value.length,
+    text: currentQuestion.value,
+  })
 })
 const currentQuestionCategory = computed(() => questions.value[currentQuestionIndex.value]?.category || '')
 const estimatedTime = computed(() => Math.round(questions.value.length * 2))
@@ -230,7 +236,7 @@ const handleCVTextUpdate = (text: string) => {
 
 const generateQuestions = async () => {
   if (!cvText.value || !jobText.value) {
-    error.value = 'Veuillez renseigner le CV et l\'offre d\'emploi'
+    error.value = t('interview.errors.missingInput')
     return
   }
 
@@ -253,7 +259,7 @@ const generateQuestions = async () => {
       throw new Error(result.message)
     }
   } catch (err: any) {
-    error.value = err.message || 'Erreur lors de la génération des questions.'
+    error.value = err.message || t('interview.errors.generate')
   } finally {
     isLoading.value = false
   }
@@ -326,20 +332,20 @@ const finishInterview = async () => {
           duration_seconds: interviewTimer.value,
         })
         if (result.interview_id) {
-          router.push({ path: '/interview-results', query: { history: result.interview_id } })
+          push({ path: '/interview-results', query: { history: result.interview_id } })
         } else {
-          router.push('/interview-results')
+          push('/interview-results')
         }
       } else {
-        throw new Error(result.message || 'Erreur lors de l\'analyse')
+        throw new Error(result.message || t('interview.errors.analyze'))
       }
     } catch (err: any) {
-      error.value = err.message || 'Erreur lors de l\'analyse'
+      error.value = err.message || t('interview.errors.analyze')
     } finally {
       isLoading.value = false
     }
   } else {
-    router.push('/interview-results')
+    push('/interview-results')
   }
 }
 
