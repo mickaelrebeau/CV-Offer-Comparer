@@ -36,13 +36,15 @@ onMounted(async () => {
     return
   }
 
-  const token = typeof route.query.token === 'string' ? route.query.token : null
-  if (!token) {
+  const code = typeof route.query.code === 'string' ? route.query.code : null
+  // Retire le code de l'URL (historique, referrer, analytics) avant tout appel réseau
+  window.history.replaceState(window.history.state, '', route.path)
+  if (!code) {
     router.replace('/login?error=google_oauth')
     return
   }
 
-  const ok = await authStore.completeGoogleCallback(token)
+  const ok = await authStore.completeGoogleCallback(code)
   if (ok && isPostHogConfigured) {
     posthog.capture('account_signed_in', { sign_in_method: 'google' })
   }
