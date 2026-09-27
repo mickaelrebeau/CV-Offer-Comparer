@@ -696,10 +696,13 @@
       "tabsLabel": "Demo",
       "tabAnalysis": "01 · Analysis",
       "tabInterview": "02 · Interview",
+      "tabLetter": "03 · Letter",
       "windowAnalysis": "comparison — result",
       "windowInterview": "simulator — session",
-      "videoAnalysis": "Demo of the Talento resume and job offer analysis (French interface)",
-      "videoInterview": "Demo of the Talento interview simulator (French interface)"
+      "windowLetter": "letter — draft",
+      "videoAnalysis": "Demo of the Talento resume and job offer analysis",
+      "videoInterview": "Demo of the Talento interview simulator",
+      "videoLetter": "Demo of the Talento cover letter generator"
     },
     "stats": {
       "aria": "Key figures and steps",

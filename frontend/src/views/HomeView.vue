@@ -246,7 +246,7 @@
                 type="button"
                 :aria-pressed="activeTab === tab.id"
                 @click="activeTab = tab.id"
-                class="rounded-md px-4 py-2 transition-colors"
+                class="flex-1 whitespace-nowrap rounded-md px-2 py-2 text-micro transition-colors sm:flex-none sm:px-4 sm:text-caption"
                 :class="activeTab === tab.id ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
               >
                 {{ tab.label }}
@@ -260,23 +260,16 @@
                 <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
                 <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
                 <span class="h-2 w-2 rounded-full bg-white/15" aria-hidden="true"></span>
-                <span class="ml-3">{{ activeTab === 'analyse' ? t('landing.preview.windowAnalysis') : t('landing.preview.windowInterview') }}</span>
+                <span class="ml-3">{{ currentTab.window }}</span>
               </div>
 
               <div ref="demoVideoEl" class="relative aspect-video w-full">
                 <ProductDemoVideo
-                  v-if="activeTab === 'analyse'"
+                  :key="currentTab.id"
                   class="absolute inset-0"
-                  variant="analyse"
+                  :variant="currentTab.variant"
                   :in-view="demoVideoInView"
-:label="t('landing.preview.videoAnalysis')"
-                />
-                <ProductDemoVideo
-                  v-else
-                  class="absolute inset-0"
-                  variant="entretien"
-                  :in-view="demoVideoInView"
-:label="t('landing.preview.videoInterview')"
+                  :label="currentTab.video"
                 />
               </div>
             </div>
@@ -479,12 +472,14 @@ const id = (index: number) => String(index + 1).padStart(3, '0')
 const homePath = computed(() => localePath(authStore.isAuthenticated ? '/dashboard' : '/'))
 const primaryPath = computed(() => localePath(authStore.isAuthenticated ? '/dashboard' : '/free-trial'))
 
-const activeTab = ref<'analyse' | 'simulateur'>('analyse')
+const activeTab = ref<'analyse' | 'simulateur' | 'lettre'>('analyse')
 
 const tabs = computed(() => [
-  { id: 'analyse' as const, label: t('landing.preview.tabAnalysis') },
-  { id: 'simulateur' as const, label: t('landing.preview.tabInterview') },
+  { id: 'analyse' as const, variant: 'analyse' as const, label: t('landing.preview.tabAnalysis'), window: t('landing.preview.windowAnalysis'), video: t('landing.preview.videoAnalysis') },
+  { id: 'simulateur' as const, variant: 'entretien' as const, label: t('landing.preview.tabInterview'), window: t('landing.preview.windowInterview'), video: t('landing.preview.videoInterview') },
+  { id: 'lettre' as const, variant: 'lettre' as const, label: t('landing.preview.tabLetter'), window: t('landing.preview.windowLetter'), video: t('landing.preview.videoLetter') },
 ])
+const currentTab = computed(() => tabs.value.find((tab) => tab.id === activeTab.value) ?? tabs.value[0])
 
 const SINK_COSTS = ['~1 H', '~3 H', '~2 H', '~1 H', '~1 H', '~2 H', '~2 H', '∞ H']
 const timeSinks = computed(() =>

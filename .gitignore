@@ -85,3 +85,7 @@ frontend/dist/
 *.pem
 credentials.json
 service-account*.json
+
+# Sources personnelles des démos vidéo (CV / offre réels, anonymisés dans demo-videos/data)
+cv.txt
+offre.txt

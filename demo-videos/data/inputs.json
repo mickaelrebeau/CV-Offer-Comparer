@@ -1,0 +1,10 @@
+{
+  "fr": {
+    "offer": "Développeur·se Full Stack IA — éditeur de logiciels SaaS pour le secteur public\n\nNous développons des assistants IA qui simplifient le quotidien des services RH.\n\nMissions : concevoir des fonctionnalités Full Stack, intégrer des LLM (OpenAI, LangChain, RAG), développer des API REST robustes.\n\nStack : React, TypeScript, Next.js, Node.js, NestJS, Python, Azure, Docker, CI/CD.\n\nProfil : Bac+3 à Bac+5, expérience Full Stack, appétence pour l'IA, environnement SaaS apprécié.",
+    "cv": "Alex Moreau — Développeur Full Stack\n\n• Freelance (2025 – aujourd'hui) : Vue.js, Python, AWS, LLM, PostgreSQL\n• Éditeur SaaS (2025) : applications web évolutives, Vue.js / Python / LLM\n• Cabinet de conseil (2024 – 2025) : missions Full Stack pour des clients\n• Incubateur tech (2023) : authentification et micro-services, React / NestJS / Redis\n\nFormation : titre Concepteur développeur d'applications, formation Développeur IA, BTS SIO\nLangues : anglais B2, espagnol bilingue"
+  },
+  "en": {
+    "offer": "Full Stack AI Developer — SaaS software publisher for the public sector\n\nWe build AI assistants that make HR teams' daily work easier.\n\nMissions: design Full Stack features, integrate LLMs (OpenAI, LangChain, RAG), build robust REST APIs.\n\nStack: React, TypeScript, Next.js, Node.js, NestJS, Python, Azure, Docker, CI/CD.\n\nProfile: bachelor's to master's degree, Full Stack experience, keen interest in AI, SaaS background a plus.",
+    "cv": "Alex Moreau — Full Stack Developer\n\n• Freelance (2025 – present): Vue.js, Python, AWS, LLM, PostgreSQL\n• SaaS publisher (2025): scalable web apps, Vue.js / Python / LLM\n• Consulting firm (2024 – 2025): Full Stack client engagements\n• Tech incubator (2023): authentication and microservices, React / NestJS / Redis\n\nEducation: Application Designer & Developer degree, AI Developer program, IT associate degree\nLanguages: English B2, Spanish bilingual"
+  }
+}

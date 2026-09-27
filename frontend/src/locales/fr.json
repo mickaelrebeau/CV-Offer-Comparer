@@ -696,10 +696,13 @@
       "tabsLabel": "Démonstration",
       "tabAnalysis": "01 · Analyse",
       "tabInterview": "02 · Entretien",
+      "tabLetter": "03 · Lettre",
       "windowAnalysis": "comparateur — résultat",
       "windowInterview": "simulateur — session",
-      "videoAnalysis": "Démonstration de l'analyse CV et offre d'emploi Talento (interface en français)",
-      "videoInterview": "Démonstration du simulateur d'entretien Talento (interface en français)"
+      "windowLetter": "lettre — rédaction",
+      "videoAnalysis": "Démonstration de l'analyse CV et offre d'emploi Talento",
+      "videoInterview": "Démonstration du simulateur d'entretien Talento",
+      "videoLetter": "Démonstration du générateur de lettre de motivation Talento"
     },
     "stats": {
       "aria": "Indicateurs et étapes",

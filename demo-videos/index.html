@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr" data-composition-variables="[
+    {&quot;id&quot;:&quot;demo&quot;,&quot;type&quot;:&quot;enum&quot;,&quot;label&quot;:&quot;Démo&quot;,&quot;default&quot;:&quot;analyse&quot;,&quot;options&quot;:[{&quot;value&quot;:&quot;analyse&quot;,&quot;label&quot;:&quot;Analyse (comparateur)&quot;},{&quot;value&quot;:&quot;entretien&quot;,&quot;label&quot;:&quot;Entretien (simulateur)&quot;},{&quot;value&quot;:&quot;lettre&quot;,&quot;label&quot;:&quot;Lettre de motivation&quot;}]},
+    {&quot;id&quot;:&quot;lang&quot;,&quot;type&quot;:&quot;enum&quot;,&quot;label&quot;:&quot;Langue&quot;,&quot;default&quot;:&quot;fr&quot;,&quot;options&quot;:[{&quot;value&quot;:&quot;fr&quot;,&quot;label&quot;:&quot;Français&quot;},{&quot;value&quot;:&quot;en&quot;,&quot;label&quot;:&quot;English&quot;}]}
+  ]">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Démos Talento</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/talento.css">
+    <style>
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Une composition, trois démos (variable demo) en deux langues (variable lang) : 18 s en boucle -->
+    <div data-hf-id="hf-dcwt" id="root" data-composition-id="main" data-start="0" data-duration="18" data-width="1920" data-height="1080"></div>
+    <script src="assets/content.js"></script>
+    <script src="assets/demos.js"></script>
+    <script>
+      (function () {
+        var vars = window.__hyperframes && window.__hyperframes.getVariables ? window.__hyperframes.getVariables() : {};
+        var demo = ["analyse", "entretien", "lettre"].indexOf(vars.demo) >= 0 ? vars.demo : "analyse";
+        var lang = vars.lang === "en" ? "en" : "fr";
+        var scene = window.TalentoDemo.build(document.getElementById("root"), demo, lang);
+        // Les positions de caméra sont mesurées sur les métriques réelles de Geist : on attend les polices,
+        // puis on enregistre la timeline une fois entièrement construite.
+        document.fonts.ready.then(function () {
+          window.__timelines["main"] = scene.timeline();
+        });
+      })();
+    </script>
+  </body>
+</html>
