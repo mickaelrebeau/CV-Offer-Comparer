@@ -50,9 +50,7 @@
         </div>
       </div>
 
-      <div v-if="error" role="alert" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
-        {{ error }}
-      </div>
+      <LlmErrorNotice v-if="error" :message="error" :code="errorCode" />
 
       <div class="flex justify-center">
         <Button :disabled="!cvText || !jobText || isLoading" size="lg" @click="generateQuestions">
@@ -149,9 +147,7 @@
           <CheckCircle class="mx-auto mb-4 h-10 w-10 text-emerald-500" aria-hidden="true" />
           <h3 class="mb-2 font-medium text-title">{{ t('interview.completeTitle') }}</h3>
           <p class="mb-6 text-lead text-ink-soft">{{ t('interview.completeText') }}</p>
-          <div v-if="error" role="alert" class="mb-4 rounded-lg border border-rose-500/25 bg-rose-500/5 p-3 font-mono text-micro text-rose-700">
-            {{ error }}
-          </div>
+          <LlmErrorNotice v-if="error" class="mb-4 text-left" :message="error" :code="errorCode" />
           <Button size="lg" :disabled="isLoading" @click="finishInterview">
             <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             {{ isLoading ? t('interview.analyzing') : t('interview.getReport') }}
@@ -184,6 +180,7 @@ import {
 } from 'lucide-vue-next'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 import PDFUpload from '@/components/PDFUpload.vue'
+import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import { useLocale } from '@/i18n/useLocale'
 import posthog from 'posthog-js'
 
@@ -196,6 +193,7 @@ const jobText = ref('')
 const cvActiveTab = ref('upload')
 const isLoading = ref(false)
 const error = ref('')
+const errorCode = ref<string | null>(null)
 const questions = ref<any[]>([])
 const isInterviewStarted = ref(false)
 const currentQuestionIndex = ref(0)
@@ -243,6 +241,7 @@ const generateQuestions = async () => {
 
   isLoading.value = true
   error.value = ''
+  errorCode.value = null
 
   try {
     const cvBlob = new Blob([cvText.value], { type: 'text/plain' })
@@ -257,6 +256,7 @@ const generateQuestions = async () => {
         question_count: result.interview_session.questions.length,
       })
     } else {
+      errorCode.value = result.code || null
       throw new Error(result.message)
     }
   } catch (err: any) {
@@ -330,6 +330,7 @@ const finishInterview = async () => {
     try {
       isLoading.value = true
       error.value = ''
+      errorCode.value = null
       const result = await analyzeInterviewResponses(
         questions.value,
         answers.value,
@@ -359,6 +360,7 @@ const finishInterview = async () => {
           push('/interview-results')
         }
       } else {
+        errorCode.value = result.code || null
         throw new Error(result.message || t('interview.errors.analyze'))
       }
     } catch (err: any) {

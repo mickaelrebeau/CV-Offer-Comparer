@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     EMAIL_VERIFICATION_TTL_HOURS: int = 48
     PASSWORD_RESET_TTL_MINUTES: int = 60
 
+    # BYOK : clés API LLM personnelles des utilisateurs, chiffrées au repos (Fernet).
+    # Liste CSV de clés Fernet : la première chiffre, toutes déchiffrent (rotation). Vide = BYOK désactivé
+    LLM_ENCRYPTION_KEYS: str = ""
+    # Autorise http:// et les IP privées / localhost comme base_url (dev local : Ollama…). Ignoré en production
+    LLM_ALLOW_PRIVATE_BASE_URLS: bool = False
+    LLM_REQUEST_TIMEOUT_SECONDS: float = 90.0
+
     # Production settings
     ENVIRONMENT: str = "development"
     # Endpoints de debug (test-stream, reset free-trial, stats…) : jamais exposés en production
@@ -51,6 +58,8 @@ class Settings(BaseSettings):
     DAILY_QUOTA_INTERVIEW_GENERATE: int = 30
     DAILY_QUOTA_INTERVIEW_ANALYZE: int = 30
     DAILY_QUOTA_COVER_LETTER: int = 30
+    # Enregistrements de clé LLM (chaque test de clé appelle le provider)
+    DAILY_QUOTA_LLM_CREDENTIALS: int = 50
     DAILY_QUOTA_UPLOAD: int = 100
     # Header contenant l'IP réelle du client derrière le proxy (Railway : X-Real-IP). Vide = IP de la socket
     CLIENT_IP_HEADER: str = "X-Real-IP"

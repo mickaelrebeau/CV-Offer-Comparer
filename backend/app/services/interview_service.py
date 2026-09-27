@@ -1,11 +1,12 @@
 from typing import Dict, Any
-from app.services.ai_service import ai_service
+from app.services.ai_service import AIService, ai_service
+from app.services.llm.errors import LLMError
 import uuid
 from datetime import datetime
 
 class InterviewService:
-    def __init__(self):
-        self.ai_service = ai_service
+    def __init__(self, ai: AIService | None = None):
+        self.ai_service = ai or ai_service
 
     
     async def generate_interview_questions(self, cv_text: str, job_text: str, num_questions: int = 10) -> Dict[str, Any]:
@@ -59,6 +60,8 @@ class InterviewService:
                 "interview_session": interview_session,
             }
             
+        except LLMError:
+            raise
         except Exception as e:
             print(f"Erreur dans generate_interview_questions: {e}")
             import traceback
@@ -92,6 +95,8 @@ class InterviewService:
             
             return result
             
+        except LLMError:
+            raise
         except Exception as e:
             return {
                 "success": False,

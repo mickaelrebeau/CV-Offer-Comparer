@@ -44,6 +44,23 @@ api.interceptors.response.use(
   }
 );
 
+/** Erreur d'API avec son code stable (`llm.platform_quota_exceeded`, `rate.daily_quota`…). */
+export class ApiRequestError extends Error {
+  constructor(message: string, readonly code?: string) {
+    super(message)
+  }
+}
+
+async function requestError(response: Response): Promise<ApiRequestError> {
+  const errorData = await response.json().catch(() => ({}))
+  return new ApiRequestError(errorData.detail || `HTTP error! status: ${response.status}`, errorData.code)
+}
+
+/** Code d'erreur d'une ApiRequestError ou d'une réponse axios. */
+export function errorCode(error: any): string | undefined {
+  return error instanceof ApiRequestError ? error.code : error?.response?.data?.code
+}
+
 export type ComparisonHistoryItem = {
   id: string
   offer_excerpt: string
@@ -192,7 +209,7 @@ export async function streamCoverLetter(
     onProgress: (progress: number) => void
     onSection: (section: CoverLetterSection) => void
     onLetter: (letter: CoverLetter, id: string | null) => void
-    onError: (error: string) => void
+    onError: (error: string, code?: string) => void
   },
 ) {
   try {
@@ -213,10 +230,7 @@ export async function streamCoverLetter(
       body: form,
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
-    }
+    if (!response.ok) throw await requestError(response)
 
     const reader = response.body?.getReader()
     if (!reader) {
@@ -257,13 +271,13 @@ export async function streamCoverLetter(
             handlers.onLetter(data.letter, data.id ?? null)
             break
           case 'error':
-            handlers.onError(data.message)
+            handlers.onError(data.message, data.code)
             break
         }
       }
     }
   } catch (error: any) {
-    handlers.onError(error.message || t('coverLetter.errors.generic'))
+    handlers.onError(error.message || t('coverLetter.errors.generic'), errorCode(error))
   }
 }
 
@@ -275,7 +289,7 @@ export async function streamCompare(
   onItem: (item: any) => void,
   onSummary: (summary: any) => void,
   onComplete: () => void,
-  onError: (error: string) => void
+  onError: (error: string, code?: string) => void
 ) {
   try {
     const token = getAccessToken();
@@ -294,10 +308,7 @@ export async function streamCompare(
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw await requestError(response);
 
     const reader = response.body?.getReader();
     if (!reader) {
@@ -337,7 +348,7 @@ export async function streamCompare(
                 onComplete();
                 break;
               case "error":
-                onError(data.message);
+                onError(data.message, data.code);
                 break;
             }
           } catch (e) {
@@ -347,7 +358,7 @@ export async function streamCompare(
       }
     }
   } catch (error: any) {
-    onError(error.message || t("comparison.errors.generic"));
+    onError(error.message || t("comparison.errors.generic"), errorCode(error));
   }
 }
 
@@ -359,7 +370,7 @@ export async function streamFreeCompare(
   onItem: (item: any) => void,
   onSummary: (summary: any) => void,
   onComplete: () => void,
-  onError: (error: string) => void
+  onError: (error: string, code?: string) => void
 ) {
   try {
     const response = await fetch(`${getApiBaseURL()}/free-compare-stream`, {
@@ -380,7 +391,7 @@ export async function streamFreeCompare(
       if (response.status === 429 && !errorData.detail) {
         throw new Error(t("freeTrial.errors.alreadyUsed"));
       }
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new ApiRequestError(errorData.detail || `HTTP error! status: ${response.status}`, errorData.code);
     }
 
     const reader = response.body?.getReader();
@@ -421,7 +432,7 @@ export async function streamFreeCompare(
                 onComplete();
                 break;
               case "error":
-                onError(data.message);
+                onError(data.message, data.code);
                 break;
             }
           } catch (e) {
@@ -431,7 +442,7 @@ export async function streamFreeCompare(
       }
     }
   } catch (error: any) {
-    onError(error.message || t("freeTrial.errors.generic"));
+    onError(error.message || t("freeTrial.errors.generic"), errorCode(error));
   }
 }
 
@@ -491,7 +502,7 @@ export async function generateInterviewQuestions(
   cvFile: File,
   jobText: string,
   numQuestions: number = 5
-): Promise<{ success: boolean; interview_session?: any; message: string }> {
+): Promise<{ success: boolean; interview_session?: any; message: string; code?: string }> {
   try {
     const formData = new FormData();
     formData.append('cv_file', cvFile);
@@ -509,7 +520,8 @@ export async function generateInterviewQuestions(
     console.error("Erreur lors de la génération des questions d'entretien:", error);
     return {
       success: false,
-      message: error.response?.data?.detail || error.message || t("interview.errors.generate")
+      message: error.response?.data?.detail || error.message || t("interview.errors.generate"),
+      code: errorCode(error),
     };
   }
 }
@@ -520,7 +532,7 @@ export async function analyzeInterviewResponses(
   cvText: string,
   jobText: string,
   durationSeconds: number = 0,
-): Promise<{ success: boolean; analysis?: any; interview_id?: string; message: string }> {
+): Promise<{ success: boolean; analysis?: any; interview_id?: string; message: string; code?: string }> {
   try {
     const formData = new FormData();
     formData.append('questions', JSON.stringify(questions));
@@ -540,9 +552,78 @@ export async function analyzeInterviewResponses(
     console.error("Erreur lors de l'analyse des réponses:", error);
     return {
       success: false,
-      message: error.response?.data?.detail || error.message || t("interview.errors.analyze")
+      message: error.response?.data?.detail || error.message || t("interview.errors.analyze"),
+      code: errorCode(error),
     };
   }
+}
+
+// --- Providers LLM personnels (BYOK) ------------------------------------------
+
+export type LlmProvider = {
+  id: string
+  label: string
+  kind: 'gemini' | 'anthropic' | 'openai'
+  default_model: string
+  models: string[]
+  default_base_url: string | null
+  base_url_required: boolean
+  base_url_editable: boolean
+  json_mode: boolean
+  key_console_url: string | null
+}
+
+export type LlmCredential = {
+  id: string
+  provider: string
+  provider_label: string
+  model: string
+  base_url: string | null
+  key_hint: string
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
+export type LlmCredentialListing = { items: LlmCredential[]; active_id: string | null }
+
+export async function getLlmProviders() {
+  const { data } = await api.get<{ byok_enabled: boolean; providers: LlmProvider[] }>('/profile/llm-providers')
+  return data
+}
+
+export async function listLlmCredentials() {
+  const { data } = await api.get<LlmCredentialListing>('/profile/llm-credentials')
+  return data
+}
+
+/** `api_key` vide : la clé déjà enregistrée pour ce provider est conservée. */
+export async function saveLlmCredential(payload: {
+  provider: string
+  api_key?: string
+  model: string
+  base_url?: string | null
+  activate: boolean
+  verify: boolean
+}) {
+  // Le test de la clé appelle le provider : délai plus long que le défaut
+  const { data } = await api.put<LlmCredential>('/profile/llm-credentials', payload, { timeout: 120000 })
+  return data
+}
+
+export async function activateLlmCredential(id: string) {
+  const { data } = await api.post<LlmCredentialListing>(`/profile/llm-credentials/${id}/activate`)
+  return data
+}
+
+export async function deactivateLlmCredentials() {
+  const { data } = await api.post<LlmCredentialListing>('/profile/llm-credentials/deactivate')
+  return data
+}
+
+export async function deleteLlmCredential(id: string) {
+  const { data } = await api.delete<LlmCredentialListing>(`/profile/llm-credentials/${id}`)
+  return data
 }
 
 export { api } 

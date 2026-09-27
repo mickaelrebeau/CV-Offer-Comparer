@@ -12,6 +12,7 @@ from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
+from app.services.llm_credentials_service import ai_for_user
 from app.services.upload_service import PDFExtractionError, UploadService, read_upload
 from app.services.rate_limit_service import rate_limit
 
@@ -37,6 +38,7 @@ async def generate_interview_questions(
     job_text: str = Form(...),
     num_questions: Optional[int] = Form(default=10),
     user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
     locale: str = Depends(request_locale),
 ):
     """Génère des questions d'entretien basées sur le CV et l'offre d'emploi."""
@@ -53,7 +55,7 @@ async def generate_interview_questions(
             is_pdf = cv_file.filename.lower().endswith(".pdf")
             raise ApiError(400, "upload.pdf_no_text" if is_pdf else "upload.empty_file")
 
-        interview_service = InterviewService()
+        interview_service = InterviewService(ai_for_user(db, user))
         result = await interview_service.generate_interview_questions(
             cv_text,
             job_text,
@@ -95,7 +97,7 @@ async def analyze_interview_responses(
         questions_list = json.loads(questions)
         answers_list = json.loads(answers)
 
-        interview_service = InterviewService()
+        interview_service = InterviewService(ai_for_user(db, user))
         result = await interview_service.analyze_responses(
             questions_list,
             answers_list,

@@ -23,6 +23,7 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Générateur de lettre de motivation (ton, longueur, langue ; copie et export `.txt` / `.md`)
 - Upload PDF (ou TXT pour la lettre) + saisie texte
 - Historique des comparaisons, simulations et lettres (utilisateurs connectés, Postgres)
+- **Clés API personnelles (BYOK)** : Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi ou endpoint compatible OpenAI, pour continuer quand le quota Gemini de la plateforme est épuisé
 
 ## Stack
 
@@ -32,7 +33,7 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 | Backend | FastAPI, SQLAlchemy, Redis |
 | Auth | JWT maison + Google OAuth |
 | DB | PostgreSQL |
-| IA | Google Gemini (`google-genai`) |
+| IA | Google Gemini (`google-genai`) ; BYOK : SDK `anthropic`, API OpenAI-compatible (`httpx`) |
 | Deploy | Railway (Docker) |
 
 ## Architecture
@@ -134,12 +135,22 @@ Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
 | `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
+| `PUT /api/profile/llm-credentials` | user + IP | `DAILY_QUOTA_LLM_CREDENTIALS` (50) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 analyse gratuite par client |
 
 - Par minute (fenêtre glissante Redis) : `RATE_LIMIT_USER_PER_MINUTE` (10) et `RATE_LIMIT_IP_PER_MINUTE` (30), par route.
 - `0` = illimité ; `RATE_LIMIT_ENABLED=false` désactive tout.
 - IP réelle lue dans `CLIENT_IP_HEADER` (`X-Real-IP`, posé par Railway). Derrière un autre proxy, adapter ; sans proxy, laisser vide pour utiliser l’IP de la socket.
 - Sans Redis, les compteurs sont gardés en mémoire (par instance).
+
+### Clés API personnelles (BYOK)
+
+- Un compte connecté enregistre une clé par fournisseur depuis son profil (`/profile#llm-providers`) et en active **une seule** à la fois ; sans configuration active, l’app utilise Gemini plateforme (`GOOGLE_API_KEY`). L’essai gratuit reste toujours sur la plateforme.
+- Les clés sont **chiffrées** (Fernet, `LLM_ENCRYPTION_KEYS`) et jamais renvoyées en clair. Sans `LLM_ENCRYPTION_KEYS`, la fonctionnalité est désactivée.
+- Les appels sont facturés par le fournisseur de l’utilisateur, sous sa responsabilité.
+- Erreurs normalisées (`code` des réponses / événements SSE) : `llm.platform_quota_exceeded`, `llm.platform_unavailable`, `llm.invalid_user_api_key`, `llm.user_provider_quota_exceeded`, `llm.provider_unavailable`, `llm.provider_rejected`, `llm.provider_refused`, `llm.unsupported_provider`.
+- API : `GET /api/profile/llm-providers` (catalogue), `GET`/`PUT /api/profile/llm-credentials`, `POST …/{id}/activate`, `POST …/deactivate`, `DELETE …/{id}`.
+- Configuration, rotation du secret et modèle de menace : [STARTUP](documentation/STARTUP.md) et [SECURITY.md](SECURITY.md#clés-api-personnelles-byok).
 
 ### Langues (FR / EN)
 

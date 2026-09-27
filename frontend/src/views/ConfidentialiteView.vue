@@ -4,7 +4,7 @@
     label="Privacy"
     title="Privacy policy"
     description="Data collected, purposes, processors and your rights."
-    updated-at="2026-09-27"
+    updated-at="2026-09-28"
   >
     <section>
       <h2>1. Data controller</h2>
@@ -41,6 +41,12 @@
         <li>Generated letter (subject, paragraphs, sign-off) and chosen options (tone, length, language)</li>
         <li>Generation date</li>
       </ul>
+      <h3>Personal AI API keys (signed-in accounts, optional)</h3>
+      <ul>
+        <li>Chosen provider (Gemini, OpenAI, Anthropic, DeepSeek, Qwen, Kimi or OpenAI-compatible endpoint), model and, if provided, endpoint URL</li>
+        <li>API key, stored <strong>encrypted</strong> only; a masked hint (e.g. <code>sk-••••abcd</code>) is the only part ever displayed</li>
+        <li>Active configuration and creation / update dates</li>
+      </ul>
       <h3>Email verification and password reset</h3>
       <ul>
         <li>Email address verification date</li>
@@ -72,7 +78,7 @@
     </section>
 
     <section>
-      <h2>4. Transfer to Google Gemini</h2>
+      <h2>4. Transfer to AI providers</h2>
       <p>
         To produce the analysis or the cover letter, the <strong>text of the resume and the job offer</strong> is sent
         to <strong>Google Gemini</strong> (Google AI API) for the duration of the processing. This
@@ -83,12 +89,23 @@
         Documents are <strong>not kept as files</strong> on our servers after the analysis
         session, except for the history explicitly saved for signed-in accounts.
       </p>
+      <p>
+        <strong>Personal API key (BYOK).</strong> If you activate your own key, the texts of your
+        resume and job offers are sent to <strong>the provider you chose</strong> (Google, OpenAI,
+        Anthropic, DeepSeek, Alibaba Cloud, Moonshot AI or the endpoint you entered) instead of
+        Talento’s Gemini account. That provider then processes them under the terms you accepted
+        with it, and <strong>bills the calls to you directly</strong>. Your key is used only for
+        your own account’s AI calls, can be deleted at any time from your profile (irreversible
+        deletion) and is deleted along with your account. The free trial always uses Talento’s
+        stack.
+      </p>
     </section>
 
     <section>
       <h2>5. Retention periods</h2>
       <ul>
         <li>Account: until deleted by the user or upon request</li>
+        <li>Personal API keys (encrypted): until deleted from the profile or until the account is deleted</li>
         <li>Comparison, interview simulation and cover letter history: until manually deleted (from the dashboard) or until the account is deleted</li>
         <li>Email verification and password reset tokens: valid for 48 h and 60 min respectively; deleted once used, when a new link is sent or when the account is deleted</li>
         <li>Free trial (Redis): short duration (around 24 h depending on configuration)</li>
@@ -103,6 +120,7 @@
       <ul>
         <li><strong>Railway</strong> — application hosting and databases</li>
         <li><strong>Google</strong> — Gemini (analysis) and OAuth (if you sign in with Google)</li>
+        <li><strong>The AI provider you choose</strong>, only if you activate a personal API key</li>
         <li><strong>PostHog</strong> — product analytics / errors (EU region)</li>
         <li><strong>Resend</strong> (United States) — sending transactional emails (email verification, password reset): email address and message content, when email sending is enabled</li>
       </ul>
@@ -139,7 +157,8 @@
       <h2>9. Security</h2>
       <p>
         Reasonable measures: HTTPS, hashed passwords, email links stored only as a fingerprint,
-        authenticated API access for protected routes, rate limiting. As no system is infallible, we recommend not uploading unnecessary secrets in
+        personal API keys encrypted at rest and never displayed again, authenticated API access
+        for protected routes, rate limiting. As no system is infallible, we recommend not uploading unnecessary secrets in
         your resume.
       </p>
     </section>
@@ -158,7 +177,7 @@
     label="Vie privée"
     title="Politique de confidentialité"
     description="Données collectées, finalités, sous-traitants et vos droits."
-    updated-at="2026-09-27"
+    updated-at="2026-09-28"
   >
     <section>
       <h2>1. Responsable du traitement</h2>
@@ -195,6 +214,12 @@
         <li>Lettre générée (objet, paragraphes, formule de politesse) et options choisies (ton, longueur, langue)</li>
         <li>Date de génération</li>
       </ul>
+      <h3>Clés API IA personnelles (comptes connectés, facultatif)</h3>
+      <ul>
+        <li>Fournisseur choisi (Gemini, OpenAI, Anthropic, DeepSeek, Qwen, Kimi ou endpoint compatible OpenAI), modèle et, le cas échéant, URL de l’endpoint</li>
+        <li>Clé API, conservée uniquement <strong>chiffrée</strong> ; seul un indice masqué (ex. <code>sk-••••abcd</code>) est affiché</li>
+        <li>Configuration active et dates de création / mise à jour</li>
+      </ul>
       <h3>Vérification de l’adresse e-mail et réinitialisation du mot de passe</h3>
       <ul>
         <li>Date de vérification de l’adresse e-mail</li>
@@ -226,7 +251,7 @@
     </section>
 
     <section>
-      <h2>4. Transfert vers Google Gemini</h2>
+      <h2>4. Transfert vers les fournisseurs d’IA</h2>
       <p>
         Pour produire l’analyse ou la lettre de motivation, le <strong>texte du CV et de l’offre</strong> est transmis à
         <strong>Google Gemini</strong> (API Google AI) le temps du traitement. Ce contenu n’est
@@ -237,12 +262,23 @@
         Les documents ne sont <strong>pas conservés comme fichiers</strong> sur nos serveurs après
         la session d’analyse, hors historique explicitement enregistré pour les comptes connectés.
       </p>
+      <p>
+        <strong>Clé API personnelle (BYOK).</strong> Si vous activez votre propre clé, les textes de
+        votre CV et des offres sont transmis <strong>au fournisseur que vous avez choisi</strong>
+        (Google, OpenAI, Anthropic, DeepSeek, Alibaba Cloud, Moonshot AI ou l’endpoint renseigné) au
+        lieu du compte Gemini de Talento. Ce fournisseur les traite selon les conditions que vous avez
+        acceptées auprès de lui et <strong>vous facture directement</strong> les appels. Votre clé
+        n’est utilisée que pour les appels IA de votre compte, peut être supprimée à tout moment
+        depuis votre profil (suppression irréversible) et est effacée avec votre compte. L’essai
+        gratuit utilise toujours la stack de Talento.
+      </p>
     </section>
 
     <section>
       <h2>5. Durées de conservation</h2>
       <ul>
         <li>Compte : jusqu’à suppression par l’utilisateur ou demande</li>
+        <li>Clés API personnelles (chiffrées) : jusqu’à suppression depuis le profil ou suppression du compte</li>
         <li>Historique des comparaisons, des simulations d’entretien et des lettres de motivation : jusqu’à suppression manuelle (depuis le tableau de bord) ou suppression du compte</li>
         <li>Jetons de vérification d’e-mail et de réinitialisation : valables respectivement 48 h et 60 min ; supprimés à l’utilisation, à l’envoi d’un nouveau lien ou à la suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
@@ -257,6 +293,7 @@
       <ul>
         <li><strong>Railway</strong> — hébergement applicatif et bases</li>
         <li><strong>Google</strong> — Gemini (analyse) et OAuth (si connexion Google)</li>
+        <li><strong>Le fournisseur d’IA de votre choix</strong>, uniquement si vous activez une clé API personnelle</li>
         <li><strong>PostHog</strong> — analytics produit / erreurs (région UE)</li>
         <li><strong>Resend</strong> (États-Unis) — envoi des e-mails transactionnels (vérification d’adresse, réinitialisation du mot de passe) : adresse e-mail et contenu du message, lorsque l’envoi d’e-mails est activé</li>
       </ul>
@@ -293,7 +330,8 @@
       <h2>9. Sécurité</h2>
       <p>
         Mesures raisonnables : HTTPS, mots de passe hashés, liens envoyés par e-mail conservés
-        uniquement sous forme d’empreinte, accès API authentifié pour les routes protégées,
+        uniquement sous forme d’empreinte, clés API personnelles chiffrées au repos et jamais
+        réaffichées, accès API authentifié pour les routes protégées,
         limitation de débit. Aucun système n’étant infaillible, nous vous invitons à ne pas
         téléverser de secrets inutiles dans vos CV.
       </p>

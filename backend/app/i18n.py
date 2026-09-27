@@ -147,6 +147,63 @@ MESSAGES: dict[str, dict[str, str]] = {
         "fr": "Ton, longueur ou langue de lettre invalide",
         "en": "Invalid letter tone, length or language",
     },
+    # IA : providers LLM et clés personnelles (BYOK)
+    "llm.platform_quota_exceeded": {
+        "fr": "Le quota IA de Talento est épuisé pour le moment. Ajoutez votre propre clé API "
+        "(Gemini, OpenAI, Claude, DeepSeek…) dans votre profil pour continuer, ou réessayez plus tard.",
+        "en": "Talento's AI quota is exhausted for now. Add your own API key "
+        "(Gemini, OpenAI, Claude, DeepSeek…) in your profile to continue, or try again later.",
+    },
+    "llm.platform_unavailable": {
+        "fr": "Le service IA de Talento est momentanément indisponible. Réessayez dans un instant, "
+        "ou utilisez votre propre clé API depuis votre profil.",
+        "en": "Talento's AI service is temporarily unavailable. Try again in a moment, "
+        "or use your own API key from your profile.",
+    },
+    "llm.invalid_user_api_key": {
+        "fr": "Votre clé API personnelle a été refusée par le fournisseur (clé invalide, révoquée ou sans droits).",
+        "en": "Your personal API key was rejected by the provider (invalid, revoked or missing permissions).",
+    },
+    "llm.user_provider_quota_exceeded": {
+        "fr": "Le quota ou le crédit de votre clé API personnelle est épuisé chez le fournisseur.",
+        "en": "The quota or credit of your personal API key is exhausted at the provider.",
+    },
+    "llm.provider_unavailable": {
+        "fr": "Le fournisseur IA de votre clé personnelle ne répond pas. Réessayez ou changez de fournisseur.",
+        "en": "The AI provider of your personal key is not responding. Try again or switch providers.",
+    },
+    "llm.provider_rejected": {
+        "fr": "Le fournisseur a refusé la requête : vérifiez le modèle et l'URL de votre configuration.",
+        "en": "The provider rejected the request: check the model and URL in your configuration.",
+    },
+    "llm.provider_refused": {
+        "fr": "Le modèle a refusé de traiter cette demande. Réessayez ou changez de modèle.",
+        "en": "The model declined to process this request. Try again or switch models.",
+    },
+    "llm.credential_unreadable": {
+        "fr": "Votre clé API personnelle ne peut plus être lue. Enregistrez-la à nouveau dans votre profil.",
+        "en": "Your personal API key can no longer be read. Save it again in your profile.",
+    },
+    "llm.byok_disabled": {
+        "fr": "Les clés API personnelles ne sont pas activées sur ce serveur.",
+        "en": "Personal API keys are not enabled on this server.",
+    },
+    "llm.unsupported_provider": {"fr": "Fournisseur IA non pris en charge", "en": "Unsupported AI provider"},
+    "llm.invalid_model": {"fr": "Identifiant de modèle invalide", "en": "Invalid model identifier"},
+    "llm.invalid_base_url": {
+        "fr": "URL invalide : HTTPS obligatoire, sans identifiants, vers une adresse publique.",
+        "en": "Invalid URL: HTTPS is required, without credentials, pointing to a public address.",
+    },
+    "llm.base_url_required": {
+        "fr": "L'URL de base est obligatoire pour un endpoint compatible OpenAI.",
+        "en": "The base URL is required for an OpenAI-compatible endpoint.",
+    },
+    "llm.api_key_required": {"fr": "Veuillez saisir votre clé API", "en": "Please enter your API key"},
+    "llm.invalid_api_key_format": {
+        "fr": "Format de clé API invalide (espaces ou longueur excessive)",
+        "en": "Invalid API key format (whitespace or excessive length)",
+    },
+    "llm.credential_not_found": {"fr": "Configuration IA introuvable", "en": "AI configuration not found"},
     # Limites
     "rate.too_many": {
         "fr": "Trop de requêtes. Réessayez dans un instant.",

@@ -14,8 +14,12 @@ psycopg[binary]>=3.2.0
 email-validator>=2.1.0
 bcrypt>=4.0.0
 
-# AI — Gemini uniquement (plus de modèles locaux)
+# AI — Gemini (plateforme) + providers BYOK (Anthropic via SDK, OpenAI-compatibles via httpx)
 google-genai>=1.0.0
+anthropic>=1.8.0,<2
+
+# Chiffrement des clés API utilisateur (Fernet)
+cryptography>=42.0.0
 
 # Validation and HTTP
 httpx>=0.25.0

@@ -1,60 +1,29 @@
-"""Service IA 100 % Gemini — un appel structuré par cas d'usage."""
+"""Service IA — un appel structuré par cas d'usage, quel que soit le provider LLM.
+
+Par défaut : stack plateforme (Gemini + GOOGLE_API_KEY). Un utilisateur BYOK obtient une
+instance branchée sur son provider actif (voir `llm_credentials_service.ai_for_user`).
+"""
 
 from __future__ import annotations
 
-import json
 import re
 import uuid
 from typing import Any
 
-from google import genai
-from google.genai import types
-
-from app.config import settings
+from app.services.llm.clients import LLMClient, parse_json, platform_client
+from app.services.llm.errors import LLMError
 
 
 class AIService:
-    def __init__(self) -> None:
-        self.model_name = settings.GEMINI_MODEL
-        try:
-            self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
-            print(f"Client Gemini prêt ({self.model_name})")
-        except Exception as exc:
-            print(f"Erreur init Gemini: {exc}")
-            self.client = None
+    def __init__(self, llm: LLMClient | None = None) -> None:
+        self.llm = llm or platform_client()
 
     def _generate_json(self, prompt: str, *, temperature: float = 0.2) -> Any:
-        if not self.client:
-            raise RuntimeError("Client Gemini non initialisé")
-
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=temperature,
-                response_mime_type="application/json",
-            ),
-        )
-        text = (response.text or "").strip()
-        if not text:
-            raise RuntimeError("Réponse Gemini vide")
-        return self._parse_json(text)
+        return self.llm.generate_json(prompt, temperature=temperature)
 
     @staticmethod
     def _parse_json(text: str) -> Any:
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            # Fallback si le modèle enveloppe le JSON
-            start_obj, end_obj = text.find("{"), text.rfind("}")
-            start_arr, end_arr = text.find("["), text.rfind("]")
-            if start_obj != -1 and end_obj > start_obj and (
-                start_arr == -1 or start_obj < start_arr
-            ):
-                return json.loads(text[start_obj : end_obj + 1])
-            if start_arr != -1 and end_arr > start_arr:
-                return json.loads(text[start_arr : end_arr + 1])
-            raise
+        return parse_json(text)
 
     @staticmethod
     def _clip(text: str, max_chars: int = 12000) -> str:
@@ -244,6 +213,8 @@ Questions variées, spécifiques au profil et au poste. JSON uniquement."""
                 )
             if cleaned:
                 return cleaned[:num_questions]
+        except LLMError:
+            raise
         except Exception as exc:
             print(f"Erreur génération questions: {exc}")
 
@@ -288,6 +259,8 @@ JSON uniquement:
             analysis = self._generate_json(prompt, temperature=0.3)
             if isinstance(analysis, dict):
                 return {"success": True, "analysis": analysis}
+        except LLMError:
+            raise
         except Exception as exc:
             print(f"Erreur analyse entretien: {exc}")
 

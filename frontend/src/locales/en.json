@@ -509,6 +509,64 @@
     "deleteFailed": "Something went wrong while deleting your account.",
     "app": "App"
   },
+  "llmProviders": {
+    "title": "AI providers & API keys",
+    "description": "By default, Talento uses its own AI stack (Google Gemini). Plug in your API key to keep going when it is saturated, or to pick your model. Calls are then billed by your provider.",
+    "loading": "Loading providers…",
+    "disabled": "Personal API keys are not enabled on this server.",
+    "current": "Used for your analyses",
+    "currentPlatform": "Talento (Google Gemini, platform stack)",
+    "currentUser": "{provider} · {model} (your key)",
+    "usePlatform": "Back to Talento",
+    "savedList": "Saved keys",
+    "active": "Active",
+    "activate": "Activate",
+    "activateAria": "Activate {provider}",
+    "edit": "Edit",
+    "editAria": "Edit the {provider} configuration",
+    "remove": "Delete",
+    "removeAria": "Delete the {provider} key",
+    "removeConfirm": "Permanently delete the {provider} key?",
+    "savedActive": "{provider} key saved and active.",
+    "savedInactive": "{provider} key saved.",
+    "form": {
+      "addTitle": "Add a key",
+      "editTitle": "Edit {provider}",
+      "provider": "Provider",
+      "compatible": "Other OpenAI-compatible endpoint",
+      "getKey": "Get a {provider} key",
+      "newTab": "(new tab)",
+      "compatibleHint": "Any service exposing OpenAI's chat completions API (OpenRouter, Groq, Mistral, Together…): enter its base URL and a model.",
+      "apiKey": "API key",
+      "keepKey": "Leave empty to keep the key {hint}",
+      "model": "Model",
+      "customUrl": "Use a custom URL (proxy)",
+      "baseUrl": "Base URL",
+      "baseUrlHint": "HTTPS required, public addresses only.",
+      "verify": "Test the key before saving (a short call to the provider)",
+      "activate": "Use this key for my analyses",
+      "save": "Save",
+      "verifying": "Testing the key…"
+    },
+    "securityNote": "Your key is encrypted on our servers, never displayed again and only used for your account's AI calls. Costs are billed by your provider. You can delete it at any time; it is also deleted with your account.",
+    "errors": {
+      "load": "Could not load your providers",
+      "save": "Could not save",
+      "action": "Action failed, please try again"
+    }
+  },
+  "llmNotice": {
+    "platformHint": "Plug in your own API key (Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi…) to keep going right away.",
+    "anonymousHint": "Try again in a few minutes, or sign in: an account can use its own API key.",
+    "addKey": "Add my API key",
+    "signIn": "Sign in",
+    "switchHint": "Switch to another configuration, then try again:",
+    "useProvider": "Use {provider}",
+    "usePlatform": "Use Talento (platform)",
+    "manage": "Manage my keys",
+    "switched": "{provider} is now active. Run the generation again.",
+    "switchedPlatform": "Talento's AI stack is active again. Run the generation again."
+  },
   "ui": {
     "close": "Close",
     "showPassword": "Show password",
@@ -691,6 +749,7 @@
         "Interview simulator with feedback",
         "Targeted cover letter",
         "PDF import and automatic extraction",
+        "Your own API key (Gemini, OpenAI, Claude…)",
         "Open source, self-hostable"
       ],
       "register": "Create my account",
@@ -725,6 +784,11 @@
           "id": "Q.008",
           "question": "Does Talento also write the cover letter?",
           "answer": "Yes, for signed-in accounts. The cover letter module writes a targeted letter (hook, body, closing) from your resume and the job offer, in the tone, length and language you choose. It relies only on your resume: review it before sending. Copy or export it as .txt / .md, and find it again in your dashboard history."
+        },
+        {
+          "id": "Q.009",
+          "question": "What if Talento's AI quota runs out?",
+          "answer": "Connect your own API key from your profile: Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi or any OpenAI-compatible endpoint. Your analyses then go through your provider, which bills you directly. The key is encrypted, never displayed again, and you can switch back to Talento at any time."
         },
         {
           "id": "Q.004",

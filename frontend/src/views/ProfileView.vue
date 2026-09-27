@@ -31,6 +31,8 @@
         </div>
       </div>
 
+      <LlmProvidersSection />
+
       <div class="panel p-6 space-y-4">
         <h2 class="border-b border-ink/10 pb-3 font-mono text-caption uppercase">{{ t('profile.actions') }}</h2>
         <div class="flex flex-col gap-3 pt-2 sm:flex-row">
@@ -68,6 +70,7 @@ import { storeToRefs } from 'pinia'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import InstallAppButton from '@/components/InstallAppButton.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import LlmProvidersSection from '@/components/LlmProvidersSection.vue'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { Notification } from '@/components/ui/notification'
