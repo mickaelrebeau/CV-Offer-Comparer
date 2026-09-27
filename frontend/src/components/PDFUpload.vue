@@ -9,7 +9,7 @@
       @keydown.space.prevent="isIdle && triggerFileInput()"
       :role="isIdle ? 'button' : undefined"
       :tabindex="isIdle ? 0 : undefined"
-      :aria-label="isIdle ? t('upload.dropAria') : undefined"
+      :aria-label="isIdle ? t(allowTxt ? 'upload.dropAriaTxt' : 'upload.dropAria') : undefined"
       class="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/60"
       :class="{
         'border-ink/40 bg-ink/5': isDragOver,
@@ -21,7 +21,7 @@
       <input
         ref="fileInput"
         type="file"
-        accept=".pdf"
+        :accept="allowTxt ? '.pdf,.txt,text/plain' : '.pdf'"
         @change="handleFileSelect"
         class="hidden"
         tabindex="-1"
@@ -33,7 +33,7 @@
           <Upload class="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
-          <p class="text-sm font-medium text-ink">{{ t('upload.dropTitle') }}</p>
+          <p class="text-sm font-medium text-ink">{{ t(allowTxt ? 'upload.dropTitleTxt' : 'upload.dropTitle') }}</p>
           <p class="mt-1 font-mono text-micro uppercase text-ink-soft">{{ t('upload.dropHint') }}</p>
         </div>
       </div>
@@ -104,6 +104,8 @@ import posthog from 'posthog-js'
 
 interface Props {
   modelValue?: string
+  /** Accepte aussi un CV .txt, lu directement dans le navigateur */
+  allowTxt?: boolean
 }
 
 interface Emits {
@@ -164,8 +166,10 @@ const handleFileSelect = (e: Event) => {
 }
 
 const handleFile = async (file: File) => {
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
-    uploadError.value = t('upload.onlyPdf')
+  const name = file.name.toLowerCase()
+  const isTxt = props.allowTxt && name.endsWith('.txt')
+  if (!name.endsWith('.pdf') && !isTxt) {
+    uploadError.value = t(props.allowTxt ? 'upload.onlyPdfTxt' : 'upload.onlyPdf')
     return
   }
 
@@ -177,6 +181,11 @@ const handleFile = async (file: File) => {
   uploadError.value = null
   uploading.value = true
   uploadedFile.value = file
+
+  if (isTxt) {
+    await handleTextFile(file)
+    return
+  }
 
   try {
     const formData = new FormData()
@@ -199,6 +208,29 @@ const handleFile = async (file: File) => {
     }
   } catch (error: any) {
     uploadError.value = error.response?.data?.detail || t('upload.extractError')
+    uploadedFile.value = null
+  } finally {
+    uploading.value = false
+  }
+}
+
+const handleTextFile = async (file: File) => {
+  try {
+    // UTF-8, sinon Windows-1252 (fichiers texte exportés sous Windows), comme côté backend
+    const bytes = await file.arrayBuffer()
+    let text: string
+    try {
+      text = new TextDecoder('utf-8', { fatal: true }).decode(bytes).trim()
+    } catch {
+      text = new TextDecoder('windows-1252').decode(bytes).trim()
+    }
+    if (!text) throw new Error(t('upload.emptyTxt'))
+    extractedText.value = text
+    emit('update:modelValue', text)
+    posthog.capture('cv_uploaded', { upload_source: 'txt' })
+    showPreview.value = true
+  } catch (error: any) {
+    uploadError.value = error.message || t('upload.extractError')
     uploadedFile.value = null
   } finally {
     uploading.value = false

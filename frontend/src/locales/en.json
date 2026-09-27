@@ -31,6 +31,7 @@
     "dashboard": "Dashboard",
     "compare": "Comparison",
     "simulator": "Simulator",
+    "coverLetter": "Letter",
     "profile": "Profile",
     "login": "Sign in",
     "getStarted": "Get started",
@@ -66,6 +67,10 @@
     "interviewResults": {
       "title": "Simulation results",
       "description": "Assessment of your interview answers and ways to improve."
+    },
+    "coverLetter": {
+      "title": "Cover letter",
+      "description": "Generate a targeted cover letter from your resume and the job offer."
     },
     "freeTrial": {
       "title": "Free trial",
@@ -227,7 +232,11 @@
       "extracting": "Extracting the PDF",
       "error": "Extraction error: {message}",
       "success": "Resume extracted successfully: {name}"
-    }
+    },
+    "dropAriaTxt": "Upload your resume as a PDF or TXT file (10 MB max)",
+    "dropTitleTxt": "Drop your resume (PDF or TXT) here",
+    "onlyPdfTxt": "Only PDF and TXT files are accepted",
+    "emptyTxt": "The text file is empty"
   },
   "cvInput": {
     "offerHeader": "01 · Job offer",
@@ -319,6 +328,17 @@
           "Answer assessment"
         ],
         "cta": "Start the simulation"
+      },
+      "coverLetter": {
+        "id": "Module 03",
+        "title": "Cover letter",
+        "description": "Write a targeted letter from your resume and the job offer, ready to review and send.",
+        "features": [
+          "Hook, body and closing",
+          "Choose the tone and length",
+          "Copy and export .txt / .md"
+        ],
+        "cta": "Write a letter"
       }
     },
     "history": "History",
@@ -342,6 +362,16 @@
       "view": "View the simulation from {date}",
       "delete": "Delete the simulation from {date}",
       "loadError": "Could not load the simulations"
+    },
+    "coverLetters": {
+      "title": "Recent cover letters",
+      "loading": "Loading letters…",
+      "empty": "No letter saved yet. Generate one from the cover letter module — it will show up here.",
+      "cta": "Write a letter",
+      "words": "{count} words",
+      "view": "View the letter from {date}",
+      "delete": "Delete the letter from {date}",
+      "loadError": "Could not load the letters"
     },
     "view": "View",
     "delete": "Delete",
@@ -410,6 +440,54 @@
     },
     "noSession": "No recent session found.",
     "loadError": "Error while loading"
+  },
+  "coverLetter": {
+    "label": "Cover letter",
+    "title": "A letter that answers the offer",
+    "description": "A hook, evidence drawn from your resume and a closing: a targeted letter to review and personalize before sending it.",
+    "historyLoading": "Loading the letter…",
+    "offerPlaceholder": "Paste the job offer here...",
+    "cvPlaceholder": "Paste your resume text here...",
+    "cvFile": "File",
+    "options": {
+      "header": "03 · Letter style",
+      "tone": "Tone",
+      "length": "Length",
+      "language": "Language"
+    },
+    "tones": {
+      "professional": "Professional",
+      "warm": "Warm",
+      "confident": "Confident",
+      "formal": "Formal"
+    },
+    "lengths": {
+      "short": "Concise",
+      "standard": "Standard",
+      "detailed": "Detailed"
+    },
+    "languages": {
+      "auto": "Same as the offer",
+      "fr": "French",
+      "en": "English"
+    },
+    "progressAria": "Writing progress",
+    "run": "Generate the letter",
+    "regenerate": "Generate another version",
+    "result": "Your letter",
+    "copied": "Letter copied",
+    "downloadAria": "Download the letter as .{format}",
+    "reviewHint": "Review and adjust the letter before sending it: check every fact it mentions.",
+    "filename": "cover-letter",
+    "statusStart": "Preparing the letter...",
+    "statusDone": "Letter ready",
+    "historyLoaded": "Letter loaded from history",
+    "errors": {
+      "generic": "Error while generating the letter",
+      "missingInput": "Please fill in the job offer and your resume",
+      "loadHistory": "Could not load this letter",
+      "copy": "Copy failed: select the text manually"
+    }
   },
   "profile": {
     "label": "Account",
@@ -611,6 +689,7 @@
         "Full analysis, streamed live",
         "Ranked gaps and rewrites",
         "Interview simulator with feedback",
+        "Targeted cover letter",
         "PDF import and automatic extraction",
         "Open source, self-hostable"
       ],
@@ -635,12 +714,17 @@
         {
           "id": "Q.003",
           "question": "Are my documents stored?",
-          "answer": "The resume and the offer are sent to Google Gemini for the analysis, then processed in memory on the server. For signed-in accounts, the analysis history can be saved. Only your account (and that history) is stored long-term; you can delete everything from your profile. Details: Privacy page."
+          "answer": "The resume and the offer are sent to Google Gemini for the analysis, then processed in memory on the server. For signed-in accounts, the history (analyses, interview simulations, cover letters) can be saved. Only your account (and that history) is stored long-term; you can delete everything from your profile. Details: Privacy page."
         },
         {
           "id": "Q.007",
           "question": "Do you use analytics tools?",
           "answer": "Yes. PostHog (EU region) measures product usage and errors. Once you sign in, your account can be linked to events. See the privacy policy."
+        },
+        {
+          "id": "Q.008",
+          "question": "Does Talento also write the cover letter?",
+          "answer": "Yes, for signed-in accounts. The cover letter module writes a targeted letter (hook, body, closing) from your resume and the job offer, in the tone, length and language you choose. It relies only on your resume: review it before sending. Copy or export it as .txt / .md, and find it again in your dashboard history."
         },
         {
           "id": "Q.004",

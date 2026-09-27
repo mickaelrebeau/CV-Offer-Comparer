@@ -187,6 +187,7 @@ const appLinks = [
   { path: '/dashboard', label: 'nav.dashboard' },
   { path: '/compare', label: 'nav.compare' },
   { path: '/interview-simulator', label: 'nav.simulator' },
+  { path: '/cover-letter', label: 'nav.coverLetter' },
 ]
 
 const handleSignOut = async () => {

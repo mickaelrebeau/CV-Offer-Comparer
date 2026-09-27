@@ -4,7 +4,7 @@
     label="Privacy"
     title="Privacy policy"
     description="Data collected, purposes, processors and your rights."
-    updated-at="2026-09-26"
+    updated-at="2026-09-27"
   >
     <section>
       <h2>1. Data controller</h2>
@@ -35,6 +35,12 @@
         <li>Questions, answers and JSON analysis (score, strengths, suggestions)</li>
         <li>Session duration and date</li>
       </ul>
+      <h3>Cover letter history (signed-in accounts)</h3>
+      <ul>
+        <li>Excerpts and texts of the job offer / resume used to write the letter (the imported file itself is never stored)</li>
+        <li>Generated letter (subject, paragraphs, sign-off) and chosen options (tone, length, language)</li>
+        <li>Generation date</li>
+      </ul>
       <h3>Email verification and password reset</h3>
       <ul>
         <li>Email address verification date</li>
@@ -56,7 +62,7 @@
     <section>
       <h2>3. Purposes</h2>
       <ul>
-        <li>Provide the analysis service and the interview simulator</li>
+        <li>Provide the analysis service, the interview simulator and the cover letter generator</li>
         <li>Authenticate users and keep the requested history</li>
         <li>Verify email addresses and allow password resets</li>
         <li>Prevent abuse (free trial, rate limiting, security)</li>
@@ -68,7 +74,7 @@
     <section>
       <h2>4. Transfer to Google Gemini</h2>
       <p>
-        To produce the analysis, the <strong>text of the resume and the job offer</strong> is sent
+        To produce the analysis or the cover letter, the <strong>text of the resume and the job offer</strong> is sent
         to <strong>Google Gemini</strong> (Google AI API) for the duration of the processing. This
         content is not meant to build a public profile; it is necessary for the service to work.
         Please also review Google’s terms for the use of the API.
@@ -83,7 +89,7 @@
       <h2>5. Retention periods</h2>
       <ul>
         <li>Account: until deleted by the user or upon request</li>
-        <li>Comparison and interview simulation history: until manually deleted or until the account is deleted</li>
+        <li>Comparison, interview simulation and cover letter history: until manually deleted (from the dashboard) or until the account is deleted</li>
         <li>Email verification and password reset tokens: valid for 48 h and 60 min respectively; deleted once used, when a new link is sent or when the account is deleted</li>
         <li>Free trial (Redis): short duration (around 24 h depending on configuration)</li>
         <li>Rate-limiting counters (Redis): one minute, or until midnight UTC for daily quotas</li>
@@ -152,7 +158,7 @@
     label="Vie privée"
     title="Politique de confidentialité"
     description="Données collectées, finalités, sous-traitants et vos droits."
-    updated-at="2026-09-26"
+    updated-at="2026-09-27"
   >
     <section>
       <h2>1. Responsable du traitement</h2>
@@ -183,6 +189,12 @@
         <li>Questions, réponses et analyse JSON (score, points forts, suggestions)</li>
         <li>Durée de la session et date</li>
       </ul>
+      <h3>Historique des lettres de motivation (comptes connectés)</h3>
+      <ul>
+        <li>Extraits et textes d’offre / CV ayant servi à rédiger la lettre (le fichier importé n’est jamais conservé)</li>
+        <li>Lettre générée (objet, paragraphes, formule de politesse) et options choisies (ton, longueur, langue)</li>
+        <li>Date de génération</li>
+      </ul>
       <h3>Vérification de l’adresse e-mail et réinitialisation du mot de passe</h3>
       <ul>
         <li>Date de vérification de l’adresse e-mail</li>
@@ -204,7 +216,7 @@
     <section>
       <h2>3. Finalités</h2>
       <ul>
-        <li>Fournir le service d’analyse et le simulateur d’entretien</li>
+        <li>Fournir le service d’analyse, le simulateur d’entretien et le générateur de lettre de motivation</li>
         <li>Authentifier les utilisateurs et conserver l’historique demandé</li>
         <li>Vérifier les adresses e-mail et permettre la réinitialisation du mot de passe</li>
         <li>Limiter les abus (essai gratuit, limitation de débit, sécurité)</li>
@@ -216,7 +228,7 @@
     <section>
       <h2>4. Transfert vers Google Gemini</h2>
       <p>
-        Pour produire l’analyse, le <strong>texte du CV et de l’offre</strong> est transmis à
+        Pour produire l’analyse ou la lettre de motivation, le <strong>texte du CV et de l’offre</strong> est transmis à
         <strong>Google Gemini</strong> (API Google AI) le temps du traitement. Ce contenu n’est
         pas destiné à constituer un profil public ; il est nécessaire au fonctionnement du
         service. Consultez également les conditions Google relatives à l’usage de l’API.
@@ -231,7 +243,7 @@
       <h2>5. Durées de conservation</h2>
       <ul>
         <li>Compte : jusqu’à suppression par l’utilisateur ou demande</li>
-        <li>Historique des comparaisons et des simulations d’entretien : jusqu’à suppression manuelle ou suppression du compte</li>
+        <li>Historique des comparaisons, des simulations d’entretien et des lettres de motivation : jusqu’à suppression manuelle (depuis le tableau de bord) ou suppression du compte</li>
         <li>Jetons de vérification d’e-mail et de réinitialisation : valables respectivement 48 h et 60 min ; supprimés à l’utilisation, à l’envoi d’un nouveau lien ou à la suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
         <li>Compteurs de limitation de débit (Redis) : une minute, ou jusqu’à minuit UTC pour les quotas journaliers</li>

@@ -31,6 +31,7 @@
     "dashboard": "Tableau de bord",
     "compare": "Comparateur",
     "simulator": "Simulateur",
+    "coverLetter": "Lettre",
     "profile": "Profil",
     "login": "Connexion",
     "getStarted": "Commencer",
@@ -66,6 +67,10 @@
     "interviewResults": {
       "title": "Résultats de la simulation",
       "description": "Évaluation de vos réponses d’entretien et pistes d’amélioration."
+    },
+    "coverLetter": {
+      "title": "Lettre de motivation",
+      "description": "Générez une lettre de motivation ciblée à partir de votre CV et de l’offre d’emploi."
     },
     "freeTrial": {
       "title": "Essai gratuit",
@@ -227,7 +232,11 @@
       "extracting": "Extraction du PDF en cours",
       "error": "Erreur lors de l'extraction : {message}",
       "success": "CV extrait avec succès : {name}"
-    }
+    },
+    "dropAriaTxt": "Importer votre CV au format PDF ou TXT (10 Mo maximum)",
+    "dropTitleTxt": "Glissez votre CV (PDF ou TXT) ici",
+    "onlyPdfTxt": "Seuls les fichiers PDF et TXT sont acceptés",
+    "emptyTxt": "Le fichier texte est vide"
   },
   "cvInput": {
     "offerHeader": "01 · Offre d'emploi",
@@ -319,6 +328,17 @@
           "Évaluation des réponses"
         ],
         "cta": "Démarrer la simulation"
+      },
+      "coverLetter": {
+        "id": "Module 03",
+        "title": "Lettre de motivation",
+        "description": "Rédigez une lettre ciblée à partir de votre CV et de l'offre, prête à relire et à envoyer.",
+        "features": [
+          "Accroche, corps et conclusion",
+          "Ton et longueur au choix",
+          "Copie et export .txt / .md"
+        ],
+        "cta": "Rédiger une lettre"
       }
     },
     "history": "Historique",
@@ -342,6 +362,16 @@
       "view": "Voir la simulation du {date}",
       "delete": "Supprimer la simulation du {date}",
       "loadError": "Impossible de charger les simulations"
+    },
+    "coverLetters": {
+      "title": "Lettres de motivation récentes",
+      "loading": "Chargement des lettres…",
+      "empty": "Aucune lettre enregistrée pour le moment. Générez-en une depuis le module lettre de motivation — elle apparaîtra ici.",
+      "cta": "Rédiger une lettre",
+      "words": "{count} mots",
+      "view": "Voir la lettre du {date}",
+      "delete": "Supprimer la lettre du {date}",
+      "loadError": "Impossible de charger les lettres"
     },
     "view": "Voir",
     "delete": "Supprimer",
@@ -410,6 +440,54 @@
     },
     "noSession": "Aucune session récente trouvée.",
     "loadError": "Erreur lors du chargement"
+  },
+  "coverLetter": {
+    "label": "Lettre de motivation",
+    "title": "Une lettre qui répond à l’offre",
+    "description": "Accroche, preuves tirées de votre CV et conclusion : une lettre ciblée, à relire et personnaliser avant l'envoi.",
+    "historyLoading": "Chargement de la lettre…",
+    "offerPlaceholder": "Collez l'offre d'emploi ici...",
+    "cvPlaceholder": "Collez le texte de votre CV ici...",
+    "cvFile": "Fichier",
+    "options": {
+      "header": "03 · Style de la lettre",
+      "tone": "Ton",
+      "length": "Longueur",
+      "language": "Langue"
+    },
+    "tones": {
+      "professional": "Professionnel",
+      "warm": "Chaleureux",
+      "confident": "Affirmé",
+      "formal": "Formel"
+    },
+    "lengths": {
+      "short": "Concise",
+      "standard": "Standard",
+      "detailed": "Détaillée"
+    },
+    "languages": {
+      "auto": "Comme l'offre",
+      "fr": "Français",
+      "en": "Anglais"
+    },
+    "progressAria": "Progression de la rédaction",
+    "run": "Générer la lettre",
+    "regenerate": "Générer une autre version",
+    "result": "Votre lettre",
+    "copied": "Lettre copiée",
+    "downloadAria": "Télécharger la lettre au format .{format}",
+    "reviewHint": "Relisez et ajustez la lettre avant de l'envoyer : vérifiez chaque fait cité.",
+    "filename": "lettre-de-motivation",
+    "statusStart": "Préparation de la lettre...",
+    "statusDone": "Lettre prête",
+    "historyLoaded": "Lettre chargée depuis l’historique",
+    "errors": {
+      "generic": "Erreur lors de la génération de la lettre",
+      "missingInput": "Veuillez renseigner l'offre d'emploi et votre CV",
+      "loadHistory": "Impossible de charger cette lettre",
+      "copy": "Copie impossible : sélectionnez le texte manuellement"
+    }
   },
   "profile": {
     "label": "Compte",
@@ -611,6 +689,7 @@
         "Analyse complète en flux continu",
         "Écarts classés et reformulations",
         "Simulateur d'entretien et retours",
+        "Lettre de motivation ciblée",
         "Import PDF et extraction automatique",
         "Code source ouvert, auto-hébergeable"
       ],
@@ -635,12 +714,17 @@
         {
           "id": "Q.003",
           "question": "Mes documents sont-ils conservés ?",
-          "answer": "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique des analyses peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité."
+          "answer": "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique (analyses, simulations d'entretien, lettres de motivation) peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité."
         },
         {
           "id": "Q.007",
           "question": "Utilisez-vous des outils d’analytics ?",
           "answer": "Oui. PostHog (région UE) mesure l'usage produit et les erreurs. Après connexion, votre compte peut être associé aux événements. Voir la politique de confidentialité."
+        },
+        {
+          "id": "Q.008",
+          "question": "Talento rédige-t-il aussi la lettre de motivation ?",
+          "answer": "Oui, pour les comptes connectés. Le module lettre de motivation rédige une lettre ciblée (accroche, corps, conclusion) à partir de votre CV et de l'offre, avec le ton, la longueur et la langue de votre choix. Elle s'appuie uniquement sur votre CV : relisez-la avant l'envoi. Copie ou export .txt / .md, et historique dans votre tableau de bord."
         },
         {
           "id": "Q.004",

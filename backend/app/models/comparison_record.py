@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from app.db import Base
 
@@ -45,7 +45,8 @@ class ComparisonRecord(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    user = relationship("User", backref="comparisons")
+    # Suppression du compte : la base supprime l'historique (ON DELETE CASCADE)
+    user = relationship("User", backref=backref("comparisons", cascade="all, delete-orphan", passive_deletes=True))
 
     @classmethod
     def from_analysis(

@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Talento — analyse ATS CV ↔ offre",
   "short_name": "Talento",
-  "description": "Comparez votre CV à une offre d’emploi, corrigez les écarts ATS et préparez vos entretiens.",
+  "description": "Comparez votre CV à une offre d’emploi, corrigez les écarts ATS, rédigez votre lettre de motivation et préparez vos entretiens.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "/dashboard?source=pwa",
@@ -30,6 +30,12 @@
       "name": "Simulateur d’entretien",
       "short_name": "Entretien",
       "url": "/interview-simulator?source=pwa",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Lettre de motivation",
+      "short_name": "Lettre",
+      "url": "/cover-letter?source=pwa",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]

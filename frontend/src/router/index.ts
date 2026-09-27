@@ -51,6 +51,12 @@ const baseRoutes: BaseRoute[] = [
     meta: { requiresAuth: true, seo: 'interviewResults' },
   },
   {
+    path: '/cover-letter',
+    name: 'cover-letter',
+    component: () => import('@/views/CoverLetterView.vue'),
+    meta: { requiresAuth: true, seo: 'coverLetter' },
+  },
+  {
     path: '/free-trial',
     name: 'free-trial',
     component: () => import('@/views/FreeTrialView.vue'),

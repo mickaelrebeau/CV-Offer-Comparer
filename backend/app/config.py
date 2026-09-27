@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     DAILY_QUOTA_COMPARE: int = 50
     DAILY_QUOTA_INTERVIEW_GENERATE: int = 30
     DAILY_QUOTA_INTERVIEW_ANALYZE: int = 30
+    DAILY_QUOTA_COVER_LETTER: int = 30
     DAILY_QUOTA_UPLOAD: int = 100
     # Header contenant l'IP réelle du client derrière le proxy (Railway : X-Real-IP). Vide = IP de la socket
     CLIENT_IP_HEADER: str = "X-Real-IP"
