@@ -1,6 +1,7 @@
 <template>
   <div class="h-full w-full overflow-hidden bg-ink">
     <video
+      :key="basePath"
       ref="videoEl"
       class="h-full w-full object-cover"
       muted
@@ -20,9 +21,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useLocale } from '@/i18n/useLocale'
 
 const props = defineProps<{
-  variant: 'analyse' | 'entretien'
+  variant: 'analyse' | 'entretien' | 'lettre'
   label: string
   inView?: boolean
 }>()
@@ -30,10 +32,13 @@ const props = defineProps<{
 const videoEl = ref<HTMLVideoElement | null>(null)
 const prefersReducedMotion = ref(false)
 
-const basePath = computed(() => `/videos/${props.variant}`)
+const { locale } = useLocale()
+
+// Une vidéo par langue d'interface : /videos/<démo>.mp4 (fr) et /videos/<démo>-en.mp4
+const basePath = computed(() => `/videos/${props.variant}${locale.value === 'en' ? '-en' : ''}`)
 const webmSrc = computed(() => `${basePath.value}.webm`)
 const mp4Src = computed(() => `${basePath.value}.mp4`)
-const posterSrc = computed(() => `/videos/${props.variant}-poster.webp`)
+const posterSrc = computed(() => `${basePath.value}-poster.webp`)
 
 const shouldPlay = computed(
   () => props.inView !== false && !prefersReducedMotion.value,

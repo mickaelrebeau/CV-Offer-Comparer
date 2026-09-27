@@ -1,0 +1,11 @@
+# Rendus et contrôles locaux (les vidéos publiées vivent dans frontend/public/videos)
+renders/
+snapshots/
+.hyperframes/
+.media/
+.index.qa.bak
+node_modules/
+# Captures de l'app locale ayant servi de référence d'UI (régénérables)
+capture/
+# Cache de vignettes du Studio
+.thumbnails/

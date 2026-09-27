@@ -1,0 +1,203 @@
+/* Démos Talento — styles partagés. Tokens et cotes repris de frontend/tailwind.config.js
+   et des composants de l'app (valeurs en px de l'app ; la caméra fait le zoom vidéo). */
+
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-600-normal.woff2") format("woff2"); font-weight: 600; }
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Geist Mono"; src: url("fonts/geist-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Geist Mono"; src: url("fonts/geist-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; }
+
+:root {
+  --paper: #f1eee7;
+  --paper-dim: #e6e2d8;
+  --paper-line: #d5d0c4;
+  --ink: #232323;
+  --ink-deep: #141414;
+  --ink-soft: #5e5c57;
+  --ok: #10b981;
+  --mid: #f59e0b;
+  --ko: #f43f5e;
+  --ok-text: #065f46;
+  --mid-text: #92400e;
+  --ko-text: #be123c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: "Geist", sans-serif; -webkit-font-smoothing: antialiased; }
+.mono { font-family: "Geist Mono", monospace; }
+.up { text-transform: uppercase; }
+
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
+
+/* ---------- Scène (plateau papier) ---------- */
+.stage { position: absolute; inset: 0; overflow: hidden; }
+.stage-grid {
+  position: absolute; left: -96px; top: -96px; width: 2112px; height: 1272px;
+  background-image:
+    linear-gradient(rgba(213, 208, 196, 0.75) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(213, 208, 196, 0.75) 2px, transparent 2px);
+  background-size: 96px 96px;
+}
+.stage-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(241, 238, 231, 0) 35%, rgba(241, 238, 231, 0.92) 100%);
+}
+.stage-ghost {
+  position: absolute; right: -40px; bottom: -250px;
+  font-weight: 700; font-size: 860px; line-height: 1; letter-spacing: -0.06em;
+  color: rgba(35, 35, 35, 0.12);
+}
+
+/* ---------- Accroche ---------- */
+.hook {
+  position: absolute; left: 140px; right: 140px; top: 50%;
+  font-weight: 600; font-size: 112px; line-height: 1.1; letter-spacing: -0.03em;
+  transform: translateY(-55%);
+}
+.hook .w { display: inline-block; opacity: 0; margin-right: 0.24em; will-change: transform; }
+
+/* ---------- Caméra ---------- */
+.cam-outer { position: absolute; inset: 0; transform-origin: 960px 540px; will-change: transform, filter; }
+.cam-inner { position: absolute; inset: 0; will-change: transform; }
+.world { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.win3d { position: absolute; left: 330px; top: 70px; width: 1260px; transform-origin: 50% 30%; }
+
+/* ---------- Fenêtre d'app ---------- */
+.win {
+  width: 1260px; background: var(--paper); border: 3px solid var(--ink); border-radius: 18px; overflow: hidden;
+  box-shadow: 26px 30px 0 rgba(35, 35, 35, 0.14);
+}
+.app-nav {
+  height: 56px; border-bottom: 1px solid rgba(35, 35, 35, 0.1); display: flex; align-items: center;
+  padding: 0 40px; font-family: "Geist Mono", monospace; font-size: 13px; text-transform: uppercase;
+}
+.app-nav .brand { display: flex; align-items: center; gap: 8px; letter-spacing: 0.02em; }
+.app-nav .brand img { width: 24px; height: 24px; object-fit: contain; }
+.app-nav .tabs { display: flex; gap: 24px; margin: 0 auto; color: var(--ink-soft); }
+.app-nav .tabs .on { color: var(--ink); }
+.app-nav .right { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--ink-soft); }
+.app-nav .pill { border: 1px solid rgba(35, 35, 35, 0.2); border-radius: 8px; padding: 8px 12px; color: var(--ink); }
+.app-nav .signout { color: var(--ko-text); }
+.app-nav .lang b { background: var(--ink); color: var(--paper); border-radius: 4px; padding: 2px 6px; font-weight: 400; margin-right: 6px; }
+
+.page { padding: 56px 64px 64px; position: relative; }
+.kicker { font-family: "Geist Mono", monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink-soft); }
+.page-title { font-weight: 500; font-size: 52px; line-height: 1.04; letter-spacing: -0.018em; margin: 16px 0; }
+.page-desc { font-size: 18px; line-height: 1.55; color: var(--ink-soft); max-width: 52ch; margin-bottom: 48px; }
+
+.panel { border: 1px solid rgba(35, 35, 35, 0.15); border-radius: 12px; background: var(--paper); overflow: hidden; }
+.panel-h {
+  height: 40px; border-bottom: 1px solid rgba(35, 35, 35, 0.1); display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft);
+}
+.panel-b { padding: 20px; }
+.seg { display: flex; gap: 4px; }
+.seg span { border-radius: 4px; padding: 2px 8px; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: none; }
+.seg .on { background: var(--ink); color: var(--paper); }
+.textarea {
+  border: 1px solid rgba(35, 35, 35, 0.2); border-radius: 8px; padding: 10px 12px; min-height: 220px;
+  font-size: 14px; line-height: 1.45; color: var(--ink); background: var(--paper);
+}
+.textarea p { min-height: 1.45em; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 24px;
+  background: var(--ink); color: var(--paper); border-radius: 8px;
+  font-family: "Geist Mono", monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.02em;
+  will-change: transform;
+}
+.btn svg { width: 16px; height: 16px; }
+.btn-outline { background: transparent; color: var(--ink); border: 1px solid rgba(35, 35, 35, 0.2); height: 36px; padding: 0 12px; font-size: 11px; }
+.center-row { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 40px; }
+
+.progress { width: 576px; }
+.progress-top { display: flex; justify-content: space-between; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+.progress-top .status { position: relative; flex: 1; height: 14px; }
+.progress-top .status span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+.track { height: 1px; background: rgba(35, 35, 35, 0.1); position: relative; }
+.track i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 100%; background: var(--ink); transform-origin: 0 50%; display: block; }
+
+/* Cartes de stats */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat { border: 1px solid rgba(35, 35, 35, 0.15); border-radius: 12px; padding: 20px; text-align: center; background: var(--paper); }
+.stat .k { font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
+.stat .v { font-size: 30px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ok { color: var(--ok); } .mid { color: var(--mid); } .ko { color: var(--ko); }
+/* Chiffres des cartes : même teinte que l'app, un cran plus foncée pour rester lisible en vidéo */
+.stat .v.ok { color: #059669; } .stat .v.mid { color: #b45309; }
+
+/* Panneau sombre */
+.dark { background: var(--ink-deep); border-radius: 12px; padding: 6px; box-shadow: 0 24px 60px -30px rgba(35, 35, 35, 0.45); }
+.dark-in { background: var(--ink); border-radius: 8px; overflow: hidden; color: var(--paper); font-family: "Geist Mono", monospace; font-size: 13px; }
+.dark-h { height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; text-transform: uppercase; color: rgba(241, 238, 231, 0.6); }
+.rows { padding: 8px 24px; }
+.row { padding: 16px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; gap: 16px; }
+.row:last-child { border-bottom: 0; }
+.row .meta { font-size: 11px; text-transform: uppercase; color: rgba(241, 238, 231, 0.6); display: flex; gap: 12px; }
+.row .t { font-size: 14px; color: rgba(241, 238, 231, 0.92); margin-top: 8px; font-family: "Geist Mono", monospace; }
+.row .x { font-size: 12px; color: rgba(241, 238, 231, 0.6); margin-top: 8px; }
+.row .x b { font-weight: 400; color: rgba(241, 238, 231, 0.72); }
+.row .s { font-size: 11px; text-transform: uppercase; white-space: nowrap; }
+.row .s.ok { color: #34d399; } .row .s.mid { color: #fbbf24; } .row .s.ko { color: #fb7185; }
+.sugg { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.sugg .k { font-size: 11px; text-transform: uppercase; color: rgba(241, 238, 231, 0.6); margin-bottom: 6px; }
+.sugg .l { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: rgba(241, 238, 231, 0.75); }
+.sugg .cp { position: relative; font-size: 11px; text-transform: uppercase; color: rgba(241, 238, 231, 0.6); min-width: 70px; text-align: right; }
+.sugg .cp span { position: absolute; right: 0; top: 0; white-space: nowrap; }
+
+/* Entretien */
+.bar-panel { display: flex; align-items: center; justify-content: space-between; padding: 20px; }
+.q-card { padding: 20px; margin-top: 12px; }
+.q-card .k { font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
+.q-card .q { font-size: 14px; font-weight: 500; }
+.q-dark .q { font-family: "Geist", sans-serif; font-size: 18px; font-weight: 500; line-height: 1.35; color: var(--paper); }
+.answer { margin-top: 8px; min-height: 160px; background: var(--ink-deep); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-family: "Geist", sans-serif; font-size: 14px; line-height: 1.5; color: var(--paper); }
+.caret { display: inline-block; width: 2px; height: 1.1em; background: var(--paper); vertical-align: -0.2em; margin-left: 1px; }
+.nav-row { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: rgba(241, 238, 231, 0.6); }
+.nav-row .next { color: var(--paper); }
+.score-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; }
+.list-panel { padding: 24px; margin-top: 24px; }
+.list-panel h4 { font-family: "Geist Mono", monospace; font-weight: 400; font-size: 13px; text-transform: uppercase; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; }
+.good { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: var(--ok-text); border-radius: 8px; padding: 12px; font-size: 14px; margin-top: 8px; }
+.todo { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); color: var(--mid-text); border-radius: 8px; padding: 12px; font-size: 14px; margin-top: 8px; }
+
+/* Lettre */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; border: 1px solid rgba(35, 35, 35, 0.2); border-radius: 8px; padding: 8px 12px; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); }
+.chip .fill { position: absolute; inset: -1px; border-radius: 8px; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; }
+.chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.field-label { font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
+.letter-body { max-width: 68ch; margin: 0 auto; padding: 40px; font-size: 15px; line-height: 1.65; color: var(--ink); }
+.letter-body p { margin-bottom: 20px; }
+.letter-body .subject { font-weight: 500; }
+.letter-foot { border-top: 1px solid rgba(35, 35, 35, 0.1); padding: 16px 40px; text-align: center; font-family: "Geist Mono", monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-soft); }
+.tools { display: flex; gap: 8px; }
+.copy-btn { position: relative; min-width: 150px; }
+.copy-btn .done { position: absolute; inset: -1px; border-radius: 8px; border: 1px solid var(--ok); color: var(--ok-text); background: var(--paper); display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* ---------- Curseur, onde, callouts ---------- */
+.cursor { position: absolute; left: 0; top: 0; width: 30px; height: 30px; z-index: 50; will-change: transform; filter: drop-shadow(0 6px 10px rgba(35, 35, 35, 0.25)); }
+.cursor svg { width: 100%; height: 100%; display: block; }
+.ring { position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; border: 2px solid var(--ink); opacity: 0; z-index: 49; }
+
+.callout { position: absolute; z-index: 60; display: flex; align-items: center; }
+.callout .lbl { background: var(--ink); color: var(--paper); font-family: "Geist Mono", monospace; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; border-radius: 6px; will-change: transform; }
+.callout .ln { height: 2px; background: var(--ink); transform-origin: var(--from, 0%) 50%; }
+.callout .dot { border-radius: 50%; border: 3px solid var(--ink); background: var(--paper); flex: none; }
+.callout.inv .lbl { background: var(--paper); color: var(--ink); }
+.callout.inv .ln { background: var(--paper); }
+.callout.inv .dot { border-color: var(--paper); background: var(--ink); }
+
+/* ---------- Signature ---------- */
+.sig { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+.sig .wm { display: flex; align-items: center; gap: 20px; font-family: "Geist Mono", monospace; font-size: 40px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0; }
+.sig .wm img { width: 92px; height: 92px; object-fit: contain; }
+.sig .slogan { font-weight: 600; font-size: 128px; letter-spacing: -0.035em; line-height: 1; }
+.sig .slogan .w { display: inline-block; opacity: 0; margin: 0 0.12em; }
+.sig .cta { height: 76px; padding: 0 44px; font-size: 24px; border-radius: 12px; opacity: 0; }
+.sig-cursor { position: absolute; left: 0; top: 0; width: 46px; height: 46px; z-index: 5; filter: drop-shadow(0 8px 14px rgba(35, 35, 35, 0.25)); }
+.sig-cursor svg { width: 100%; height: 100%; display: block; }
+.sig .ring { width: 70px; height: 70px; margin: -35px 0 0 -35px; }
