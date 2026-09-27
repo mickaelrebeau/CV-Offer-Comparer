@@ -51,6 +51,7 @@ def init_db() -> None:
 
     Base.metadata.create_all(bind=engine)
     _migrate_email_verification()
+    _migrate_password_changed_at()
 
 
 def _migrate_email_verification() -> None:
@@ -64,3 +65,12 @@ def _migrate_email_verification() -> None:
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ"))
         conn.execute(text("UPDATE users SET email_verified_at = created_at WHERE email_verified_at IS NULL"))
+
+
+def _migrate_password_changed_at() -> None:
+    """Ajoute users.password_changed_at, vide pour les comptes existants (aucune session invalidée)."""
+    columns = {c["name"] for c in inspect(engine).get_columns("users")}
+    if "password_changed_at" in columns:
+        return
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ"))

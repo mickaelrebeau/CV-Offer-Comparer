@@ -22,6 +22,10 @@ MESSAGES: dict[str, dict[str, str]] = {
     },
     "auth.invalid_token": {"fr": "Token invalide", "en": "Invalid token"},
     "auth.user_not_found": {"fr": "Utilisateur non trouvé", "en": "User not found"},
+    "auth.session_expired": {
+        "fr": "Session expirée suite à un changement de mot de passe. Reconnectez-vous.",
+        "en": "Session expired after a password change. Please sign in again.",
+    },
     "auth.email_not_verified": {
         "fr": "Confirmez votre adresse e-mail pour utiliser cette fonctionnalité.",
         "en": "Confirm your email address to use this feature.",
