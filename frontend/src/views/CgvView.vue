@@ -4,7 +4,7 @@
     label="Terms"
     title="Terms of use"
     description="Access and usage conditions of the online Talento service."
-    updated-at="2026-09-27"
+    updated-at="2026-09-28"
   >
     <section>
       <h2>1. Purpose</h2>
@@ -68,6 +68,12 @@
         hired, nor the score of a proprietary ATS. You remain solely responsible for the final
         content of your application documents.
       </p>
+      <p>
+        If you use your own API key (Gemini, OpenAI, Anthropic, DeepSeek, Qwen, Kimi or an
+        OpenAI-compatible endpoint), the related calls are billed by your provider and are subject
+        to its terms, which you must comply with. Talento is not responsible for these costs nor for
+        the availability of that provider.
+      </p>
     </section>
 
     <section>
@@ -108,7 +114,7 @@
     label="Conditions"
     title="Conditions générales (CGV / CGU)"
     description="Conditions d’accès et d’utilisation du service Talento en ligne."
-    updated-at="2026-09-27"
+    updated-at="2026-09-28"
   >
     <section>
       <h2>1. Objet</h2>
@@ -173,6 +179,12 @@
         sont <strong>indicatifs</strong> et ne constituent ni un conseil RH, ni une garantie
         d’embauche, ni le score d’un ATS propriétaire. Vous restez seul responsable du contenu
         final de vos documents de candidature.
+      </p>
+      <p>
+        Si vous utilisez votre propre clé API (Gemini, OpenAI, Anthropic, DeepSeek, Qwen, Kimi ou
+        endpoint compatible OpenAI), les appels correspondants sont facturés par votre fournisseur
+        et soumis à ses conditions, que vous vous engagez à respecter. Talento n’est responsable ni
+        de ces coûts ni de la disponibilité de ce fournisseur.
       </p>
     </section>
 

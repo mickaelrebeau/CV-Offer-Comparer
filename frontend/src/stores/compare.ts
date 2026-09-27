@@ -40,6 +40,8 @@ export const useCompareStore = defineStore("compare", () => {
   const comparisonResult = ref<ComparisonResult | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
+  // Code API de la dernière erreur (quota plateforme, clé personnelle…)
+  const errorCode = ref<string | null>(null);
   const progress = ref(0);
   const status = ref("");
   const hasUsedFreeAnalysis = ref(false);
@@ -129,6 +131,7 @@ export const useCompareStore = defineStore("compare", () => {
 
     loading.value = true;
     error.value = null;
+    errorCode.value = null;
     comparisonResult.value = null;
     progress.value = 0;
     status.value = t("comparison.statusStart");
@@ -183,8 +186,9 @@ export const useCompareStore = defineStore("compare", () => {
             markFreeAnalysisAsUsed();
           }
         },
-        (errorMessage: string) => {
+        (errorMessage: string, code?: string) => {
           error.value = errorMessage;
+          errorCode.value = code || null;
           console.error("Erreur de comparaison:", errorMessage);
         }
       );
@@ -202,6 +206,7 @@ export const useCompareStore = defineStore("compare", () => {
     cvText.value = "";
     comparisonResult.value = null;
     error.value = null;
+    errorCode.value = null;
   }
 
   function updateOfferText(text: string) {
@@ -215,6 +220,7 @@ export const useCompareStore = defineStore("compare", () => {
   async function loadFromHistory(comparisonId: string) {
     loading.value = true;
     error.value = null;
+    errorCode.value = null;
     try {
       const detail = await getComparison(comparisonId);
       offerText.value = detail.offer_text || "";
@@ -247,6 +253,7 @@ export const useCompareStore = defineStore("compare", () => {
     comparisonResult,
     loading,
     error,
+    errorCode,
     progress,
     status,
     hasData,

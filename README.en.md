@@ -25,6 +25,7 @@ Open-source web app (**Talento**) that compares a résumé (CV) with a job offer
 - Cover letter generator (tone, length, language; copy and `.txt` / `.md` export)
 - PDF upload (or TXT for the cover letter) and plain-text input
 - Comparison, interview and cover letter history for signed-in users (Postgres)
+- **Bring your own API key (BYOK)**: Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi or any OpenAI-compatible endpoint, to keep going when the platform Gemini quota is exhausted
 
 ## Stack
 
@@ -34,7 +35,7 @@ Open-source web app (**Talento**) that compares a résumé (CV) with a job offer
 | Backend | FastAPI, SQLAlchemy, Redis |
 | Auth | Custom JWT + Google OAuth |
 | DB | PostgreSQL |
-| AI | Google Gemini (`google-genai`) |
+| AI | Google Gemini (`google-genai`); BYOK: `anthropic` SDK, OpenAI-compatible API (`httpx`) |
 | Analytics | PostHog (optional) |
 | Deploy | Railway (Docker) |
 
@@ -138,6 +139,7 @@ Costly routes (Gemini, upload) are limited per user **and** per IP. Beyond the l
 | `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
 | `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
+| `PUT /api/profile/llm-credentials` | user + IP | `DAILY_QUOTA_LLM_CREDENTIALS` (50) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 free analysis per client |
 
@@ -145,6 +147,15 @@ Costly routes (Gemini, upload) are limited per user **and** per IP. Beyond the l
 - `0` = unlimited; `RATE_LIMIT_ENABLED=false` disables everything.
 - Real client IP is read from `CLIENT_IP_HEADER` (`X-Real-IP`, set by Railway). Adjust behind another proxy; leave empty without a proxy to use the socket IP.
 - Without Redis, counters are kept in memory (per instance).
+
+### Personal API keys (BYOK)
+
+- A signed-in account saves one key per provider from its profile (`/en/profile#llm-providers`) and activates **only one** at a time; with no active configuration, the app uses the platform Gemini stack (`GOOGLE_API_KEY`). The free trial always stays on the platform.
+- Keys are **encrypted** (Fernet, `LLM_ENCRYPTION_KEYS`) and never returned in clear. Without `LLM_ENCRYPTION_KEYS`, the feature is disabled.
+- Calls are billed by the user's provider, under the user's responsibility.
+- Normalized errors (`code` in responses / SSE events): `llm.platform_quota_exceeded`, `llm.platform_unavailable`, `llm.invalid_user_api_key`, `llm.user_provider_quota_exceeded`, `llm.provider_unavailable`, `llm.provider_rejected`, `llm.provider_refused`, `llm.unsupported_provider`.
+- API: `GET /api/profile/llm-providers` (catalog), `GET`/`PUT /api/profile/llm-credentials`, `POST …/{id}/activate`, `POST …/deactivate`, `DELETE …/{id}`.
+- Setup, secret rotation and threat model: [STARTUP](documentation/STARTUP.md) (French) and [SECURITY.md](SECURITY.md#clés-api-personnelles-byok).
 
 ### Languages (FR / EN)
 

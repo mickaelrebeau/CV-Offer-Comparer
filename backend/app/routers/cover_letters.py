@@ -13,6 +13,7 @@ from app.models.user import User
 from app.routers.compare import _sse_headers
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.cover_letter_service import LANGUAGES, LENGTHS, TONES, stream_cover_letter
+from app.services.llm_credentials_service import ai_for_user
 from app.services.rate_limit_service import rate_limit
 from app.services.upload_service import PDFExtractionError, UploadService, read_upload
 
@@ -71,6 +72,8 @@ async def generate_cover_letter(
     if len(job) > MAX_TEXT_CHARS or len(cv) > MAX_TEXT_CHARS:
         raise ApiError(413, "cover_letter.text_too_long", max_chars=MAX_TEXT_CHARS)
 
+    ai = ai_for_user(db, user)
+
     def persist(letter) -> str:
         record = CoverLetterRecord.from_generation(
             user_id=user.id,
@@ -93,6 +96,7 @@ async def generate_cover_letter(
             language=language,
             locale=locale,
             on_result=persist,
+            ai=ai,
         ),
         media_type="text/event-stream",
         headers=_sse_headers(),

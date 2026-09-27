@@ -34,6 +34,24 @@ Pour Google OAuth en local, ajoutez aussi `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SEC
 
 `http://localhost:8000/api/auth/google/callback`
 
+### Clés API personnelles (BYOK, optionnel)
+
+Les comptes connectés peuvent brancher leur propre clé LLM (Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi, endpoint compatible OpenAI) depuis leur profil. Les clés sont chiffrées au repos avec **Fernet** ; sans clé de chiffrement, la fonctionnalité est désactivée (le profil l’indique).
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+```env
+LLM_ENCRYPTION_KEYS=<clé générée>
+# Dev uniquement : autorise http:// et localhost comme base_url (Ollama, LM Studio…). Ignoré en production
+LLM_ALLOW_PRIVATE_BASE_URLS=false
+```
+
+- Gardez cette clé **hors du dépôt** (variable Railway). La perdre rend illisibles les clés enregistrées : les utilisateurs devront les ressaisir.
+- **Rotation** : placez la nouvelle clé en tête (`LLM_ENCRYPTION_KEYS=<nouvelle>,<ancienne>`), redéployez, lancez `python -m app.scripts.rotate_llm_keys`, puis retirez l’ancienne clé.
+- Les appels passent alors par le fournisseur de l’utilisateur, **à ses frais** et sous sa responsabilité (conditions du fournisseur). Voir [SECURITY.md](../SECURITY.md#clés-api-personnelles-byok) pour le modèle de menace.
+
 Démarrez :
 
 ```bash
@@ -75,7 +93,7 @@ Si le port n’est pas 3000, alignez `FRONTEND_URL` côté backend.
 
 Le monorepo contient `frontend/Dockerfile`, `backend/Dockerfile` et `railway.json`.
 
-- Service **backend** : `rootDirectory=/backend`, variables d’env (DB, Redis, Gemini, OAuth)
+- Service **backend** : `rootDirectory=/backend`, variables d’env (DB, Redis, Gemini, OAuth, `LLM_ENCRYPTION_KEYS`)
 - Service **frontend** : `rootDirectory=/frontend`, **`VITE_API_URL` au build** (ARG Dockerfile)
 
 Voir aussi `backend/env.example` et `frontend/env.production.example`.
@@ -86,5 +104,7 @@ Voir aussi `backend/env.example` et `frontend/env.production.example`.
 |----------|--------|
 | Google OAuth → mauvais port | `FRONTEND_URL` doit matcher le port du front |
 | `API key not valid` | Nouvelle clé AI Studio dans `GOOGLE_API_KEY` |
+| « Quota IA de Talento épuisé » | Quota Gemini plateforme atteint : attendre, ou tester avec une clé personnelle (profil → Providers IA) |
+| Profil : « clés API personnelles non activées » | Renseigner `LLM_ENCRYPTION_KEYS` |
 | CORS | Ajouter l’origine front dans `ALLOWED_ORIGINS` |
 | `/api/auth/google` sur le domaine front | Rebuild front avec `VITE_API_URL` pointant vers le backend |

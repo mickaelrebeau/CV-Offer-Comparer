@@ -119,7 +119,9 @@ def test_comparison_stream_hides_internal_errors(client, auth_headers, monkeypat
         headers={**auth_headers, **EN},
     )
     errors = [event for event in _sse_events(response) if event["type"] == "error"]
-    assert errors == [{"type": "error", "message": "The analysis failed. Please try again in a moment."}]
+    assert errors == [
+        {"type": "error", "message": "The analysis failed. Please try again in a moment.", "code": "analysis.failed"}
+    ]
 
 
 def test_free_analysis_status_in_english(client):

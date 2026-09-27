@@ -67,9 +67,7 @@
       </Button>
     </div>
 
-    <div role="alert" v-if="error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
-      {{ error }}
-    </div>
+    <LlmErrorNotice v-if="error" :message="error" :code="errorCode" />
 
     <div v-if="comparisonResult" class="space-y-8">
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -149,6 +147,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { streamFreeCompare, checkFreeAnalysisStatus } from '@/lib/api'
 import { useLocale } from '@/i18n/useLocale'
 import FreeTrialPDFUpload from './FreeTrialPDFUpload.vue'
+import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import posthog from 'posthog-js'
 
 const { t } = useI18n()
@@ -160,6 +159,7 @@ const loading = ref(false)
 const status = ref('')
 const progress = ref(0)
 const error = ref('')
+const errorCode = ref<string | null>(null)
 const comparisonResult = ref<any>(null)
 const canAnalyze = ref(true)
 const activeTab = ref('upload')
@@ -196,6 +196,7 @@ const compareCVWithOffer = async () => {
 
   loading.value = true
   error.value = ''
+  errorCode.value = null
   status.value = t('freeTrial.running')
   progress.value = 0
   comparisonResult.value = null
@@ -217,9 +218,10 @@ const compareCVWithOffer = async () => {
         canAnalyze.value = false
         posthog.capture('free_trial_comparison_completed', { comparison_mode: 'free_trial' })
       },
-      (eMsg: string) => {
+      (eMsg: string, code?: string) => {
         loading.value = false
         error.value = eMsg
+        errorCode.value = code || null
       },
     )
   } catch (err: any) {

@@ -509,6 +509,64 @@
     "deleteFailed": "Une erreur est survenue lors de la suppression.",
     "app": "Application"
   },
+  "llmProviders": {
+    "title": "Providers IA & clés API",
+    "description": "Par défaut, Talento utilise sa propre stack IA (Google Gemini). Branchez votre clé API pour continuer quand elle est saturée, ou pour choisir votre modèle. Les appels sont alors facturés par votre fournisseur.",
+    "loading": "Chargement des providers…",
+    "disabled": "Les clés API personnelles ne sont pas activées sur ce serveur.",
+    "current": "Utilisé pour vos analyses",
+    "currentPlatform": "Talento (Google Gemini, stack plateforme)",
+    "currentUser": "{provider} · {model} (votre clé)",
+    "usePlatform": "Revenir à Talento",
+    "savedList": "Clés enregistrées",
+    "active": "Actif",
+    "activate": "Activer",
+    "activateAria": "Activer {provider}",
+    "edit": "Modifier",
+    "editAria": "Modifier la configuration {provider}",
+    "remove": "Supprimer",
+    "removeAria": "Supprimer la clé {provider}",
+    "removeConfirm": "Supprimer définitivement la clé {provider} ?",
+    "savedActive": "Clé {provider} enregistrée et active.",
+    "savedInactive": "Clé {provider} enregistrée.",
+    "form": {
+      "addTitle": "Ajouter une clé",
+      "editTitle": "Modifier {provider}",
+      "provider": "Fournisseur",
+      "compatible": "Autre endpoint compatible OpenAI",
+      "getKey": "Obtenir une clé {provider}",
+      "newTab": "(nouvel onglet)",
+      "compatibleHint": "Tout service exposant l'API chat completions d'OpenAI (OpenRouter, Groq, Mistral, Together…) : renseignez son URL de base et un modèle.",
+      "apiKey": "Clé API",
+      "keepKey": "Laisser vide pour conserver la clé {hint}",
+      "model": "Modèle",
+      "customUrl": "Utiliser une URL personnalisée (proxy)",
+      "baseUrl": "URL de base",
+      "baseUrlHint": "HTTPS obligatoire, adresse publique uniquement.",
+      "verify": "Tester la clé avant d'enregistrer (un court appel au fournisseur)",
+      "activate": "Utiliser cette clé pour mes analyses",
+      "save": "Enregistrer",
+      "verifying": "Test de la clé…"
+    },
+    "securityNote": "Votre clé est chiffrée sur nos serveurs, n'est jamais réaffichée et ne sert qu'aux appels IA de votre compte. Les coûts sont facturés par votre fournisseur. Vous pouvez la supprimer à tout moment ; elle l'est aussi avec votre compte.",
+    "errors": {
+      "load": "Impossible de charger vos providers",
+      "save": "Enregistrement impossible",
+      "action": "Action impossible, réessayez"
+    }
+  },
+  "llmNotice": {
+    "platformHint": "Branchez votre propre clé API (Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi…) pour continuer sans attendre.",
+    "anonymousHint": "Réessayez dans quelques minutes, ou connectez-vous : un compte peut utiliser sa propre clé API.",
+    "addKey": "Ajouter ma clé API",
+    "signIn": "Se connecter",
+    "switchHint": "Basculez sur une autre configuration, puis relancez :",
+    "useProvider": "Utiliser {provider}",
+    "usePlatform": "Utiliser Talento (plateforme)",
+    "manage": "Gérer mes clés",
+    "switched": "{provider} est maintenant actif. Relancez la génération.",
+    "switchedPlatform": "La stack IA de Talento est de nouveau active. Relancez la génération."
+  },
   "ui": {
     "close": "Fermer",
     "showPassword": "Afficher le mot de passe",
@@ -691,6 +749,7 @@
         "Simulateur d'entretien et retours",
         "Lettre de motivation ciblée",
         "Import PDF et extraction automatique",
+        "Votre propre clé API (Gemini, OpenAI, Claude…)",
         "Code source ouvert, auto-hébergeable"
       ],
       "register": "Créer mon compte",
@@ -725,6 +784,11 @@
           "id": "Q.008",
           "question": "Talento rédige-t-il aussi la lettre de motivation ?",
           "answer": "Oui, pour les comptes connectés. Le module lettre de motivation rédige une lettre ciblée (accroche, corps, conclusion) à partir de votre CV et de l'offre, avec le ton, la longueur et la langue de votre choix. Elle s'appuie uniquement sur votre CV : relisez-la avant l'envoi. Copie ou export .txt / .md, et historique dans votre tableau de bord."
+        },
+        {
+          "id": "Q.009",
+          "question": "Et si le quota IA de Talento est épuisé ?",
+          "answer": "Connectez votre propre clé API depuis votre profil : Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi ou tout endpoint compatible OpenAI. Vos analyses passent alors par votre fournisseur, qui vous facture directement. La clé est chiffrée, jamais réaffichée, et vous pouvez revenir à Talento à tout moment."
         },
         {
           "id": "Q.004",

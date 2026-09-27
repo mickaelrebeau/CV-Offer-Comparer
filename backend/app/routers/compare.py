@@ -14,6 +14,7 @@ from app.models.comparison_record import ComparisonRecord
 from app.models.user import User
 from app.services.auth_service import AuthService, require_verified_user
 from app.services.comparison_service import stream_comparison
+from app.services.llm_credentials_service import ai_for_user
 from app.services.rate_limit_service import rate_limit
 
 router = APIRouter()
@@ -61,7 +62,8 @@ async def compare_cv_offer_stream(
     db: Session = Depends(get_db),
     locale: str = Depends(request_locale),
 ):
-    """Compare CV ↔ offre via un seul appel Gemini, puis stream SSE des items."""
+    """Compare CV ↔ offre via un seul appel LLM (provider BYOK actif, sinon Gemini plateforme)."""
+    ai = ai_for_user(db, user)
 
     def persist(items, summary) -> None:
         record = ComparisonRecord.from_analysis(
@@ -80,6 +82,7 @@ async def compare_cv_offer_stream(
             request.cv_text,
             locale=locale,
             on_result=persist,
+            ai=ai,
         ),
         media_type="text/event-stream",
         headers=_sse_headers(),

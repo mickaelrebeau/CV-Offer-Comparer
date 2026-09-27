@@ -86,9 +86,7 @@
       </Button>
     </div>
 
-    <div role="alert" v-if="compareStore.error" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
-      {{ compareStore.error }}
-    </div>
+    <LlmErrorNotice v-if="compareStore.error" :message="compareStore.error" :code="compareStore.errorCode" />
 
     <div v-if="compareStore.comparisonResult" class="space-y-8">
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -155,6 +153,7 @@ import { FileText, ArrowRightLeft, Loader2 } from 'lucide-vue-next'
 import { useLocale } from '@/i18n/useLocale'
 import { useCompareStore } from '@/stores/compare'
 import PDFUpload from './PDFUpload.vue'
+import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 
 const { t } = useI18n()
 const { formatPercent } = useLocale()

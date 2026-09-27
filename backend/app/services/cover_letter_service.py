@@ -8,7 +8,8 @@ from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 from app.i18n import DEFAULT_LOCALE, t
-from app.services.ai_service import ai_service
+from app.services.ai_service import AIService, ai_service
+from app.services.llm.errors import LLMError
 
 TONES = ("professional", "warm", "confident", "formal")
 LENGTHS = ("short", "standard", "detailed")
@@ -40,6 +41,7 @@ async def stream_cover_letter(
     language: str,
     locale: str = DEFAULT_LOCALE,
     on_result: PersistCallback | None = None,
+    ai: AIService | None = None,
 ) -> AsyncIterator[str]:
     """
     Flux SSE :
@@ -53,7 +55,7 @@ async def stream_cover_letter(
         yield _sse({"type": "progress", "value": 12, "current": 0, "total": 1})
 
         letter = await asyncio.to_thread(
-            ai_service.generate_cover_letter,
+            (ai or ai_service).generate_cover_letter,
             cv_text,
             job_text,
             tone=tone,
@@ -83,6 +85,8 @@ async def stream_cover_letter(
         yield _sse({"type": "letter", "letter": letter, "id": letter_id})
         yield _sse({"type": "complete"})
 
+    except LLMError as exc:
+        yield _sse({"type": "error", "message": t(exc.code, locale), "code": exc.code})
     except Exception as exc:
         print(f"Erreur stream_cover_letter: {exc!r}")
-        yield _sse({"type": "error", "message": t("cover_letter.failed", locale)})
+        yield _sse({"type": "error", "message": t("cover_letter.failed", locale), "code": "cover_letter.failed"})

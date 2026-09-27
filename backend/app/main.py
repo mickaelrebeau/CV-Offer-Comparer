@@ -17,6 +17,7 @@ from app.routers import (
     health,
     interview,
     interviews,
+    llm_credentials,
     upload,
 )
 
@@ -68,3 +69,4 @@ app.include_router(free_analysis.router, prefix="/api", tags=["free-analysis"])
 app.include_router(interview.router, prefix="/api", tags=["interview"])
 app.include_router(interviews.router, prefix="/api", tags=["interviews"])
 app.include_router(cover_letters.router, prefix="/api", tags=["cover-letters"])
+app.include_router(llm_credentials.router, prefix="/api", tags=["llm-credentials"])

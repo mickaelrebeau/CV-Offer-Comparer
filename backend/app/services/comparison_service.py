@@ -8,7 +8,8 @@ from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 from app.i18n import DEFAULT_LOCALE, t
-from app.services.ai_service import ai_service
+from app.services.ai_service import AIService, ai_service
+from app.services.llm.errors import LLMError
 
 PersistCallback = Callable[[list[Any], dict[str, Any]], None]
 
@@ -24,6 +25,7 @@ async def stream_comparison(
     locale: str = DEFAULT_LOCALE,
     intro_code: str = "analysis.start",
     on_result: PersistCallback | None = None,
+    ai: AIService | None = None,
 ) -> AsyncIterator[str]:
     """
     Flux SSE optimisé :
@@ -37,7 +39,7 @@ async def stream_comparison(
         yield _sse({"type": "progress", "value": 12, "current": 0, "total": 1})
 
         result = await asyncio.to_thread(
-            ai_service.compare_offer_and_cv,
+            (ai or ai_service).compare_offer_and_cv,
             offer_text,
             cv_text,
         )
@@ -74,10 +76,13 @@ async def stream_comparison(
         yield _sse({"type": "summary", "summary": summary})
         yield _sse({"type": "complete"})
 
+    except LLMError as exc:
+        # Quota plateforme, clé personnelle invalide… : code stable pour l'UX côté client
+        yield _sse({"type": "error", "message": t(exc.code, locale), "code": exc.code})
     except Exception as exc:
         print(f"Erreur stream_comparison: {exc!r}")
         # Détail technique dans les logs uniquement
-        yield _sse({"type": "error", "message": t("analysis.failed", locale)})
+        yield _sse({"type": "error", "message": t("analysis.failed", locale), "code": "analysis.failed"})
 
 
 class ComparisonService:

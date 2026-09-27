@@ -114,9 +114,7 @@
         </Button>
       </div>
 
-      <div v-if="store.error" role="alert" class="rounded-lg border border-rose-500/25 bg-rose-500/5 p-4 font-mono text-micro text-rose-700">
-        {{ store.error }}
-      </div>
+      <LlmErrorNotice v-if="store.error" :message="store.error" :code="store.errorCode" />
 
       <section v-if="store.letter" :aria-busy="store.loading" aria-labelledby="cover-letter-result">
         <div class="panel overflow-hidden">
@@ -171,6 +169,7 @@ import posthog from 'posthog-js'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import PDFUpload from '@/components/PDFUpload.vue'
+import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useLocale } from '@/i18n/useLocale'

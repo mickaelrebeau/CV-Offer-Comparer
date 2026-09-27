@@ -29,6 +29,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
   const progress = ref(0)
   const status = ref('')
   const error = ref<string | null>(null)
+  const errorCode = ref<string | null>(null)
 
   const hasData = computed(() => Boolean(jobText.value.trim() && cvText.value.trim()))
   const letter = computed<CoverLetter | null>(() => {
@@ -41,6 +42,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     finalLetter.value = null
     letterId.value = null
     error.value = null
+    errorCode.value = null
   }
 
   async function generate() {
@@ -80,8 +82,9 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
               saved_to_history: Boolean(id),
             })
           },
-          onError: (message) => {
+          onError: (message, code) => {
             error.value = message
+            errorCode.value = code || null
             // Lettre partielle inutilisable : on n'affiche que l'erreur
             sections.value = []
           },
@@ -96,6 +99,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
   async function loadFromHistory(id: string) {
     loading.value = true
     error.value = null
+    errorCode.value = null
     try {
       const detail = await getCoverLetter(id)
       jobText.value = detail.job_text || ''
@@ -126,6 +130,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     progress,
     status,
     error,
+    errorCode,
     hasData,
     generate,
     loadFromHistory,
