@@ -37,10 +37,9 @@ def verify_password(password: str, password_hash: str | None) -> bool:
 
 
 def create_access_token(user_id: str, email: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
-    payload = {"sub": user_id, "email": email, "exp": expire}
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"sub": user_id, "email": email, "iat": now, "exp": expire}
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
@@ -173,7 +172,9 @@ def upsert_google_user(db: Session, profile: dict[str, Any]) -> User:
         if not user.email_verified_at:
             # Google prouve la possession de l'adresse : un mot de passe posé sans vérification
             # (éventuellement par un tiers) ne doit pas garder l'accès au compte
-            user.password_hash = None
+            if user.password_hash:
+                user.password_hash = None
+                user.mark_password_changed()
             user.email_verified_at = now
         user.google_id = str(google_id)
         user.full_name = profile.get("name") or user.full_name
@@ -211,7 +212,24 @@ async def get_current_user(
     user = get_user_by_id(db, user_id)
     if not user:
         raise ApiError(401, "auth.user_not_found")
+    if not token_is_current(payload, user):
+        raise ApiError(401, "auth.session_expired")
     return user
+
+
+def token_is_current(payload: dict[str, Any], user: User) -> bool:
+    """Faux si le jeton a été émis avant le dernier changement de mot de passe.
+
+    Jetons sans `iat` (émis avant l'ajout de la claim) : valides tant que le mot de passe
+    n'a jamais changé. Comparaison à la seconde (précision de `iat`).
+    """
+    changed_at = user.password_changed_at
+    if changed_at is None:
+        return True
+    issued_at = payload.get("iat")
+    if issued_at is None:
+        return False
+    return int(issued_at) >= int(changed_at.timestamp())
 
 
 async def require_verified_user(user: User = Depends(get_current_user)) -> User:

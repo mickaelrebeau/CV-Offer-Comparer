@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -20,6 +20,9 @@ class User(Base):
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Dernier changement de mot de passe (reset, suppression lors d'une liaison Google) :
+    # les JWT émis avant sont refusés. Vide = aucun changement, tous les jetons valides
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -29,6 +32,10 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    def mark_password_changed(self) -> None:
+        # Seconde entière : `iat` des JWT est en secondes, le jeton émis juste après reste valide
+        self.password_changed_at = datetime.now(timezone.utc).replace(microsecond=0)
 
     @property
     def email_verified(self) -> bool:

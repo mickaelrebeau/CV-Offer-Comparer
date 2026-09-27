@@ -116,6 +116,7 @@ App : http://localhost:3000 (ou le port Vite affiché)
 - Tant que l’adresse n’est pas vérifiée, le compte peut se connecter et consulter son historique, mais les routes IA (`compare-stream`, `interview/*`, `cover-letter`) répondent `403`. Une bannière permet de renvoyer le lien.
 - Les comptes Google et les comptes créés avant cette fonctionnalité sont considérés comme vérifiés.
 - Mot de passe oublié : `/forgot-password` envoie un lien (valable 60 min, usage unique). La réponse est identique que le compte existe ou non.
+- Un changement de mot de passe (réinitialisation, ou suppression d’un mot de passe non vérifié lors d’une liaison Google) **déconnecte les sessions existantes** : les JWT émis avant (`iat` < `users.password_changed_at`) répondent `401` (`auth.session_expired`). Le jeton renvoyé par la réinitialisation reste valide.
 
 **Frontend** (`frontend/.env`) :
 

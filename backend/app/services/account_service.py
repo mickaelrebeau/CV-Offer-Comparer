@@ -78,6 +78,8 @@ def mark_email_verified(db: Session, user: User) -> User:
 
 def reset_password(db: Session, user: User, password: str) -> User:
     user.password_hash = hash_password(password)
+    # Déconnecte les sessions ouvertes avec l'ancien mot de passe (le JWT renvoyé reste valide)
+    user.mark_password_changed()
     # Le lien a été reçu sur la boîte mail : l'adresse est prouvée
     user.email_verified_at = user.email_verified_at or datetime.now(timezone.utc)
     db.execute(

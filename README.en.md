@@ -121,6 +121,7 @@ App: http://localhost:3000 (or the Vite port shown)
 - Until the address is verified, the account can sign in and see its history, but AI routes (`compare-stream`, `interview/*`, `cover-letter`) answer `403`. A banner lets the user resend the link.
 - Google accounts and accounts created before this feature are considered verified.
 - Forgot password: `/forgot-password` sends a link (valid 60 min, single use). The response is identical whether the account exists or not.
+- A password change (reset, or removal of an unverified password when linking Google) **signs out existing sessions**: JWTs issued before it (`iat` < `users.password_changed_at`) get a `401` (`auth.session_expired`). The token returned by the reset stays valid.
 
 **Frontend** (`frontend/.env`):
 
