@@ -64,6 +64,11 @@ build/
 embedding_cache.pkl
 *.pkl
 backend/data/
+.agents/
+.claude/
+.hermes/
+skills/
+skills-lock.json
 
 # Coverage / tests
 .coverage
