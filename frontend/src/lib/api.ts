@@ -121,6 +121,152 @@ export async function deleteInterview(id: string) {
   return data
 }
 
+export type CoverLetterTone = 'professional' | 'warm' | 'confident' | 'formal'
+export type CoverLetterLength = 'short' | 'standard' | 'detailed'
+export type CoverLetterLanguage = 'auto' | 'fr' | 'en'
+
+export type CoverLetter = {
+  subject: string
+  greeting: string
+  opening: string
+  body: string[]
+  closing: string
+  signoff: string
+  signature: string
+  language: string
+}
+
+export type CoverLetterSection = {
+  key: 'subject' | 'greeting' | 'opening' | 'body' | 'closing' | 'signoff' | 'signature'
+  text: string
+}
+
+export type CoverLetterHistoryItem = {
+  id: string
+  subject: string
+  job_excerpt: string
+  cv_excerpt: string
+  tone: CoverLetterTone
+  length: CoverLetterLength
+  language: string
+  word_count: number
+  created_at: string | null
+}
+
+export type CoverLetterHistoryDetail = CoverLetterHistoryItem & {
+  letter: CoverLetter
+  cv_text: string
+  job_text: string
+}
+
+export async function listCoverLetters(limit = 20, offset = 0) {
+  const { data } = await api.get<{
+    items: CoverLetterHistoryItem[]
+    total: number
+    limit: number
+    offset: number
+  }>('/cover-letters', { params: { limit, offset } })
+  return data
+}
+
+export async function getCoverLetter(id: string) {
+  const { data } = await api.get<CoverLetterHistoryDetail>(`/cover-letters/${id}`)
+  return data
+}
+
+export async function deleteCoverLetter(id: string) {
+  const { data } = await api.delete<{ success: boolean }>(`/cover-letters/${id}`)
+  return data
+}
+
+export async function streamCoverLetter(
+  params: {
+    jobText: string
+    cvText: string
+    tone: CoverLetterTone
+    length: CoverLetterLength
+    language: CoverLetterLanguage
+  },
+  handlers: {
+    onStatus: (message: string) => void
+    onProgress: (progress: number) => void
+    onSection: (section: CoverLetterSection) => void
+    onLetter: (letter: CoverLetter, id: string | null) => void
+    onError: (error: string) => void
+  },
+) {
+  try {
+    const form = new FormData()
+    form.append('job_text', params.jobText)
+    form.append('cv_text', params.cvText)
+    form.append('tone', params.tone)
+    form.append('length', params.length)
+    form.append('language', params.language)
+
+    const response = await fetch(`${getApiBaseURL()}/cover-letter`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${getAccessToken()}`,
+        Accept: 'text/event-stream',
+        ...localeHeaders(),
+      },
+      body: form,
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+    }
+
+    const reader = response.body?.getReader()
+    if (!reader) {
+      throw new Error(t('errors.readStream'))
+    }
+
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        let data: any
+        try {
+          data = JSON.parse(line.slice(6))
+        } catch (e) {
+          console.error('Erreur parsing SSE:', e)
+          continue
+        }
+        switch (data.type) {
+          case 'status':
+            handlers.onStatus(data.message)
+            break
+          case 'progress':
+            handlers.onProgress(data.value)
+            break
+          case 'section':
+            handlers.onSection(data.section)
+            break
+          case 'letter':
+            handlers.onLetter(data.letter, data.id ?? null)
+            break
+          case 'error':
+            handlers.onError(data.message)
+            break
+        }
+      }
+    }
+  } catch (error: any) {
+    handlers.onError(error.message || t('coverLetter.errors.generic'))
+  }
+}
+
 export async function streamCompare(
   offerText: string,
   cvText: string,

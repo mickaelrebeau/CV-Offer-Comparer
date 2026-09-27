@@ -7,6 +7,8 @@ from sqlalchemy import text
 
 from app.db import _migrate_email_verification, engine
 from app.models.auth_token import AuthToken
+from app.models.comparison_record import ComparisonRecord
+from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import upsert_google_user
 
@@ -162,3 +164,21 @@ def test_migration_marks_existing_users_verified(db_session):
     db_session.expire_all()
     legacy = db_session.query(User).filter_by(email="legacy@example.com").one()
     assert legacy.email_verified is True
+
+
+def test_account_deletion_removes_history(client, auth_headers, db_session, registered_user):
+    user_id = uuid.UUID(registered_user["user"]["id"])
+    db_session.add(
+        ComparisonRecord.from_analysis(user_id=user_id, offer_text="Offre", cv_text="CV", items=[], summary={})
+    )
+    db_session.add(
+        InterviewRecord.from_session(
+            user_id=user_id, job_text="Offre", cv_text="CV", questions=[], answers=[], analysis={}
+        )
+    )
+    db_session.commit()
+
+    assert client.delete("/api/auth/me", headers=auth_headers).status_code == 200
+    db_session.expire_all()
+    assert db_session.query(ComparisonRecord).count() == 0
+    assert db_session.query(InterviewRecord).count() == 0

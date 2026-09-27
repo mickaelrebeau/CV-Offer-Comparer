@@ -73,6 +73,7 @@ def test_rate_limit_requires_auth(client, limits):
         ("post", "/api/compare-stream"),
         ("post", "/api/interview/generate-questions"),
         ("post", "/api/interview/analyze-responses"),
+        ("post", "/api/cover-letter"),
     ],
 )
 def test_gemini_routes_are_limited(client, auth_headers, limits, method, path):

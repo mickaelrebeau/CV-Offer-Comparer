@@ -61,6 +61,7 @@ MESSAGES: dict[str, dict[str, str]] = {
     # Historique
     "history.comparison_not_found": {"fr": "Comparaison introuvable", "en": "Comparison not found"},
     "history.interview_not_found": {"fr": "Entretien introuvable", "en": "Interview not found"},
+    "history.cover_letter_not_found": {"fr": "Lettre de motivation introuvable", "en": "Cover letter not found"},
     # Upload / extraction
     "upload.only_pdf": {"fr": "Seuls les fichiers PDF sont acceptés", "en": "Only PDF files are accepted"},
     "upload.cv_format": {"fr": "Le CV doit être au format PDF ou TXT", "en": "The resume must be a PDF or TXT file"},
@@ -123,6 +124,29 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "Please provide a job offer description",
     },
     "interview.invalid_payload": {"fr": "Format JSON invalide", "en": "Invalid JSON format"},
+    # Lettre de motivation
+    "cover_letter.start": {"fr": "Lecture du CV et de l'offre…", "en": "Reading the resume and the job offer…"},
+    "cover_letter.gemini": {
+        "fr": "Rédaction de la lettre par Gemini…",
+        "en": "Gemini is writing the letter…",
+    },
+    "cover_letter.writing": {"fr": "Mise en forme de la lettre…", "en": "Formatting the letter…"},
+    "cover_letter.failed": {
+        "fr": "La génération de la lettre a échoué. Réessayez dans un instant.",
+        "en": "The cover letter could not be generated. Please try again in a moment.",
+    },
+    "cover_letter.cv_missing": {
+        "fr": "Veuillez fournir votre CV (fichier PDF / TXT ou texte)",
+        "en": "Please provide your resume (PDF / TXT file or text)",
+    },
+    "cover_letter.text_too_long": {
+        "fr": "Le CV et l'offre sont limités à {max_chars} caractères chacun",
+        "en": "The resume and the job offer are limited to {max_chars} characters each",
+    },
+    "cover_letter.invalid_option": {
+        "fr": "Ton, longueur ou langue de lettre invalide",
+        "en": "Invalid letter tone, length or language",
+    },
     # Limites
     "rate.too_many": {
         "fr": "Trop de requêtes. Réessayez dans un instant.",

@@ -24,6 +24,7 @@ from app.db import Base, get_db, _normalize_database_url  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models.auth_token import AuthToken  # noqa: F401,E402
 from app.models.comparison_record import ComparisonRecord  # noqa: F401,E402
+from app.models.cover_letter_record import CoverLetterRecord  # noqa: F401,E402
 from app.models.interview_record import InterviewRecord  # noqa: F401,E402
 from app.models.user import User  # noqa: F401,E402
 from app.services.rate_limit_service import rate_limiter  # noqa: E402

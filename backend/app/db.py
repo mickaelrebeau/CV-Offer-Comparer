@@ -44,6 +44,7 @@ def init_db() -> None:
     """Crée les tables manquantes au démarrage."""
     from app.models.auth_token import AuthToken  # noqa: F401
     from app.models.comparison_record import ComparisonRecord  # noqa: F401
+    from app.models.cover_letter_record import CoverLetterRecord  # noqa: F401
     from app.models.interview_record import InterviewRecord  # noqa: F401
     from app.models.user import User  # noqa: F401
 

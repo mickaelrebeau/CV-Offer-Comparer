@@ -8,7 +8,17 @@ from fastapi.responses import JSONResponse
 from app.config import settings
 from app.db import init_db
 from app.i18n import ApiError, negotiate_locale, t
-from app.routers import auth, compare, comparisons, free_analysis, health, interview, interviews, upload
+from app.routers import (
+    auth,
+    compare,
+    comparisons,
+    cover_letters,
+    free_analysis,
+    health,
+    interview,
+    interviews,
+    upload,
+)
 
 
 @asynccontextmanager
@@ -20,7 +30,10 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="Talento API",
     version="1.0.0",
-    description="API de Talento : analyse ATS d'un CV face à une offre d'emploi et simulateur d'entretien.",
+    description=(
+        "API de Talento : analyse ATS d'un CV face à une offre d'emploi, simulateur d'entretien "
+        "et générateur de lettre de motivation."
+    ),
     lifespan=lifespan,
 )
 
@@ -54,3 +67,4 @@ app.include_router(comparisons.router, prefix="/api", tags=["comparisons"])
 app.include_router(free_analysis.router, prefix="/api", tags=["free-analysis"])
 app.include_router(interview.router, prefix="/api", tags=["interview"])
 app.include_router(interviews.router, prefix="/api", tags=["interviews"])
+app.include_router(cover_letters.router, prefix="/api", tags=["cover-letters"])

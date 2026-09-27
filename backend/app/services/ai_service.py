@@ -293,6 +293,97 @@ JSON uniquement:
 
         return self._fallback_analysis()
 
+    def generate_cover_letter(
+        self,
+        cv_text: str,
+        job_text: str,
+        *,
+        tone: str,
+        length: str,
+        language: str,
+    ) -> dict[str, Any]:
+        """
+        Une seule requête LLM : lettre structurée (accroche, corps, conclusion).
+        Retourne { subject, greeting, opening, body: [...], closing, signoff, signature, language }.
+        """
+        tones = {
+            "professional": "professionnel, sobre et assuré",
+            "warm": "chaleureux et engagé, sans familiarité",
+            "confident": "affirmé et orienté résultats, sans arrogance",
+            "formal": "très formel et soutenu",
+        }
+        lengths = {
+            "short": ("180 à 230 mots", "1 paragraphe"),
+            "standard": ("280 à 350 mots", "2 paragraphes"),
+            "detailed": ("400 à 480 mots", "3 paragraphes"),
+        }
+        languages = {
+            "auto": "la langue de l'offre d'emploi",
+            "fr": "français",
+            "en": "anglais",
+        }
+        words, paragraphs = lengths[length]
+
+        prompt = f"""Tu es un expert en recrutement. Rédige une lettre de motivation ciblée pour cette offre, à partir du CV.
+
+CONSIGNES
+- Langue de la lettre : {languages[language]}.
+- Ton : {tones[tone]}.
+- Longueur totale : {words} (formule d'appel et formule de politesse comprises).
+- Structure : une accroche qui relie le candidat au poste, un corps de {paragraphs} qui démontre
+  l'adéquation avec des éléments concrets et chiffrés TIRÉS DU CV, une conclusion qui propose un entretien.
+- N'invente aucune expérience, compétence, diplôme ou chiffre absent du CV.
+- Reprends naturellement les mots-clés importants de l'offre (ATS), sans liste à puces.
+- Aucun champ à compléter du type [Nom de l'entreprise] : si une information manque, formule autrement.
+- Texte brut uniquement : pas de Markdown, pas d'adresse postale ni de date.
+- signature : prénom et nom du candidat s'ils figurent dans le CV, sinon chaîne vide.
+- language : code ISO 639-1 de la langue de la lettre.
+
+SCHÉMA JSON
+{{
+  "subject": "Objet : candidature au poste de …",
+  "greeting": "Madame, Monsieur,",
+  "opening": "accroche",
+  "body": ["paragraphe"],
+  "closing": "conclusion",
+  "signoff": "formule de politesse",
+  "signature": "Prénom Nom",
+  "language": "fr"
+}}
+
+OFFRE:
+\"\"\"{self._clip(job_text, 10000)}\"\"\"
+
+CV:
+\"\"\"{self._clip(cv_text, 10000)}\"\"\"
+"""
+
+        raw = self._generate_json(prompt, temperature=0.6)
+        if not isinstance(raw, dict):
+            raise RuntimeError("Gemini n'a pas renvoyé de lettre structurée")
+
+        def field(key: str) -> str:
+            return str(raw.get(key) or "").strip()
+
+        body = raw.get("body") or []
+        if isinstance(body, str):
+            body = [body]
+        body = [str(p).strip() for p in body if str(p).strip()] if isinstance(body, list) else []
+
+        letter = {
+            "subject": field("subject"),
+            "greeting": field("greeting"),
+            "opening": field("opening"),
+            "body": body,
+            "closing": field("closing"),
+            "signoff": field("signoff"),
+            "signature": field("signature"),
+            "language": field("language").lower()[:8] or (language if language != "auto" else ""),
+        }
+        if not letter["opening"] or not letter["body"] or not letter["closing"]:
+            raise RuntimeError("Lettre Gemini incomplète (accroche, corps ou conclusion manquant)")
+        return letter
+
     @staticmethod
     def _fallback_questions(num_questions: int) -> list[dict[str, str]]:
         base = [

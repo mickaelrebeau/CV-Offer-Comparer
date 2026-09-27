@@ -4,7 +4,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Issues](https://img.shields.io/github/issues/mickaelrebeau/CV-Offer-Comparer)](https://github.com/mickaelrebeau/CV-Offer-Comparer/issues)
 
-Application web open source (**Talento**) qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, et simulateur d’entretien.
+Application web open source (**Talento**) qui compare un CV avec une offre d’emploi grâce à **Gemini** : correspondances, lacunes, suggestions ATS, simulateur d’entretien et générateur de lettre de motivation.
 
 **[Read in English](README.en.md)**
 
@@ -20,8 +20,9 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Webapp installable (PWA) : manifeste, service worker, pages disponibles hors ligne
 - Auth email/mot de passe + **Google OAuth**
 - Simulateur d’entretien personnalisé
-- Upload PDF + saisie texte
-- Historique des comparaisons (utilisateurs connectés, Postgres)
+- Générateur de lettre de motivation (ton, longueur, langue ; copie et export `.txt` / `.md`)
+- Upload PDF (ou TXT pour la lettre) + saisie texte
+- Historique des comparaisons, simulations et lettres (utilisateurs connectés, Postgres)
 
 ## Stack
 
@@ -41,7 +42,7 @@ CV-Offer-Comparer/
 ├── frontend/          # SPA Vue 3
 ├── backend/           # API FastAPI
 │   ├── app/
-│   │   ├── routers/   # auth, compare, interview, free-analysis…
+│   │   ├── routers/   # auth, compare, interview, cover-letters, free-analysis…
 │   │   ├── services/  # Gemini, auth, Redis…
 │   │   └── models/
 │   ├── Dockerfile
@@ -111,7 +112,7 @@ App : http://localhost:3000 (ou le port Vite affiché)
 ### Comptes et vérification e-mail
 
 - À l’inscription par e-mail, un lien de vérification est envoyé (valable 48 h, usage unique).
-- Tant que l’adresse n’est pas vérifiée, le compte peut se connecter et consulter son historique, mais les routes IA (`compare-stream`, `interview/*`) répondent `403`. Une bannière permet de renvoyer le lien.
+- Tant que l’adresse n’est pas vérifiée, le compte peut se connecter et consulter son historique, mais les routes IA (`compare-stream`, `interview/*`, `cover-letter`) répondent `403`. Une bannière permet de renvoyer le lien.
 - Les comptes Google et les comptes créés avant cette fonctionnalité sont considérés comme vérifiés.
 - Mot de passe oublié : `/forgot-password` envoie un lien (valable 60 min, usage unique). La réponse est identique que le compte existe ou non.
 
@@ -131,6 +132,7 @@ Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par
 | `POST /api/compare-stream` | user + IP | `DAILY_QUOTA_COMPARE` (50) |
 | `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
+| `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 analyse gratuite par client |
 

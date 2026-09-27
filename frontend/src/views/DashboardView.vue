@@ -6,11 +6,11 @@
       :description="t('dashboard.description')"
     />
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="module in modules"
         :key="module.path"
-        class="panel group relative cursor-pointer p-6 transition-colors focus-within:ring-2 focus-within:ring-ink/60 hover:border-ink/30 sm:p-8"
+        class="panel group relative flex cursor-pointer flex-col p-6 transition-colors focus-within:ring-2 focus-within:ring-ink/60 hover:border-ink/30 sm:p-8"
       >
         <div class="mb-6 font-mono text-micro uppercase text-ink-soft">{{ module.id }}</div>
         <h2 class="mb-3 font-medium text-title transition-colors group-hover:text-ink-soft">
@@ -26,7 +26,7 @@
             <span>{{ feature }}</span>
           </li>
         </ul>
-        <div class="flex items-center justify-between border-t border-ink/10 pt-5 font-mono text-micro uppercase">
+        <div class="mt-auto flex items-center justify-between border-t border-ink/10 pt-5 font-mono text-micro uppercase">
           <span class="text-ink transition-opacity group-hover:opacity-70">{{ module.cta }}</span>
           <ArrowRight class="h-4 w-4 text-ink-soft transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </div>
@@ -175,6 +175,77 @@
         </li>
       </ul>
     </section>
+
+    <section class="mt-12">
+      <div class="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p class="font-mono text-micro uppercase text-ink-soft">{{ t('dashboard.history') }}</p>
+          <h2 class="mt-1 font-medium text-title">{{ t('dashboard.coverLetters.title') }}</h2>
+        </div>
+        <button
+          v-if="letterHistory.length"
+          type="button"
+          class="btn-secondary h-9 px-4 text-micro"
+          :disabled="letterLoading"
+          @click="loadLetterHistory"
+        >
+          {{ t('common.refresh') }}
+        </button>
+      </div>
+
+      <AppStatus v-if="letterLoading" kind="loading" :message="t('dashboard.coverLetters.loading')" />
+      <AppStatus
+        v-else-if="letterError"
+        kind="error"
+        :message="letterError"
+        :action-label="t('common.retry')"
+        @action="loadLetterHistory"
+      />
+      <AppStatus
+        v-else-if="!letterHistory.length"
+        kind="empty"
+        :message="t('dashboard.coverLetters.empty')"
+        :action-label="t('dashboard.coverLetters.cta')"
+        @action="push('/cover-letter')"
+      />
+
+      <ul v-else class="space-y-3">
+        <li
+          v-for="item in letterHistory"
+          :key="item.id"
+          class="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="min-w-0 flex-1">
+            <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
+              <span>{{ formatDate(item.created_at) }}</span>
+              <span>{{ t(`coverLetter.tones.${item.tone}`) }}</span>
+              <span>{{ t('dashboard.coverLetters.words', { count: item.word_count }) }}</span>
+            </div>
+            <p class="truncate text-sm text-ink">{{ item.subject || item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+          </div>
+          <div class="flex shrink-0 gap-2">
+            <button
+              type="button"
+              class="btn-secondary h-9 px-4 text-micro"
+              :aria-label="t('dashboard.coverLetters.view', { date: formatDate(item.created_at) })"
+              @click="openLetterHistory(item.id)"
+            >
+              {{ t('dashboard.view') }}
+            </button>
+            <button
+              type="button"
+              class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
+              :disabled="deletingLetterId === item.id"
+              :aria-label="t('dashboard.coverLetters.delete', { date: formatDate(item.created_at) })"
+              @click="removeLetterHistory(item.id)"
+            >
+              {{ t('dashboard.delete') }}
+            </button>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -188,10 +259,13 @@ import { useLocale } from '@/i18n/useLocale'
 import { isOnline } from '@/lib/pwa'
 import {
   deleteComparison,
+  deleteCoverLetter,
   deleteInterview,
   listComparisons,
+  listCoverLetters,
   listInterviews,
   type ComparisonHistoryItem,
+  type CoverLetterHistoryItem,
   type InterviewHistoryItem,
 } from '@/lib/api'
 
@@ -207,9 +281,20 @@ const interviewLoading = ref(true)
 const interviewError = ref('')
 const deletingInterviewId = ref<string | null>(null)
 
+const letterHistory = ref<CoverLetterHistoryItem[]>([])
+const letterLoading = ref(true)
+const letterError = ref('')
+const deletingLetterId = ref<string | null>(null)
+
+const MODULE_PATHS = {
+  compare: '/compare',
+  interview: '/interview-simulator',
+  coverLetter: '/cover-letter',
+} as const
+
 const modules = computed(() =>
-  (['compare', 'interview'] as const).map((key) => ({
-    path: key === 'compare' ? '/compare' : '/interview-simulator',
+  (Object.keys(MODULE_PATHS) as (keyof typeof MODULE_PATHS)[]).map((key) => ({
+    path: MODULE_PATHS[key],
     id: t(`dashboard.modules.${key}.id`),
     title: t(`dashboard.modules.${key}.title`),
     description: t(`dashboard.modules.${key}.description`),
@@ -244,6 +329,19 @@ async function loadInterviewHistory() {
   }
 }
 
+async function loadLetterHistory() {
+  letterLoading.value = true
+  letterError.value = ''
+  try {
+    const data = await listCoverLetters(10)
+    letterHistory.value = data.items
+  } catch (err: any) {
+    letterError.value = err.response?.data?.detail || t('dashboard.coverLetters.loadError')
+  } finally {
+    letterLoading.value = false
+  }
+}
+
 function formatScore(score: number) {
   return formatNumber(score, { maximumFractionDigits: 1 })
 }
@@ -260,6 +358,10 @@ function openHistory(id: string) {
 
 function openInterviewHistory(id: string) {
   push({ path: '/interview-results', query: { history: id } })
+}
+
+function openLetterHistory(id: string) {
+  push({ path: '/cover-letter', query: { history: id } })
 }
 
 async function removeHistory(id: string) {
@@ -286,9 +388,22 @@ async function removeInterviewHistory(id: string) {
   }
 }
 
+async function removeLetterHistory(id: string) {
+  deletingLetterId.value = id
+  try {
+    await deleteCoverLetter(id)
+    letterHistory.value = letterHistory.value.filter((item) => item.id !== id)
+  } catch (err: any) {
+    letterError.value = err.response?.data?.detail || t('dashboard.deleteError')
+  } finally {
+    deletingLetterId.value = null
+  }
+}
+
 onMounted(() => {
   loadHistory()
   loadInterviewHistory()
+  loadLetterHistory()
 })
 
 // Retour du réseau : relancer les listes en erreur
@@ -296,5 +411,6 @@ watch(isOnline, (online) => {
   if (!online) return
   if (historyError.value) loadHistory()
   if (interviewError.value) loadInterviewHistory()
+  if (letterError.value) loadLetterHistory()
 })
 </script>

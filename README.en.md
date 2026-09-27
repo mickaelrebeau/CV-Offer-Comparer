@@ -6,7 +6,7 @@
 
 **[Lire en français](README.md)**
 
-Open-source web app (**Talento**) that compares a résumé (CV) with a job offer using **Gemini**: matches, gaps, ATS-oriented suggestions, and an interview simulator.
+Open-source web app (**Talento**) that compares a résumé (CV) with a job offer using **Gemini**: matches, gaps, ATS-oriented suggestions, an interview simulator and a cover letter generator.
 
 > Repository name on GitHub remains `CV-Offer-Comparer`; the product brand is **Talento**.
 
@@ -22,8 +22,9 @@ Open-source web app (**Talento**) that compares a résumé (CV) with a job offer
 - Installable web app (PWA): manifest, service worker, pages available offline
 - Email/password auth + **Google OAuth**
 - Personalized interview simulator
-- PDF upload and plain-text input
-- Comparison history for signed-in users (Postgres)
+- Cover letter generator (tone, length, language; copy and `.txt` / `.md` export)
+- PDF upload (or TXT for the cover letter) and plain-text input
+- Comparison, interview and cover letter history for signed-in users (Postgres)
 
 ## Stack
 
@@ -44,7 +45,7 @@ CV-Offer-Comparer/
 ├── frontend/          # Vue 3 SPA
 ├── backend/           # FastAPI API
 │   ├── app/
-│   │   ├── routers/   # auth, compare, comparisons, interview…
+│   │   ├── routers/   # auth, compare, comparisons, interview, cover-letters…
 │   │   ├── services/  # Gemini, auth, Redis…
 │   │   └── models/
 │   ├── Dockerfile
@@ -116,7 +117,7 @@ App: http://localhost:3000 (or the Vite port shown)
 ### Accounts and email verification
 
 - Email sign-ups receive a verification link (valid 48 h, single use).
-- Until the address is verified, the account can sign in and see its history, but AI routes (`compare-stream`, `interview/*`) answer `403`. A banner lets the user resend the link.
+- Until the address is verified, the account can sign in and see its history, but AI routes (`compare-stream`, `interview/*`, `cover-letter`) answer `403`. A banner lets the user resend the link.
 - Google accounts and accounts created before this feature are considered verified.
 - Forgot password: `/forgot-password` sends a link (valid 60 min, single use). The response is identical whether the account exists or not.
 
@@ -136,6 +137,7 @@ Costly routes (Gemini, upload) are limited per user **and** per IP. Beyond the l
 | `POST /api/compare-stream` | user + IP | `DAILY_QUOTA_COMPARE` (50) |
 | `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
+| `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 free analysis per client |
 
