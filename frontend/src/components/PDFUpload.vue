@@ -113,6 +113,8 @@ interface Props {
 interface Emits {
   (e: 'update:modelValue', value: string): void
   (e: 'update:fileName', value: string | null): void
+  /** Texte extrait avec le nom du fichier, en un seul événement */
+  (e: 'loaded', value: { text: string; fileName: string }): void
 }
 
 const props = defineProps<Props>()
@@ -207,6 +209,7 @@ const handleFile = async (file: File) => {
       extractedText.value = response.data.text
       emit('update:modelValue', response.data.text)
       emit('update:fileName', file.name)
+      emit('loaded', { text: response.data.text, fileName: file.name })
       posthog.capture('cv_uploaded', { upload_source: 'pdf' })
       showPreview.value = true
     } else {
@@ -235,6 +238,7 @@ const handleTextFile = async (file: File) => {
     extractedText.value = text
     emit('update:modelValue', text)
     emit('update:fileName', file.name)
+    emit('loaded', { text, fileName: file.name })
     posthog.capture('cv_uploaded', { upload_source: 'txt' })
     showPreview.value = true
   } catch (error: any) {

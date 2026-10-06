@@ -44,6 +44,7 @@
           </div>
         </div>
         <div class="p-4 sm:p-5">
+          <SavedCvPicker module="compare" class="mb-4" />
           <PDFUpload
             v-if="activeTab === 'upload'"
             :model-value="context.cvText"
@@ -182,6 +183,7 @@ import { useLocale } from '@/i18n/useLocale'
 import { useApplicationContextStore } from '@/stores/applicationContext'
 import { useCompareStore } from '@/stores/compare'
 import PDFUpload from './PDFUpload.vue'
+import SavedCvPicker from './SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 
 const { t } = useI18n()

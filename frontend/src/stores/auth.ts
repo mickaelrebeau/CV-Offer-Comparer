@@ -6,6 +6,7 @@ import posthog from 'posthog-js'
 import type { AuthResponse, AuthUser } from '@/types/auth'
 import { t } from '@/i18n'
 import { useApplicationContextStore } from './applicationContext'
+import { useSavedCvsStore } from './savedCvs'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -38,9 +39,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // CV et offre en session : jamais laissés au prochain utilisateur du poste
+  // CV et offre en session, CV enregistrés en mémoire : jamais laissés au prochain utilisateur du poste
   function clearApplicationContext() {
-    if (typeof window !== 'undefined') useApplicationContextStore().clear()
+    if (typeof window === 'undefined') return
+    useApplicationContextStore().clear()
+    useSavedCvsStore().reset()
   }
 
   async function fetchMe(): Promise<AuthUser | null> {
