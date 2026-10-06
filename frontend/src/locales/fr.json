@@ -306,7 +306,6 @@
     "install": {
       "title": "Installer le bouton",
       "text": "Un favori à placer dans la barre de votre navigateur (ordinateur) : il lit l'offre affichée et l'ouvre dans Talento.",
-      "button": "Envoyer vers Talento",
       "drag": "Glissez ce bouton dans votre barre de favoris (affichez-la avec Ctrl+Maj+B ou Cmd+Maj+B).",
       "clicked": "Ne cliquez pas ici : glissez le bouton dans la barre de favoris, puis utilisez-le depuis une page d'offre.",
       "step1": "Ouvrez une offre sur Indeed, LinkedIn ou Welcome to the Jungle (connecté à Talento dans ce navigateur).",
@@ -314,7 +313,9 @@
       "step3": "L'offre s'ouvre ici, prête pour le comparateur, le simulateur d'entretien ou la lettre.",
       "sites": "Fonctionne aussi sur les autres sites d'emploi et pages carrières.",
       "mobile": "Sur mobile, les favoris de ce type ne sont pas pris en charge : utilisez le copier-coller depuis le champ offre.",
-      "privacy": "Le bouton lit uniquement la page de l'offre, dans votre navigateur, et l'envoie à Talento. Rien n'est transmis au site d'emploi ni à des tiers."
+      "privacy": "Le bouton lit uniquement la page de l'offre, dans votre navigateur, et l'envoie à Talento. Rien n'est transmis au site d'emploi ni à des tiers.",
+      "bookmarkName": "📨 Envoyer vers Talento",
+      "icon": "Les navigateurs n'affichent pas de logo pour ce type de favori (il ne pointe vers aucun site) : l'emoji 📨 sert de repère dans la barre. Vous pouvez renommer le favori (clic droit → Modifier), par exemple en « 📨 Talento » pour gagner de la place."
     }
   },
   "context": {

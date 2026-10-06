@@ -306,7 +306,6 @@
     "install": {
       "title": "Install the button",
       "text": "A bookmark for your browser's bookmarks bar (desktop): it reads the displayed job offer and opens it in Talento.",
-      "button": "Send to Talento",
       "drag": "Drag this button to your bookmarks bar (show it with Ctrl+Shift+B or Cmd+Shift+B).",
       "clicked": "Don't click here: drag the button to your bookmarks bar, then use it from a job offer page.",
       "step1": "Open a job offer on Indeed, LinkedIn or Welcome to the Jungle (signed in to Talento in this browser).",
@@ -314,7 +313,9 @@
       "step3": "The offer opens here, ready for the comparer, the interview simulator or the cover letter.",
       "sites": "Also works on other job boards and career pages.",
       "mobile": "On mobile, this kind of bookmark is not supported: use copy and paste from the job offer field.",
-      "privacy": "The button only reads the job offer page, in your browser, and sends it to Talento. Nothing is sent to the job board or to third parties."
+      "privacy": "The button only reads the job offer page, in your browser, and sends it to Talento. Nothing is sent to the job board or to third parties.",
+      "bookmarkName": "📨 Send to Talento",
+      "icon": "Browsers show no logo for this kind of bookmark (it doesn't point to a website): the 📨 emoji makes it easy to spot in the bar. You can rename the bookmark (right-click → Edit), for example to “📨 Talento” to save space."
     }
   },
   "context": {

@@ -56,16 +56,17 @@
           <!-- Lien javascript: généré localement (bookmarklet), à glisser dans la barre de favoris -->
           <a
             :href="bookmarklet"
-            class="btn-primary cursor-grab select-none"
+            class="btn-primary cursor-grab select-none whitespace-nowrap normal-case"
             draggable="true"
             @click.prevent="clickedInstead = true"
           >
-            <Send class="mr-2 h-4 w-4" aria-hidden="true" />
-            {{ t('importOffer.install.button') }}
+            <!-- Texte du lien = nom du favori : l'emoji tient lieu d'icône (un bookmarklet n'en a pas) -->
+            {{ t('importOffer.install.bookmarkName') }}
           </a>
           <p class="text-xs text-ink-soft">{{ t('importOffer.install.drag') }}</p>
         </div>
         <p v-if="clickedInstead" class="text-sm text-ink" role="status">{{ t('importOffer.install.clicked') }}</p>
+        <p class="text-xs text-ink-soft">{{ t('importOffer.install.icon') }}</p>
         <ol class="list-decimal space-y-1 pl-5 text-sm text-ink-soft">
           <li>{{ t('importOffer.install.step1') }}</li>
           <li>{{ t('importOffer.install.step2') }}</li>
@@ -82,7 +83,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ArrowRightLeft, CheckCircle, Loader2, MessageSquare, PenLine, Send, Sparkles } from 'lucide-vue-next'
+import { ArrowRightLeft, CheckCircle, Loader2, MessageSquare, PenLine, Sparkles } from 'lucide-vue-next'
 import posthog from 'posthog-js'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
