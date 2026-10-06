@@ -61,7 +61,7 @@ uvicorn main:app --reload
 - API : http://localhost:8000  
 - OpenAPI : http://localhost:8000/docs  
 
-Les tables (`users`, etc.) sont créées au démarrage via SQLAlchemy.
+Le schéma est mis à jour au démarrage par les migrations **Alembic** (`backend/migrations/`) : rien à lancer à la main. Une base créée avant Alembic est reconnue, mise à niveau puis marquée automatiquement.
 
 ## 3. Frontend
 
