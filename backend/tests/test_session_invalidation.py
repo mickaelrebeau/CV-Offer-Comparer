@@ -7,7 +7,8 @@ from jose import jwt
 from sqlalchemy import text
 
 from app.config import settings
-from app.db import _migrate_password_changed_at, engine
+from app.db import engine
+from app.migrations import upgrade_legacy_schema
 from app.models.user import User
 from app.services.auth_service import create_access_token, token_is_current, upsert_google_user
 
@@ -114,8 +115,9 @@ def test_migration_adds_empty_column(client, registered_user, db_session):
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users DROP COLUMN password_changed_at"))
 
-    _migrate_password_changed_at()
-    _migrate_password_changed_at()  # idempotente
+    for _ in range(2):  # idempotente
+        with engine.begin() as conn:
+            upgrade_legacy_schema(conn)
 
     assert _db_user(db_session, registered_user).password_changed_at is None
     assert _me(client, _token(registered_user, seconds_ago=None)).status_code == 200

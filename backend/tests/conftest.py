@@ -22,13 +22,8 @@ os.environ.setdefault(
 
 from app.db import Base, get_db, _normalize_database_url  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models.auth_token import AuthToken  # noqa: F401,E402
-from app.models.comparison_record import ComparisonRecord  # noqa: F401,E402
-from app.models.cover_letter_record import CoverLetterRecord  # noqa: F401,E402
-from app.models.interview_record import InterviewRecord  # noqa: F401,E402
-from app.models.llm_credential import UserLLMCredential  # noqa: F401,E402
-from app.models.saved_cv import SavedCV  # noqa: F401,E402
-from app.models.user import User  # noqa: F401,E402
+from app.models import tables  # noqa: F401,E402  (enregistre toutes les tables)
+from app.models.user import User  # noqa: E402
 from app.services.rate_limit_service import rate_limiter  # noqa: E402
 from app.services.redis_service import redis_service  # noqa: E402
 
@@ -65,9 +60,16 @@ def engine():
     eng.dispose()
 
 
+def reset_schema(engine) -> None:
+    """Schéma vide (tables applicatives et version Alembic)."""
+    Base.metadata.drop_all(bind=engine)
+    with engine.begin() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
+
+
 @pytest.fixture
 def db_session(engine):
-    Base.metadata.drop_all(bind=engine)
+    reset_schema(engine)
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     session = SessionLocal()
@@ -75,7 +77,7 @@ def db_session(engine):
         yield session
     finally:
         session.close()
-        Base.metadata.drop_all(bind=engine)
+        reset_schema(engine)
 
 
 @pytest.fixture
