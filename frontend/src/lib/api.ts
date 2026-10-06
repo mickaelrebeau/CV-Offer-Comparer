@@ -109,8 +109,8 @@ export type ImportedOffer = {
   location: string
   text: string
   source_url: string
-  /** json-ld (données structurées), api (API publique d'un ATS), html (contenu principal), ai (nettoyée) */
-  method: 'json-ld' | 'api' | 'html' | 'ai'
+  /** json-ld (données structurées), api (API d'un ATS), html (contenu principal), paste (texte collé), ai (nettoyée) */
+  method: 'json-ld' | 'api' | 'html' | 'paste' | 'ai'
   cached?: boolean
 }
 
@@ -121,6 +121,20 @@ export async function importJobOffer(url: string, aiCleanup = false) {
     { url, ai_cleanup: aiCleanup },
     { timeout: aiCleanup ? 90000 : 45000 },
   )
+  return data
+}
+
+/** Offre lue dans le navigateur (bookmarklet, copier-coller) : analysée sans requête au site. */
+export async function parseJobOffer(body: {
+  url?: string | null
+  title?: string
+  json_ld?: string[]
+  text?: string
+  ai_cleanup?: boolean
+}) {
+  const { data } = await api.post<ImportedOffer>('/job-offers/parse', body, {
+    timeout: body.ai_cleanup ? 90000 : 30000,
+  })
   return data
 }
 

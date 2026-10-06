@@ -16,6 +16,8 @@ from app.services.job_offers.extract import (
     MIN_TEXT_CHARS,
     ExtractedOffer,
     extract_offer,
+    job_posting_from_blocks,
+    parse_json_ld,
     from_workable,
     workable_api_url,
 )
@@ -25,7 +27,8 @@ from app.services.redis_service import redis_service
 CACHE_TTL_SECONDS = 15 * 60
 CACHE_PREFIX = "job_offer:"
 # Sites qui exigent une connexion ou bloquent les robots : inutile de les appeler
-BLOCKED_SITES = re.compile(r"(^|\.)(linkedin|indeed|glassdoor|monster)\.[a-z.]+$")
+# (Welcome to the Jungle : 503 / délais dépassés pour les robots, vérifié le 6 octobre 2026)
+BLOCKED_SITES = re.compile(r"(^|\.)(linkedin|indeed|glassdoor|monster|welcometothejungle)\.[a-z.]+$")
 
 _memory_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
@@ -105,6 +108,48 @@ def import_offer(url: str) -> dict[str, Any]:
     result = {**offer.to_dict(), "source_url": source_url}
     _cache_set(key, result)
     return {**result, "cached": False}
+
+
+# Contenu lu dans le navigateur de l'utilisateur (bookmarklet, copier-coller) : limites d'entrée
+MAX_JSON_LD_CHARS = 500_000
+MAX_PASTED_CHARS = 200_000
+MAX_TITLE_CHARS = 300
+
+
+def _page_title(title: str) -> str:
+    """Titre d'onglet sans le nom du site (« Développeur H/F - Paris - Indeed.com » → « Développeur H/F - Paris »)."""
+    title = re.sub(r"\s+", " ", title or "").strip()[:MAX_TITLE_CHARS]
+    return re.sub(r"\s*[-|–·]\s*(Indeed(\.\w+)*|LinkedIn|Welcome to the Jungle)\s*$", "", title, flags=re.I)
+
+
+def _clean_pasted_text(text: str) -> str:
+    lines = [re.sub(r"[ \t\u00a0]+", " ", line).strip() for line in (text or "").splitlines()]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
+
+
+def parse_offer(
+    *,
+    url: str | None,
+    title: str = "",
+    json_ld: list[str] | None = None,
+    text: str = "",
+) -> dict[str, Any]:
+    """Offre lue dans le navigateur (sites qui bloquent l'import serveur). Rien n'est téléchargé.
+
+    `json_ld` : balises JSON-LD de la page (bookmarklet) ; `text` : texte de l'offre ou de la page.
+    """
+    raws = [raw for raw in (json_ld or []) if isinstance(raw, str)]
+    if sum(len(raw) for raw in raws) > MAX_JSON_LD_CHARS or len(text or "") > MAX_PASTED_CHARS:
+        raise ApiError(413, "job_offer.too_large")
+
+    source_url = safe_offer_url(url)
+    offer = job_posting_from_blocks(parse_json_ld(raws)) if raws else None
+    if offer is None:
+        cleaned = _clean_pasted_text(text)
+        if len(cleaned) < MIN_TEXT_CHARS:
+            raise ApiError(422, "job_offer.paste_too_short", min_chars=MIN_TEXT_CHARS)
+        offer = ExtractedOffer(title=_page_title(title), company="", location="", text=cleaned[:MAX_TEXT_CHARS], method="paste")
+    return {**offer.to_dict(), "source_url": source_url}
 
 
 def _from_ats_api(url: str) -> ExtractedOffer | None:

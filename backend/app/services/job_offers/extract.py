@@ -29,7 +29,7 @@ class ExtractedOffer:
     company: str
     location: str
     text: str
-    method: str  # "json-ld" | "api" | "html" | "ai"
+    method: str  # "json-ld" | "api" | "html" | "paste" | "ai"
 
     def to_dict(self) -> dict[str, str]:
         return asdict(self)
@@ -60,10 +60,11 @@ def html_to_text(fragment: str) -> str:
 # --- JSON-LD -----------------------------------------------------------------------------
 
 
-def _json_ld_blocks(document: lxml.html.HtmlElement) -> list[Any]:
+def parse_json_ld(raws: list[str]) -> list[Any]:
+    """Blocs JSON-LD lisibles parmi les textes donnés (balises <script> de la page)."""
     blocks = []
-    for script in document.xpath('//script[@type="application/ld+json"]'):
-        raw = (script.text or "").strip()
+    for raw in raws:
+        raw = (raw or "").strip()
         if not raw:
             continue
         try:
@@ -75,6 +76,10 @@ def _json_ld_blocks(document: lxml.html.HtmlElement) -> list[Any]:
             except json.JSONDecodeError:
                 continue
     return blocks
+
+
+def _json_ld_blocks(document: lxml.html.HtmlElement) -> list[Any]:
+    return parse_json_ld([script.text or "" for script in document.xpath('//script[@type="application/ld+json"]')])
 
 
 def _iter_nodes(node: Any):
@@ -123,7 +128,12 @@ def _location(value: Any) -> str:
 
 
 def from_json_ld(document: lxml.html.HtmlElement) -> ExtractedOffer | None:
-    for block in _json_ld_blocks(document):
+    return job_posting_from_blocks(_json_ld_blocks(document))
+
+
+def job_posting_from_blocks(blocks: list[Any]) -> ExtractedOffer | None:
+    """Première offre `JobPosting` exploitable parmi des blocs JSON-LD déjà décodés."""
+    for block in blocks:
         for node in _iter_nodes(block):
             if not _is_job_posting(node):
                 continue

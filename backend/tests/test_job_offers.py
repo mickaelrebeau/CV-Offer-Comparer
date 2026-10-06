@@ -444,3 +444,98 @@ def test_comparison_history_keeps_offer_url(client, auth_headers, db_session, re
     assert record.offer_url == "https://jobs.example.com/offre/42"
     listing = client.get("/api/comparisons", headers=auth_headers).json()
     assert listing["items"][0]["offer_url"] == "https://jobs.example.com/offre/42"
+
+
+# --- Contenu lu dans le navigateur (bookmarklet, copier-coller) ------------------------------------
+
+INDEED_PAGE_TEXT = """Passer au contenu principal
+Accueil  Avis sur les entreprises  Estimation de salaire
+Développeur Full Stack H/F
+Doctolib
+Paris (75)
+CDI
+Description du poste
+Rejoignez l'équipe produit pour construire les outils de prise de rendez-vous utilisés par des millions de patients.
+Vous travaillerez en Ruby on Rails et React, avec un fort accent sur la qualité et les tests automatisés.
+Profil recherché : 3 ans d'expérience, goût du produit, autonomie.
+Signaler l'offre"""
+
+
+def _parse(client, headers, **body):
+    return client.post("/api/job-offers/parse", headers=headers, json=body)
+
+
+def test_parse_json_ld_from_bookmarklet(client, auth_headers, web):
+    posting = json.loads(job_posting_page().split('application/ld+json">')[1].split("</script>")[0])
+    response = _parse(
+        client,
+        auth_headers,
+        url="https://fr.indeed.com/viewjob?jk=abc123",
+        title="Développeur Front-end - Paris - Indeed.com",
+        json_ld=["{pas du json", json.dumps({"@type": "BreadcrumbList"}), json.dumps(posting)],
+    )
+    assert response.status_code == 200, response.text
+    offer = response.json()
+    assert offer["method"] == "json-ld"
+    assert offer["company"] == "Talento & Co"
+    assert offer["source_url"] == "https://fr.indeed.com/viewjob?jk=abc123"
+    # Aucune requête vers le site (Indeed bloque les serveurs)
+    assert web.calls == []
+
+
+def test_parse_pasted_page_text(client, auth_headers, web):
+    offer = _parse(
+        client,
+        auth_headers,
+        url="https://www.linkedin.com/jobs/view/42",
+        title="Développeur Full Stack H/F - Doctolib | LinkedIn",
+        text=INDEED_PAGE_TEXT,
+    ).json()
+    assert offer["method"] == "paste"
+    assert offer["title"] == "Développeur Full Stack H/F - Doctolib"
+    assert "Ruby on Rails et React" in offer["text"]
+    assert offer["source_url"] == "https://www.linkedin.com/jobs/view/42"
+    assert web.calls == []
+
+
+def test_parse_falls_back_to_text_when_json_ld_has_no_posting(client, auth_headers):
+    offer = _parse(client, auth_headers, json_ld=[json.dumps({"@type": "Organization"})], text=INDEED_PAGE_TEXT).json()
+    assert offer["method"] == "paste"
+    assert offer["source_url"] is None
+
+
+def test_parse_rejects_short_text_and_oversized_input(client, auth_headers):
+    short = _parse(client, auth_headers, text="Développeur H/F")
+    assert short.status_code == 422
+    assert short.json()["code"] == "job_offer.paste_too_short"
+
+    big = _parse(client, auth_headers, text="x" * 200_001)
+    assert big.status_code == 413
+    assert _parse(client, auth_headers, json_ld=["x" * 500_001]).status_code == 413
+
+
+def test_parse_never_keeps_unsafe_source_url(client, auth_headers):
+    offer = _parse(client, auth_headers, url="javascript:alert(1)", text=INDEED_PAGE_TEXT).json()
+    assert offer["source_url"] is None
+
+
+def test_parse_with_ai_cleanup(client, auth_headers, unverified_user):
+    unverified = {"Authorization": f"Bearer {unverified_user['token']}"}
+    assert _parse(client, unverified, text=INDEED_PAGE_TEXT, ai_cleanup=True).status_code == 403
+
+    cleaned = {"title": "Développeur Full Stack", "company": "Doctolib", "location": "Paris", "text": "Missions : " * 30}
+    llm = SimpleNamespace(generate_json=lambda prompt, temperature: cleaned)
+    with patch("app.routers.job_offers.ai_for_user", return_value=SimpleNamespace(llm=llm)):
+        offer = _parse(client, auth_headers, text=INDEED_PAGE_TEXT, ai_cleanup=True).json()
+    assert offer["method"] == "ai"
+    assert offer["company"] == "Doctolib"
+
+
+def test_parse_requires_auth(client):
+    assert client.post("/api/job-offers/parse", json={"text": INDEED_PAGE_TEXT}).status_code in (401, 403)
+
+
+def test_welcome_to_the_jungle_goes_through_the_browser(client, auth_headers, web):
+    url = "https://www.welcometothejungle.com/fr/companies/acme/jobs/dev_paris"
+    assert _import(client, auth_headers, url).json()["code"] == "job_offer.site_blocked"
+    assert web.calls == []

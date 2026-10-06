@@ -19,6 +19,29 @@ class ImportIn(BaseModel):
     ai_cleanup: bool = False
 
 
+class ParseIn(BaseModel):
+    # Contenu lu dans le navigateur de l'utilisateur : bookmarklet (JSON-LD) ou texte collé
+    url: str | None = None
+    title: str = ""
+    json_ld: list[str] = []
+    text: str = ""
+    ai_cleanup: bool = False
+
+
+@router.post(
+    "/parse",
+    dependencies=[Depends(rate_limit("job_offer_import", "DAILY_QUOTA_JOB_OFFER_IMPORT"))],
+)
+def parse_job_offer(body: ParseIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Sites qui bloquent l'import serveur (Indeed, LinkedIn…) : analyse du contenu fourni, sans requête au site."""
+    if body.ai_cleanup and not user.email_verified:
+        raise ApiError(403, "auth.email_not_verified")
+    offer = service.parse_offer(url=body.url, title=body.title, json_ld=body.json_ld, text=body.text)
+    if body.ai_cleanup:
+        offer = service.clean_with_ai(ai_for_user(db, user), offer)
+    return offer
+
+
 @router.post(
     "/import",
     dependencies=[Depends(rate_limit("job_offer_import", "DAILY_QUOTA_JOB_OFFER_IMPORT"))],

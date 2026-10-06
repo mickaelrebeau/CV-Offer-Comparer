@@ -257,12 +257,16 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "This page is too large to import. Paste the job offer text.",
     },
     "job_offer.site_blocked": {
-        "fr": "Ce site bloque l'import automatique (LinkedIn, Indeed…). Ouvrez l'offre, copiez son texte et collez-le dans l'onglet « Coller le texte ».",
-        "en": "This site blocks automatic import (LinkedIn, Indeed…). Open the offer, copy its text and paste it in the “Paste text” tab.",
+        "fr": "Ce site bloque l'import automatique depuis nos serveurs. Utilisez le bouton « Envoyer vers Talento » depuis l'offre, ou copiez-collez sa page.",
+        "en": "This site blocks automatic import from our servers. Use the “Send to Talento” button from the offer, or copy and paste its page.",
     },
     "job_offer.no_content": {
         "fr": "Aucune offre lisible sur cette page (contenu chargé dynamiquement ou connexion requise). Collez le texte de l'offre.",
         "en": "No readable job offer on this page (dynamically loaded content or sign-in required). Paste the job offer text.",
+    },
+    "job_offer.paste_too_short": {
+        "fr": "Texte trop court ({min_chars} caractères minimum) : copiez toute la page de l'offre (Ctrl+A puis Ctrl+C).",
+        "en": "Text too short ({min_chars} characters minimum): copy the whole job offer page (Ctrl+A then Ctrl+C).",
     },
     # Limites
     "rate.too_many": {

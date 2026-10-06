@@ -111,6 +111,10 @@
     "privacy": {
       "title": "Politique de confidentialité",
       "description": "Politique de confidentialité Talento : compte, historique, Google Gemini, PostHog, conservation et droits RGPD."
+    },
+    "importOffer": {
+      "title": "Envoyer vers Talento",
+      "description": "Importez une offre d'emploi depuis Indeed, LinkedIn ou Welcome to the Jungle en un clic."
     }
   },
   "cookies": {
@@ -250,7 +254,7 @@
     "fromUrl": "Importer depuis une URL",
     "urlLabel": "Lien de l'annonce",
     "urlPlaceholder": "https://www.exemple.com/offres/developpeur-front",
-    "urlHint": "Welcome to the Jungle, sites carrières, Lever, Greenhouse, Workable, Ashby… LinkedIn et Indeed bloquent l'import : collez le texte de l'offre.",
+    "urlHint": "HelloWork, WeLoveDevs, sites carrières, Lever, Greenhouse, Workable, Ashby… Pour Indeed, LinkedIn et Welcome to the Jungle, l'offre est lue depuis votre navigateur.",
     "import": "Importer",
     "importing": "Import en cours…",
     "imported": "Offre importée depuis {domain}",
@@ -270,10 +274,46 @@
       "jsonLd": "Offre importée (données structurées) :",
       "api": "Offre importée :",
       "html": "Texte extrait de la page, à vérifier :",
-      "ai": "Offre nettoyée par l'IA :"
+      "ai": "Offre nettoyée par l'IA :",
+      "paste": "Texte collé, à vérifier :"
     },
     "errors": {
       "generic": "L'import a échoué. Réessayez, ou collez le texte de l'offre."
+    },
+    "extracted": "Offre extraite du texte collé",
+    "assisted": {
+      "intro": "{site} bloque l'import automatique depuis nos serveurs. Récupérez l'offre depuis votre navigateur :",
+      "bookmarkletTitle": "En un clic : bouton « Envoyer vers Talento »",
+      "bookmarkletText": "Depuis la page de l'offre, cliquez sur le favori : l'offre arrive ici, pré-remplie.",
+      "bookmarkletInstall": "Installer le bouton (une seule fois)",
+      "pasteTitle": "Ou par copier-coller",
+      "step1": "Ouvrez l'offre sur {site}",
+      "step2": "Sélectionnez toute la page (Ctrl+A ou Cmd+A) et copiez-la (Ctrl+C ou Cmd+C)",
+      "step3": "Collez-la ci-dessous :",
+      "extract": "Extraire l'offre"
+    }
+  },
+  "importOffer": {
+    "label": "Import d'offre",
+    "title": "Envoyer vers Talento",
+    "description": "Importez une offre Indeed, LinkedIn ou Welcome to the Jungle en un clic, depuis la page de l'offre.",
+    "loading": "Analyse de l'offre…",
+    "invalid": "Données de l'offre illisibles. Relancez le bouton depuis la page de l'offre.",
+    "untitled": "Offre sans titre",
+    "editHint": "L'offre est chargée dans vos modules ; vous pourrez la modifier avant de lancer l'analyse.",
+    "toCompare": "Comparer avec mon CV",
+    "install": {
+      "title": "Installer le bouton",
+      "text": "Un favori à placer dans la barre de votre navigateur (ordinateur) : il lit l'offre affichée et l'ouvre dans Talento.",
+      "button": "Envoyer vers Talento",
+      "drag": "Glissez ce bouton dans votre barre de favoris (affichez-la avec Ctrl+Maj+B ou Cmd+Maj+B).",
+      "clicked": "Ne cliquez pas ici : glissez le bouton dans la barre de favoris, puis utilisez-le depuis une page d'offre.",
+      "step1": "Ouvrez une offre sur Indeed, LinkedIn ou Welcome to the Jungle (connecté à Talento dans ce navigateur).",
+      "step2": "Cliquez sur « Envoyer vers Talento » dans la barre de favoris.",
+      "step3": "L'offre s'ouvre ici, prête pour le comparateur, le simulateur d'entretien ou la lettre.",
+      "sites": "Fonctionne aussi sur les autres sites d'emploi et pages carrières.",
+      "mobile": "Sur mobile, les favoris de ce type ne sont pas pris en charge : utilisez le copier-coller depuis le champ offre.",
+      "privacy": "Le bouton lit uniquement la page de l'offre, dans votre navigateur, et l'envoie à Talento. Rien n'est transmis au site d'emploi ni à des tiers."
     }
   },
   "context": {

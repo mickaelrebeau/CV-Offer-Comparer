@@ -77,12 +77,12 @@
             </p>
             <div class="flex flex-wrap gap-2">
               <Button
-                v-if="method === 'html'"
+                v-if="method === 'html' || method === 'paste'"
                 type="button"
                 size="sm"
                 variant="outline"
                 :disabled="importing || !isOnline"
-                @click="importFromUrl(true)"
+                @click="method === 'paste' ? parsePasted(true) : importFromUrl(true)"
               >
                 <Loader2 v-if="importing" class="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                 <Sparkles v-else class="h-3.5 w-3.5" aria-hidden="true" />
@@ -115,10 +115,41 @@
           </div>
         </div>
 
+        <!-- Site qui bloque l'import serveur : lecture depuis le navigateur de l'utilisateur -->
+        <div v-if="!draft && assistedSite" class="mt-4 space-y-4 rounded-lg border border-ink/15 bg-paper-dim p-4">
+          <p class="text-sm text-ink">{{ t('offerInput.assisted.intro', { site: assistedSite }) }}</p>
+          <div class="space-y-1">
+            <p class="field-label">{{ t('offerInput.assisted.bookmarkletTitle') }}</p>
+            <p class="text-sm text-ink-soft">
+              {{ t('offerInput.assisted.bookmarkletText') }}
+              <RouterLink :to="localePath('/import')" class="text-ink underline underline-offset-4">
+                {{ t('offerInput.assisted.bookmarkletInstall') }}
+              </RouterLink>
+            </p>
+          </div>
+          <form class="space-y-2" @submit.prevent="parsePasted(false)">
+            <p class="field-label">{{ t('offerInput.assisted.pasteTitle') }}</p>
+            <ol class="list-decimal space-y-1 pl-5 text-sm text-ink-soft">
+              <li>
+                <a :href="assistedUrl || undefined" target="_blank" rel="noopener noreferrer" class="text-ink underline underline-offset-4">
+                  {{ t('offerInput.assisted.step1', { site: assistedSite }) }}
+                </a>
+              </li>
+              <li>{{ t('offerInput.assisted.step2') }}</li>
+              <li><label :for="`${urlId}-page`">{{ t('offerInput.assisted.step3') }}</label></li>
+            </ol>
+            <Textarea :id="`${urlId}-page`" v-model="pastedPage" class="min-h-[140px]" :disabled="importing" />
+            <Button type="submit" size="sm" :disabled="importing || !pastedPage.trim() || !isOnline">
+              <Loader2 v-if="importing" class="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              {{ t('offerInput.assisted.extract') }}
+            </Button>
+          </form>
+        </div>
+
         <div v-if="importError" class="mt-3 space-y-2 rounded-lg border border-rose-500/25 bg-rose-500/5 p-3" role="alert">
           <p class="text-sm text-rose-700">{{ importError }}</p>
           <button
-            v-if="suggestPaste"
+            v-if="suggestPaste && !assistedSite"
             type="button"
             class="font-mono text-micro uppercase text-ink underline underline-offset-4"
             @click="tab = 'paste'"
@@ -141,8 +172,9 @@ import posthog from 'posthog-js'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { errorCode, importJobOffer, type ImportedOffer } from '@/lib/api'
-import { composeOfferText, offerDomain, safeHttpUrl, type OfferDraft } from '@/lib/jobOffer'
+import { useLocale } from '@/i18n/useLocale'
+import { errorCode, importJobOffer, parseJobOffer, type ImportedOffer } from '@/lib/api'
+import { browserAssistedSite, composeOfferText, offerDomain, safeHttpUrl, type OfferDraft } from '@/lib/jobOffer'
 import { isOnline } from '@/lib/pwa'
 import { useApplicationContextStore, type ContextModule } from '@/stores/applicationContext'
 
@@ -158,6 +190,7 @@ const props = withDefaults(
 )
 
 const { t } = useI18n()
+const { localePath } = useLocale()
 const context = useApplicationContextStore()
 
 const uid = useId()
@@ -178,6 +211,10 @@ const importErrorCode = ref<string | null>(null)
 const draft = ref<OfferDraft | null>(null)
 const method = ref<ImportedOffer['method']>('html')
 const liveMessage = ref('')
+// Site bloquant (Indeed, LinkedIn, WTTJ…) : bookmarklet ou copier-coller de la page
+const assistedSite = ref<string | null>(null)
+const assistedUrl = ref<string | null>(null)
+const pastedPage = ref('')
 
 const metaFields = ['title', 'company', 'location'] as const
 const sourceUrl = computed(() => safeHttpUrl(context.offerUrl))
@@ -199,13 +236,30 @@ function updateDraft(field: keyof OfferDraft, value: string) {
   context.setOffer(composeOfferText(draft.value), { from: props.module })
 }
 
+function withScheme(value: string) {
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`
+}
+
+function showAssisted(target: string, site: string) {
+  assistedSite.value = site
+  assistedUrl.value = safeHttpUrl(withScheme(target.trim()))
+}
+
 async function importFromUrl(aiCleanup: boolean) {
   const target = aiCleanup ? context.offerUrl || url.value : url.value
   if (!target.trim()) return
-  importing.value = true
   importError.value = ''
   importErrorCode.value = null
-  const domain = offerDomain(/^https?:\/\//i.test(target) ? target : `https://${target}`)
+  const domain = offerDomain(withScheme(target))
+  // Connu pour bloquer les serveurs : inutile de l'appeler, lecture depuis le navigateur
+  const site = aiCleanup ? null : browserAssistedSite(target)
+  if (site) {
+    showAssisted(target, site)
+    posthog.capture('offer_imported', { module: props.module, domain, success: false, error_code: 'browser_assisted' })
+    return
+  }
+  assistedSite.value = null
+  importing.value = true
   try {
     const offer = await importJobOffer(target.trim(), aiCleanup)
     applyOffer(offer)
@@ -223,6 +277,8 @@ async function importFromUrl(aiCleanup: boolean) {
     importErrorCode.value = errorCode(err) ?? null
     importError.value = err?.response?.data?.detail || t('offerInput.errors.generic')
     liveMessage.value = importError.value
+    // Refus du site (403…) : même parcours que les sites bloquants connus
+    if (importErrorCode.value === 'job_offer.site_blocked' && !aiCleanup) showAssisted(target, domain)
     posthog.capture('offer_imported', {
       module: props.module,
       domain,
@@ -235,8 +291,51 @@ async function importFromUrl(aiCleanup: boolean) {
   }
 }
 
+/** Page copiée-collée depuis un site bloquant : analysée côté serveur sans requête au site. */
+async function parsePasted(aiCleanup: boolean) {
+  const sourceUrl = aiCleanup ? context.offerUrl : assistedUrl.value
+  importing.value = true
+  importError.value = ''
+  importErrorCode.value = null
+  try {
+    const offer = await parseJobOffer({
+      url: sourceUrl,
+      // Nettoyage IA : sur l'offre affichée (éventuellement retouchée), sinon sur la page collée
+      text: aiCleanup && draft.value ? composeOfferText(draft.value) : pastedPage.value,
+      ai_cleanup: aiCleanup,
+    })
+    applyOffer(offer)
+    assistedSite.value = null
+    liveMessage.value = t('offerInput.extracted')
+    posthog.capture('offer_imported', {
+      module: props.module,
+      domain: offerDomain(sourceUrl),
+      success: true,
+      method: offer.method,
+      source: 'paste',
+      ai_cleanup: aiCleanup,
+    })
+  } catch (err: any) {
+    importErrorCode.value = errorCode(err) ?? null
+    importError.value = err?.response?.data?.detail || t('offerInput.errors.generic')
+    liveMessage.value = importError.value
+    posthog.capture('offer_imported', {
+      module: props.module,
+      domain: offerDomain(sourceUrl),
+      success: false,
+      error_code: importErrorCode.value,
+      source: 'paste',
+      ai_cleanup: aiCleanup,
+    })
+  } finally {
+    importing.value = false
+  }
+}
+
 function resetImport() {
   draft.value = null
+  assistedSite.value = null
+  pastedPage.value = ''
   importError.value = ''
   importErrorCode.value = null
   url.value = ''

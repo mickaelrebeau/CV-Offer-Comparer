@@ -57,6 +57,13 @@ const baseRoutes: BaseRoute[] = [
     meta: { requiresAuth: true, seo: 'coverLetter' },
   },
   {
+    // Bookmarklet « Envoyer vers Talento » : installation et réception des offres (Indeed, LinkedIn…)
+    path: '/import',
+    name: 'import-offer',
+    component: () => import('@/views/ImportOfferView.vue'),
+    meta: { requiresAuth: true, seo: 'importOffer' },
+  },
+  {
     path: '/free-trial',
     name: 'free-trial',
     component: () => import('@/views/FreeTrialView.vue'),

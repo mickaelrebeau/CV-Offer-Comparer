@@ -34,3 +34,91 @@ describe('safeHttpUrl', () => {
     expect(safeHttpUrl('')).toBeNull()
   })
 })
+
+import { afterEach, vi } from 'vitest'
+import {
+  BOOKMARKLET_HASH_KEY,
+  bookmarkletSource,
+  browserAssistedSite,
+  decodeOfferPayload,
+  encodeOfferPayload,
+} from '@/lib/jobOffer'
+
+describe('browserAssistedSite', () => {
+  it('reconnaît les sites qui bloquent l’import serveur', () => {
+    expect(browserAssistedSite('https://fr.indeed.com/viewjob?jk=abc')).toBe('Indeed')
+    expect(browserAssistedSite('www.linkedin.com/jobs/view/1')).toBe('LinkedIn')
+    expect(browserAssistedSite('https://www.welcometothejungle.com/fr/companies/x/jobs/y')).toBe('Welcome to the Jungle')
+  })
+
+  it('laisse passer les sites importables côté serveur', () => {
+    expect(browserAssistedSite('https://www.hellowork.com/fr-fr/emplois/1.html')).toBeNull()
+    expect(browserAssistedSite('https://welovedevs.com/app/fr/job/dev-qonto')).toBeNull()
+    expect(browserAssistedSite('https://notindeed.example.com/')).toBeNull()
+    expect(browserAssistedSite('')).toBeNull()
+  })
+})
+
+describe('payload du bookmarklet', () => {
+  it('fait l’aller-retour en UTF-8', () => {
+    const payload = { u: 'https://fr.indeed.com/viewjob?jk=1', t: 'Développeur·se — Île-de-France', j: ['{"a":"é"}'], x: '✓' }
+    const encoded = encodeOfferPayload(payload)
+    expect(encoded).not.toMatch(/[+/=]/)
+    expect(decodeOfferPayload(encoded)).toEqual(payload)
+  })
+
+  it('rejette un contenu illisible et filtre les types', () => {
+    expect(decodeOfferPayload('%%%')).toBeNull()
+    expect(decodeOfferPayload(encodeOfferPayload({ u: 1, t: null, j: ['ok', 2], x: {} } as any))).toEqual({
+      u: '',
+      t: '',
+      j: ['ok'],
+      x: '',
+    })
+  })
+})
+
+describe('bookmarklet', () => {
+  const IMPORT_URL = 'https://talento.example/import'
+
+  /** Exécute le favori sur la page courante (jsdom) et renvoie l'offre envoyée à Talento. */
+  function runBookmarklet() {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const source = bookmarkletSource(IMPORT_URL)
+    expect(source.startsWith('javascript:')).toBe(true)
+    new Function(decodeURIComponent(source.slice('javascript:'.length)))()
+    const target = String(open.mock.calls[0][0])
+    expect(target.startsWith(`${IMPORT_URL}#${BOOKMARKLET_HASH_KEY}=`)).toBe(true)
+    return decodeOfferPayload(target.split(`#${BOOKMARKLET_HASH_KEY}=`)[1])
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    document.head.innerHTML = ''
+    document.body.innerHTML = ''
+  })
+
+  it('envoie le JSON-LD JobPosting de la page', () => {
+    document.head.innerHTML = `
+      <script type="application/ld+json">{"@type":"BreadcrumbList"}</script>
+      <script type="application/ld+json">{"@type":"JobPosting","title":"Développeur H/F"}</script>`
+    document.title = 'Développeur H/F - Paris - Indeed.com'
+    const payload = runBookmarklet()
+    expect(payload?.j).toEqual(['{"@type":"JobPosting","title":"Développeur H/F"}'])
+    expect(payload?.x).toBe('')
+    expect(payload?.t).toBe('Développeur H/F - Paris - Indeed.com')
+  })
+
+  it('sans JSON-LD : titre et zone de description connue (Indeed)', () => {
+    document.body.innerHTML = `
+      <nav>Accueil Avis sur les entreprises</nav>
+      <h1>Développeur Full Stack H/F</h1>
+      <div id="jobDescriptionText">Rejoignez l’équipe produit.</div>
+      <footer>Signaler l’offre</footer>`
+    const payload = runBookmarklet()
+    expect(payload?.j).toEqual([])
+    expect(payload?.x).toContain('Développeur Full Stack H/F')
+    expect(payload?.x).toContain('Rejoignez l’équipe produit.')
+    expect(payload?.x).not.toContain('Signaler')
+  })
+})
