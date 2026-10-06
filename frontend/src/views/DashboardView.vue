@@ -77,6 +77,14 @@
               <span>{{ formatDate(item.created_at) }}</span>
               <span>{{ t('dashboard.comparisons.match', { value: formatPercent(item.match_percentage) }) }}</span>
               <span>{{ t('dashboard.comparisons.criteria', { matches: item.matches, total: item.total_items }) }}</span>
+              <a
+                v-if="safeHttpUrl(item.offer_url)"
+                :href="safeHttpUrl(item.offer_url) || undefined"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="normal-case text-ink underline underline-offset-4"
+                :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(item.offer_url) })"
+              >{{ offerDomain(item.offer_url) }}</a>
             </div>
             <p class="truncate text-sm text-ink">{{ item.offer_excerpt || t('dashboard.noOfferExcerpt') }}</p>
             <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
@@ -149,6 +157,14 @@
               <span>{{ formatScore(item.score_global) }}/10</span>
               <span>{{ t('dashboard.interviews.questions', { count: item.num_questions }) }}</span>
               <span>{{ formatDuration(item.duration_seconds) }}</span>
+              <a
+                v-if="safeHttpUrl(item.offer_url)"
+                :href="safeHttpUrl(item.offer_url) || undefined"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="normal-case text-ink underline underline-offset-4"
+                :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(item.offer_url) })"
+              >{{ offerDomain(item.offer_url) }}</a>
             </div>
             <p class="truncate text-sm text-ink">{{ item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
             <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
@@ -220,6 +236,14 @@
               <span>{{ formatDate(item.created_at) }}</span>
               <span>{{ t(`coverLetter.tones.${item.tone}`) }}</span>
               <span>{{ t('dashboard.coverLetters.words', { count: item.word_count }) }}</span>
+              <a
+                v-if="safeHttpUrl(item.offer_url)"
+                :href="safeHttpUrl(item.offer_url) || undefined"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="normal-case text-ink underline underline-offset-4"
+                :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(item.offer_url) })"
+              >{{ offerDomain(item.offer_url) }}</a>
             </div>
             <p class="truncate text-sm text-ink">{{ item.subject || item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
             <p class="mt-1 truncate text-sm text-ink-soft">{{ item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
@@ -256,6 +280,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import { useLocale } from '@/i18n/useLocale'
+import { offerDomain, safeHttpUrl } from '@/lib/jobOffer'
 import { isOnline } from '@/lib/pwa'
 import {
   deleteComparison,

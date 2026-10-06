@@ -14,12 +14,12 @@
     <!-- Étape 1 : saisie -->
     <div v-if="currentStep === 1" class="space-y-8">
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div class="panel overflow-hidden">
-          <label for="job-text" class="panel-header">{{ t('cvInput.offerHeader') }}</label>
-          <div class="p-4 sm:p-5">
-            <Textarea id="job-text" :model-value="context.offerText" :placeholder="t('interview.jobPlaceholder')" class="min-h-[200px]" @input="handleJobInput" />
-          </div>
-        </div>
+        <OfferInput
+          module="interview"
+          textarea-id="job-text"
+          :placeholder="t('interview.jobPlaceholder')"
+          min-height-class="min-h-[200px]"
+        />
 
         <div class="panel overflow-hidden">
           <div class="panel-header justify-between">
@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
@@ -189,6 +189,7 @@ import {
   CheckCircle, Loader2, Play, Pause, ChevronLeft, ChevronRight, MessageSquare, ArrowLeft,
 } from 'lucide-vue-next'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
+import OfferInput from '@/components/OfferInput.vue'
 import PDFUpload from '@/components/PDFUpload.vue'
 import SavedCvPicker from '@/components/SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
@@ -206,6 +207,7 @@ const currentStep = ref(1)
 // même si le contexte partagé est modifié ou effacé pendant l'entretien
 const sessionCvText = ref('')
 const sessionJobText = ref('')
+const sessionOfferUrl = ref<string | null>(null)
 const cvActiveTab = useCvInputTab()
 const isLoading = ref(false)
 const error = ref('')
@@ -239,10 +241,8 @@ const handleCVInput = (event: Event) => {
   error.value = ''
 }
 
-const handleJobInput = (event: Event) => {
-  context.setOffer((event.target as HTMLTextAreaElement).value, { from: 'interview' })
-  error.value = ''
-}
+// Offre modifiée (texte ou import) : l'erreur précédente n'est plus d'actualité
+watch(() => context.offerText, () => (error.value = ''))
 
 const handleCVTextUpdate = (text: string) => {
   context.setCv(text, { from: 'interview' })
@@ -269,6 +269,7 @@ const generateQuestions = async () => {
     if (result.success && result.interview_session) {
       sessionCvText.value = cvText
       sessionJobText.value = jobText
+      sessionOfferUrl.value = context.offerUrl
       questions.value = result.interview_session.questions
       interviewSession.value = result.interview_session
       currentStep.value = 2
@@ -357,6 +358,7 @@ const finishInterview = async () => {
         sessionCvText.value,
         sessionJobText.value,
         interviewTimer.value,
+        sessionOfferUrl.value,
       )
 
       if (result.success && result.analysis) {
@@ -416,6 +418,7 @@ const resetSimulator = () => {
   currentStep.value = 1
   sessionCvText.value = ''
   sessionJobText.value = ''
+  sessionOfferUrl.value = null
   questions.value = []
   isInterviewStarted.value = false
   currentQuestionIndex.value = 0

@@ -75,7 +75,7 @@ def test_each_migration_downgrades(empty_db):
 
 def test_legacy_database_is_upgraded_and_stamped(empty_db):
     """Base de production créée par create_all avant Alembic (colonnes ad hoc absentes)."""
-    Base.metadata.create_all(bind=empty_db)
+    _create_legacy_schema(empty_db)
     user_id = uuid.uuid4()
     with empty_db.begin() as conn:
         conn.execute(text("DROP TABLE saved_cvs"))
@@ -96,9 +96,17 @@ def test_legacy_database_is_upgraded_and_stamped(empty_db):
     assert tuple(row) == (True, None)
 
 
+def _create_legacy_schema(engine) -> None:
+    """Schéma créé par create_all avant Alembic : colonnes ajoutées après la révision 0002 absentes."""
+    Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        for table in ("comparisons", "interviews", "cover_letters"):
+            conn.execute(text(f"ALTER TABLE {table} DROP COLUMN offer_url"))
+
+
 def test_legacy_database_with_saved_cvs_already_created(empty_db):
     """#44 déployée avant Alembic : la table saved_cvs existe déjà, la migration 0002 ne la recrée pas."""
-    Base.metadata.create_all(bind=empty_db)
+    _create_legacy_schema(empty_db)
     run_migrations(empty_db)
     assert _current(empty_db) == _head()
     assert _schema_diff(empty_db) == []

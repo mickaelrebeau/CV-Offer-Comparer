@@ -17,6 +17,7 @@ from app.routers import (
     health,
     interview,
     interviews,
+    job_offers,
     llm_credentials,
     saved_cvs,
     upload,
@@ -72,3 +73,4 @@ app.include_router(interviews.router, prefix="/api", tags=["interviews"])
 app.include_router(cover_letters.router, prefix="/api", tags=["cover-letters"])
 app.include_router(llm_credentials.router, prefix="/api", tags=["llm-credentials"])
 app.include_router(saved_cvs.router, prefix="/api", tags=["saved-cvs"])
+app.include_router(job_offers.router, prefix="/api", tags=["job-offers"])

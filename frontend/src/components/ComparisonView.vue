@@ -2,21 +2,7 @@
   <div class="space-y-10">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <!-- Offre -->
-      <div class="panel overflow-hidden">
-        <div class="panel-header justify-between">
-          <label for="compare-offer">{{ t('cvInput.offerHeader') }}</label>
-          <FileText class="h-3.5 w-3.5" aria-hidden="true" />
-        </div>
-        <div class="p-4 sm:p-5">
-          <Textarea
-            id="compare-offer"
-            :model-value="context.offerText"
-            :placeholder="t('comparison.offerPlaceholder')"
-            class="min-h-[220px]"
-            @input="handleOfferInput"
-          />
-        </div>
-      </div>
+      <OfferInput module="compare" textarea-id="compare-offer" :placeholder="t('comparison.offerPlaceholder')" />
 
       <!-- CV -->
       <div class="panel overflow-hidden">
@@ -177,11 +163,12 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { FileText, ArrowRightLeft, Loader2, MessageSquare, PenLine } from 'lucide-vue-next'
+import { ArrowRightLeft, Loader2, MessageSquare, PenLine } from 'lucide-vue-next'
 import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
 import { useApplicationContextStore } from '@/stores/applicationContext'
 import { useCompareStore } from '@/stores/compare'
+import OfferInput from './OfferInput.vue'
 import PDFUpload from './PDFUpload.vue'
 import SavedCvPicker from './SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
@@ -202,10 +189,6 @@ const summaryStats = computed(() => {
     { label: t('comparison.stats.score'), value: formatPercent(s.matchPercentage), color: 'text-ink' },
   ]
 })
-
-const handleOfferInput = (event: Event) => {
-  context.setOffer((event.target as HTMLTextAreaElement).value, { from: 'compare' })
-}
 
 const handleCVInput = (event: Event) => {
   context.setCv((event.target as HTMLTextAreaElement).value, { from: 'compare' })

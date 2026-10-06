@@ -65,6 +65,7 @@ export type ComparisonHistoryItem = {
   id: string
   offer_excerpt: string
   cv_excerpt: string
+  offer_url: string | null
   match_percentage: number
   total_items: number
   matches: number
@@ -97,6 +98,44 @@ export async function getComparison(id: string) {
 
 export async function deleteComparison(id: string) {
   const { data } = await api.delete<{ success: boolean }>(`/comparisons/${id}`)
+  return data
+}
+
+// --- Import d'offre depuis une URL ------------------------------------------------------
+
+export type ImportedOffer = {
+  title: string
+  company: string
+  location: string
+  text: string
+  source_url: string
+  /** json-ld (données structurées), api (API d'un ATS), html (contenu principal), paste (texte collé), ai (nettoyée) */
+  method: 'json-ld' | 'api' | 'html' | 'page' | 'paste' | 'ai'
+  cached?: boolean
+}
+
+export async function importJobOffer(url: string, aiCleanup = false) {
+  // Récupération + extraction côté serveur : délai plus long que les appels courants
+  const { data } = await api.post<ImportedOffer>(
+    '/job-offers/import',
+    { url, ai_cleanup: aiCleanup },
+    { timeout: aiCleanup ? 90000 : 45000 },
+  )
+  return data
+}
+
+/** Offre lue dans le navigateur (bookmarklet, copier-coller) : analysée sans requête au site. */
+export async function parseJobOffer(body: {
+  url?: string | null
+  title?: string
+  json_ld?: string[]
+  text?: string
+  fields?: { title: string; company: string; location: string; description: string } | null
+  ai_cleanup?: boolean
+}) {
+  const { data } = await api.post<ImportedOffer>('/job-offers/parse', body, {
+    timeout: body.ai_cleanup ? 90000 : 30000,
+  })
   return data
 }
 
@@ -164,6 +203,7 @@ export type InterviewHistoryItem = {
   id: string
   job_excerpt: string
   cv_excerpt: string
+  offer_url: string | null
   score_global: number
   num_questions: number
   duration_seconds: number
@@ -223,6 +263,7 @@ export type CoverLetterHistoryItem = {
   subject: string
   job_excerpt: string
   cv_excerpt: string
+  offer_url: string | null
   tone: CoverLetterTone
   length: CoverLetterLength
   language: string
@@ -263,6 +304,7 @@ export async function streamCoverLetter(
     tone: CoverLetterTone
     length: CoverLetterLength
     language: CoverLetterLanguage
+    offerUrl?: string | null
   },
   handlers: {
     onStatus: (message: string) => void
@@ -279,6 +321,7 @@ export async function streamCoverLetter(
     form.append('tone', params.tone)
     form.append('length', params.length)
     form.append('language', params.language)
+    if (params.offerUrl) form.append('offer_url', params.offerUrl)
 
     const response = await fetch(`${getApiBaseURL()}/cover-letter`, {
       method: 'POST',
@@ -349,7 +392,8 @@ export async function streamCompare(
   onItem: (item: any) => void,
   onSummary: (summary: any) => void,
   onComplete: () => void,
-  onError: (error: string, code?: string) => void
+  onError: (error: string, code?: string) => void,
+  offerUrl?: string | null,
 ) {
   try {
     const token = getAccessToken();
@@ -365,6 +409,7 @@ export async function streamCompare(
       body: JSON.stringify({
         offer_text: offerText,
         cv_text: cvText,
+        offer_url: offerUrl || null,
       }),
     });
 
@@ -592,6 +637,7 @@ export async function analyzeInterviewResponses(
   cvText: string,
   jobText: string,
   durationSeconds: number = 0,
+  offerUrl: string | null = null,
 ): Promise<{ success: boolean; analysis?: any; interview_id?: string; message: string; code?: string }> {
   try {
     const formData = new FormData();
@@ -600,6 +646,7 @@ export async function analyzeInterviewResponses(
     formData.append('cv_text', cvText);
     formData.append('job_text', jobText);
     formData.append('duration_seconds', String(Math.max(0, Math.round(durationSeconds || 0))));
+    if (offerUrl) formData.append('offer_url', offerUrl);
 
     const response = await api.post('/interview/analyze-responses', formData, {
       headers: {

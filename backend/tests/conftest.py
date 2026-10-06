@@ -21,7 +21,10 @@ os.environ.setdefault(
 )
 
 from app.db import Base, get_db, _normalize_database_url  # noqa: E402
+from alembic import command  # noqa: E402
+
 from app.main import app  # noqa: E402
+from app.migrations import alembic_config  # noqa: E402
 from app.models import tables  # noqa: F401,E402  (enregistre toutes les tables)
 from app.models.user import User  # noqa: E402
 from app.services.rate_limit_service import rate_limiter  # noqa: E402
@@ -67,10 +70,17 @@ def reset_schema(engine) -> None:
         conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
 
 
+def create_schema(engine) -> None:
+    """Tables des modèles, marquées à la dernière migration (le démarrage de l'app n'y touche plus)."""
+    Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        command.stamp(alembic_config(conn), "head")
+
+
 @pytest.fixture
 def db_session(engine):
     reset_schema(engine)
-    Base.metadata.create_all(bind=engine)
+    create_schema(engine)
     SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     session = SessionLocal()
     try:

@@ -125,11 +125,11 @@ const context = useApplicationContextStore()
 // CV + offre de l'entretien rouvert depuis l'historique, proposés comme contexte courant
 const historyContext = ref<HistoryContext | null>(null)
 
-function proposeHistoryContext(cvText: string, offerText: string) {
+function proposeHistoryContext(cvText: string, offerText: string, offerUrl: string | null) {
   if (!cvText.trim() && !offerText.trim()) return
   // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
-  if (!context.hasContext) context.setContext({ cvText, offerText }, 'interview')
-  historyContext.value = context.matches(cvText, offerText) ? null : { cvText, offerText }
+  if (!context.hasContext) context.setContext({ cvText, offerText, offerUrl }, 'interview')
+  historyContext.value = context.matches(cvText, offerText) ? null : { cvText, offerText, offerUrl }
 }
 
 function adoptHistoryContext() {
@@ -190,7 +190,7 @@ const loadInterviewData = async () => {
         analysis: detail.analysis,
         duration: detail.duration_seconds,
       })
-      proposeHistoryContext(detail.cv_text || '', detail.job_text || '')
+      proposeHistoryContext(detail.cv_text || '', detail.job_text || '', detail.offer_url || null)
       localStorage.removeItem('interviewAnalysis')
       return
     }

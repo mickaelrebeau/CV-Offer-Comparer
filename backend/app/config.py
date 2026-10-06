@@ -62,6 +62,7 @@ class Settings(BaseSettings):
     DAILY_QUOTA_LLM_CREDENTIALS: int = 50
     DAILY_QUOTA_UPLOAD: int = 100
     DAILY_QUOTA_SAVED_CVS: int = 100
+    DAILY_QUOTA_JOB_OFFER_IMPORT: int = 50
     # Bibliothèque de CV : nombre maximal de CV enregistrés par compte
     MAX_SAVED_CVS: int = 5
     # Header contenant l'IP réelle du client derrière le proxy (Railway : X-Real-IP). Vide = IP de la socket

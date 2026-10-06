@@ -28,6 +28,9 @@ httpx>=0.25.0
 # Redis
 redis>=5.0.0
 
+# Import d'offre depuis une URL (extraction du contenu principal)
+trafilatura>=2.0
+
 # PDF processing
 PyPDF2>=3.0.1
 pdfplumber>=0.10.3

@@ -33,6 +33,8 @@ class InterviewRecord(Base):
     answers: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     analysis: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     cv_text: Mapped[str] = mapped_column(Text, nullable=False)
+    # Lien de l'annonce quand l'offre a été importée depuis son URL
+    offer_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     job_text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -48,6 +50,7 @@ class InterviewRecord(Base):
         user_id: uuid.UUID,
         job_text: str,
         cv_text: str,
+        offer_url: str | None = None,
         questions: list[Any],
         answers: list[Any],
         analysis: dict[str, Any],
@@ -70,6 +73,7 @@ class InterviewRecord(Base):
             answers=answers,
             analysis=analysis,
             cv_text=cv_text,
+            offer_url=offer_url,
             job_text=job_text,
         )
 
@@ -81,6 +85,7 @@ class InterviewRecord(Base):
             "score_global": self.score_global,
             "num_questions": self.num_questions,
             "duration_seconds": self.duration_seconds,
+            "offer_url": self.offer_url,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 

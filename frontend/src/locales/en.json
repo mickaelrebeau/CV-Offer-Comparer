@@ -111,6 +111,10 @@
     "privacy": {
       "title": "Privacy policy",
       "description": "Talento privacy policy: account, history, Google Gemini, PostHog, retention and GDPR rights."
+    },
+    "importOffer": {
+      "title": "Send to Talento",
+      "description": "Import a job offer from Indeed, LinkedIn or Welcome to the Jungle in one click."
     }
   },
   "cookies": {
@@ -243,6 +247,75 @@
     "cvHeader": "02 · My resume",
     "cvFormat": "Resume format",
     "cvTextLabel": "Your resume text"
+  },
+  "offerInput": {
+    "mode": "Job offer input mode",
+    "paste": "Paste text",
+    "fromUrl": "Import from a URL",
+    "urlLabel": "Job posting link",
+    "urlPlaceholder": "https://www.example.com/jobs/front-end-developer",
+    "urlHint": "HelloWork, WeLoveDevs, career sites, Lever, Greenhouse, Workable, Ashby… For Indeed, LinkedIn and Welcome to the Jungle, the offer is read from your browser.",
+    "import": "Import",
+    "importing": "Importing…",
+    "imported": "Job offer imported from {domain}",
+    "another": "Import another offer",
+    "aiCleanup": "Clean up with AI",
+    "pasteInstead": "Paste the job offer text",
+    "source": "Source:",
+    "detach": "remove link",
+    "offline": "Offline: you can import once you are back online. You can paste the text.",
+    "fields": {
+      "title": "Position",
+      "company": "Company",
+      "location": "Location",
+      "text": "Job description"
+    },
+    "methods": {
+      "jsonLd": "Job offer imported (structured data):",
+      "api": "Job offer imported:",
+      "html": "Text extracted from the page, please review:",
+      "ai": "Job offer cleaned up by AI:",
+      "paste": "Pasted text, please review:",
+      "page": "Job offer read from the page:"
+    },
+    "errors": {
+      "generic": "The import failed. Try again, or paste the job offer text."
+    },
+    "extracted": "Job offer extracted from the pasted text",
+    "assisted": {
+      "intro": "{site} blocks automatic import from our servers. Get the offer from your browser:",
+      "bookmarkletTitle": "In one click: “Send to Talento” button",
+      "bookmarkletText": "From the job offer page, click the bookmark: the offer arrives here, pre-filled.",
+      "bookmarkletInstall": "Install the button (one time)",
+      "pasteTitle": "Or copy and paste",
+      "step1": "Open the job offer on {site}",
+      "step2": "Select the whole page (Ctrl+A or Cmd+A) and copy it (Ctrl+C or Cmd+C)",
+      "step3": "Paste it below:",
+      "extract": "Extract the offer"
+    }
+  },
+  "importOffer": {
+    "label": "Offer import",
+    "title": "Send to Talento",
+    "description": "Import a job offer from Indeed, LinkedIn or Welcome to the Jungle in one click, from the offer page.",
+    "loading": "Analysing the job offer…",
+    "invalid": "Unreadable job offer data. Click the button again from the offer page.",
+    "untitled": "Untitled job offer",
+    "editHint": "The offer is loaded in your modules; you can edit it before running the analysis.",
+    "toCompare": "Compare with my resume",
+    "install": {
+      "title": "Install the button",
+      "text": "A bookmark for your browser's bookmarks bar (desktop): it reads the displayed job offer and opens it in Talento.",
+      "drag": "Drag this button to your bookmarks bar (show it with Ctrl+Shift+B or Cmd+Shift+B).",
+      "clicked": "Don't click here: drag the button to your bookmarks bar, then use it from a job offer page.",
+      "step1": "Open a job offer on Indeed, LinkedIn or Welcome to the Jungle (signed in to Talento in this browser).",
+      "step2": "Click “Send to Talento” in your bookmarks bar.",
+      "step3": "The offer opens here, ready for the comparer, the interview simulator or the cover letter.",
+      "sites": "Also works on other job boards and career pages.",
+      "mobile": "On mobile, this kind of bookmark is not supported: use copy and paste from the job offer field.",
+      "privacy": "The button only reads the job offer page, in your browser, and sends it to Talento. Nothing is sent to the job board or to third parties.",
+      "bookmarkName": "Send to Talento"
+    }
   },
   "context": {
     "title": "Current context",
@@ -448,7 +521,8 @@
     "delete": "Delete",
     "noOfferExcerpt": "Job offer without excerpt",
     "noCvExcerpt": "Resume without excerpt",
-    "deleteError": "Could not delete"
+    "deleteError": "Could not delete",
+    "offerLinkAria": "Open the job posting on {domain}"
   },
   "interview": {
     "label": "Simulator",
@@ -578,7 +652,12 @@
     "deleted": "Your account has been deleted.",
     "deleteError": "Error: {message}",
     "deleteFailed": "Something went wrong while deleting your account.",
-    "app": "App"
+    "app": "App",
+    "sendToTalento": {
+      "title": "Send to Talento",
+      "text": "A button for your browser's bookmarks bar: from an Indeed, LinkedIn or Welcome to the Jungle job offer, it imports it into Talento in one click.",
+      "action": "Install or reinstall the button"
+    }
   },
   "llmProviders": {
     "title": "AI providers & API keys",
