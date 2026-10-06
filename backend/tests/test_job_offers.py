@@ -1,0 +1,446 @@
+"""Import d'offre depuis une URL : extraction (JSON-LD, contenu principal) et protection SSRF."""
+
+import json
+from types import SimpleNamespace
+from unittest.mock import patch
+from uuid import UUID
+
+import httpx
+import pytest
+from sqlalchemy import select
+
+from app.i18n import ApiError
+from app.models.comparison_record import ComparisonRecord
+from app.services.job_offers import fetch, service
+from app.services.job_offers.fetch import PublicOnlyBackend
+from app.services.job_offers.service import safe_offer_url
+from tests.test_comparison_stream_persist import FAKE_RESULT
+
+PUBLIC_IP = "93.184.216.34"
+DESCRIPTION = (
+    "<p>Nous recherchons un·e <strong>développeur·se front-end Vue.js</strong> pour rejoindre notre équipe produit.</p>"
+    "<h3>Missions</h3><ul><li>Développer les nouvelles fonctionnalités en Vue 3 et TypeScript</li>"
+    "<li>Concevoir des composants accessibles et testés</li><li>Participer aux revues de code</li></ul>"
+    "<h3>Profil</h3><p>3 ans d'expérience minimum, maîtrise de Pinia et Vite.<br>Anglais professionnel.</p>"
+)
+
+
+def job_posting_page(**overrides) -> str:
+    posting = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": "Développeur Front-end Vue.js (H/F)",
+        "description": DESCRIPTION,
+        "hiringOrganization": {"@type": "Organization", "name": "Talento &amp; Co"},
+        "jobLocation": {
+            "@type": "Place",
+            "address": {"addressLocality": "Paris", "addressRegion": "Île-de-France", "addressCountry": "FR"},
+        },
+        **overrides,
+    }
+    graph = {"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "name": "Jobs"}, posting]}
+    return f"""<html><head><title>Offre</title>
+<script type="application/ld+json">{json.dumps(graph)}</script></head>
+<body><nav>Accueil · Offres · Connexion</nav><div id="app"></div></body></html>"""
+
+
+ARTICLE_PAGE = """<html><head>
+<title>Data Analyst - Carrières ACME</title>
+<meta property="og:title" content="Data Analyst (CDI) — Lyon">
+<meta property="og:site_name" content="ACME Carrières">
+</head><body>
+<nav><a href="/">Accueil</a> <a href="/offres">Toutes nos offres</a> <a href="/login">Connexion</a></nav>
+<div class="cookie-banner">Nous utilisons des cookies pour améliorer votre expérience. Accepter / Refuser</div>
+<main><article>
+<h1>Data Analyst (CDI)</h1>
+<p>Rattaché·e à la direction financière, vous construisez les tableaux de bord de pilotage de l'activité
+et accompagnez les équipes métiers dans l'analyse de leurs données au quotidien.</p>
+<h2>Vos missions</h2>
+<p>Modéliser les données de ventes dans l'entrepôt, automatiser les rapports hebdomadaires,
+et animer des ateliers de formation SQL pour les équipes opérationnelles de toutes les régions.</p>
+<h2>Votre profil</h2>
+<p>Diplômé·e d'une école d'ingénieur ou équivalent, vous maîtrisez SQL, Python et un outil de visualisation
+comme Power BI ou Looker. Vous savez vulgariser des résultats complexes auprès de non-spécialistes.</p>
+</article></main>
+<aside><h3>Offres similaires</h3><ul><li>Data Engineer</li><li>Contrôleur de gestion</li></ul></aside>
+<footer>Mentions légales · Plan du site</footer>
+</body></html>"""
+
+
+@pytest.fixture
+def web(monkeypatch):
+    """Faux Internet : `pages[url] = (statut, en-têtes, corps)` ; `dns[host] = [IP…]` (public par défaut)."""
+    state = SimpleNamespace(pages={}, dns={}, calls=[], fail=None)
+
+    def resolve(host, port):
+        return state.dns.get(host, [PUBLIC_IP])
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        state.calls.append(str(request.url))
+        if state.fail:
+            raise state.fail
+        status, headers, body = state.pages.get(str(request.url), (404, {"content-type": "text/html"}, "Not found"))
+        return httpx.Response(status, headers=headers, content=body.encode() if isinstance(body, str) else body)
+
+    monkeypatch.setattr(fetch, "_resolve", resolve)
+    monkeypatch.setattr(fetch, "http_transport", httpx.MockTransport(handler))
+    service.clear_cache()
+    yield state
+    service.clear_cache()
+
+
+def html(body: str, status: int = 200, **headers) -> tuple:
+    return status, {"content-type": "text/html; charset=utf-8", **headers}, body
+
+
+def _import(client, headers, url, **extra):
+    return client.post("/api/job-offers/import", headers=headers, json={"url": url, **extra})
+
+
+# --- Extraction ---------------------------------------------------------------------
+
+
+def test_json_ld_job_posting(client, auth_headers, web):
+    web.pages["https://jobs.example.com/offre/42"] = html(job_posting_page())
+    response = _import(client, auth_headers, "https://jobs.example.com/offre/42")
+
+    assert response.status_code == 200, response.text
+    offer = response.json()
+    assert offer["method"] == "json-ld"
+    assert offer["title"] == "Développeur Front-end Vue.js (H/F)"
+    assert offer["company"] == "Talento & Co"
+    assert offer["location"] == "Paris, Île-de-France, FR"
+    assert offer["source_url"] == "https://jobs.example.com/offre/42"
+    assert "• Développer les nouvelles fonctionnalités en Vue 3 et TypeScript" in offer["text"]
+    assert "Anglais professionnel." in offer["text"]
+    assert "<" not in offer["text"]
+    # Menus de la page ignorés
+    assert "Connexion" not in offer["text"]
+
+
+def test_json_ld_variants(client, auth_headers, web):
+    page = job_posting_page(
+        **{
+            "@type": ["JobPosting"],
+            "hiringOrganization": "Startup",
+            "jobLocation": [
+                {"address": {"addressLocality": "Nantes", "addressCountry": {"name": "France"}}},
+                {"address": {"addressLocality": "Rennes", "addressCountry": "France"}},
+            ],
+        }
+    )
+    web.pages["https://jobs.example.com/a"] = html(page)
+    offer = _import(client, auth_headers, "https://jobs.example.com/a").json()
+    assert offer["company"] == "Startup"
+    assert offer["location"] == "Nantes, France / Rennes, France"
+
+
+def test_remote_job_location(client, auth_headers, web):
+    page = job_posting_page(jobLocation=None, jobLocationType="TELECOMMUTE")
+    web.pages["https://jobs.example.com/remote"] = html(page)
+    assert _import(client, auth_headers, "https://jobs.example.com/remote").json()["location"] == "Remote"
+
+
+def test_main_content_fallback(client, auth_headers, web):
+    web.pages["https://careers.acme.test/data-analyst"] = html(ARTICLE_PAGE)
+    response = _import(client, auth_headers, "https://careers.acme.test/data-analyst")
+
+    assert response.status_code == 200, response.text
+    offer = response.json()
+    assert offer["method"] == "html"
+    assert offer["title"] == "Data Analyst (CDI) — Lyon"
+    assert offer["company"] == "ACME Carrières"
+    assert "Modéliser les données de ventes" in offer["text"]
+    for noise in ("cookies", "Offres similaires", "Mentions légales", "Toutes nos offres"):
+        assert noise not in offer["text"]
+
+
+def test_page_without_offer(client, auth_headers, web):
+    web.pages["https://spa.example.com/job/1"] = html('<html><body><div id="root"></div><script src="/app.js"></script></body></html>')
+    response = _import(client, auth_headers, "https://spa.example.com/job/1")
+    assert response.status_code == 422
+    assert response.json()["code"] == "job_offer.no_content"
+
+
+def test_url_without_scheme_defaults_to_https(client, auth_headers, web):
+    web.pages["https://jobs.example.com/offre/42"] = html(job_posting_page())
+    response = _import(client, auth_headers, "jobs.example.com/offre/42")
+    assert response.status_code == 200
+    assert response.json()["source_url"] == "https://jobs.example.com/offre/42"
+
+
+def test_latin1_page_without_charset(client, auth_headers, web):
+    body = job_posting_page().encode("cp1252", errors="replace")
+    web.pages["https://old.example.com/offre"] = (200, {"content-type": "text/html"}, body)
+    offer = _import(client, auth_headers, "https://old.example.com/offre").json()
+    assert offer["location"] == "Paris, Île-de-France, FR"
+
+
+def test_workable_page_uses_public_api(client, auth_headers, web):
+    """Page Workable rendue en JavaScript : l'offre est lue via l'API publique de l'ATS."""
+    web.pages["https://apply.workable.com/j/ABC123"] = (302, {"location": "/acme/j/ABC123/"}, "")
+    web.pages["https://apply.workable.com/acme/j/ABC123/"] = html('<html><body><div id="app"></div></body></html>')
+    web.pages["https://apply.workable.com/api/v2/accounts/acme/jobs/ABC123"] = (
+        200,
+        {"content-type": "application/json"},
+        json.dumps(
+            {
+                "title": "Machine Learning Engineer",
+                "location": {"city": "Paris", "region": "Île-de-France", "country": "France"},
+                "description": DESCRIPTION,
+                "requirements": "<ul><li>Python</li><li>PyTorch</li></ul>",
+                "benefits": "<p>Télétravail partiel</p>",
+            }
+        ),
+    )
+    offer = _import(client, auth_headers, "https://apply.workable.com/j/ABC123").json()
+    assert offer["method"] == "api"
+    assert offer["title"] == "Machine Learning Engineer"
+    assert offer["company"] == "acme"
+    assert offer["location"] == "Paris, Île-de-France, France"
+    assert "• PyTorch" in offer["text"]
+    assert "Télétravail partiel" in offer["text"]
+
+
+# --- Protection SSRF -------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "url,code",
+    [
+        ("http://127.0.0.1/admin", "job_offer.forbidden_url"),
+        ("http://169.254.169.254/latest/meta-data/", "job_offer.forbidden_url"),
+        ("http://10.0.0.5/", "job_offer.forbidden_url"),
+        ("http://192.168.1.1/", "job_offer.forbidden_url"),
+        ("http://[::1]/", "job_offer.forbidden_url"),
+        ("http://[::ffff:127.0.0.1]/", "job_offer.forbidden_url"),
+        ("http://0.0.0.0/", "job_offer.forbidden_url"),
+        ("http://localhost/", "job_offer.forbidden_url"),
+        ("http://redis.internal/", "job_offer.forbidden_url"),
+        ("http://jobs.example.com:6379/", "job_offer.forbidden_url"),
+        ("https://user:secret@jobs.example.com/", "job_offer.forbidden_url"),
+        ("ftp://jobs.example.com/offre", "job_offer.invalid_url"),
+        ("file:///etc/passwd", "job_offer.invalid_url"),
+        ("javascript:alert(1)", "job_offer.invalid_url"),
+        ("", "job_offer.invalid_url"),
+    ],
+)
+def test_forbidden_urls(client, auth_headers, web, url, code):
+    response = _import(client, auth_headers, url)
+    assert response.status_code == 400, (url, response.text)
+    assert response.json()["code"] == code
+    assert web.calls == []
+
+
+def test_hostname_resolving_to_private_ip(client, auth_headers, web):
+    web.dns["evil.example.com"] = [PUBLIC_IP, "10.0.0.7"]
+    response = _import(client, auth_headers, "https://evil.example.com/job")
+    assert response.json()["code"] == "job_offer.forbidden_url"
+    assert web.calls == []
+
+
+@pytest.mark.parametrize(
+    "location",
+    ["http://169.254.169.254/latest/meta-data/", "http://127.0.0.1:80/", "http://intranet.local/"],
+)
+def test_redirect_to_private_address_is_refused(client, auth_headers, web, location):
+    web.pages["https://short.example.com/x"] = (302, {"location": location}, "")
+    response = _import(client, auth_headers, "https://short.example.com/x")
+    assert response.status_code == 400
+    assert response.json()["code"] == "job_offer.forbidden_url"
+    assert web.calls == ["https://short.example.com/x"]
+
+
+def test_redirect_to_host_resolving_privately(client, auth_headers, web):
+    web.dns["rebind.example.com"] = ["127.0.0.1"]
+    web.pages["https://short.example.com/y"] = (301, {"location": "https://rebind.example.com/"}, "")
+    assert _import(client, auth_headers, "https://short.example.com/y").json()["code"] == "job_offer.forbidden_url"
+
+
+def test_redirects_are_followed_and_capped(client, auth_headers, web):
+    web.pages["https://short.example.com/ok"] = (301, {"location": "/offre/42"}, "")
+    web.pages["https://short.example.com/offre/42"] = html(job_posting_page())
+    assert _import(client, auth_headers, "https://short.example.com/ok").status_code == 200
+
+    for i in range(fetch.MAX_REDIRECTS + 1):
+        web.pages[f"https://loop.example.com/{i}"] = (302, {"location": f"/{i + 1}"}, "")
+    response = _import(client, auth_headers, "https://loop.example.com/0")
+    assert response.json()["code"] == "job_offer.too_many_redirects"
+    assert len([c for c in web.calls if "loop" in c]) == fetch.MAX_REDIRECTS + 1
+
+
+def test_connection_checks_ip_again(monkeypatch):
+    """DNS rebinding : l'hôte validé résout ensuite vers une IP interne au moment de la connexion."""
+    monkeypatch.setattr(fetch, "_resolve", lambda host, port: ["169.254.169.254"])
+    with pytest.raises(ApiError) as error:
+        PublicOnlyBackend().connect_tcp("jobs.example.com", 443, timeout=1)
+    assert error.value.code == "job_offer.forbidden_url"
+
+
+def test_real_transport_uses_public_only_backend(monkeypatch):
+    monkeypatch.setattr(fetch, "http_transport", None)
+    monkeypatch.setattr(fetch, "_resolve", lambda host, port: ["127.0.0.1"])
+    # validate_url passe (IP publique), puis la connexion réelle est refusée par le backend
+    monkeypatch.setattr(fetch, "validate_url", lambda url: url)
+    with pytest.raises(ApiError) as error:
+        fetch.fetch_html("http://jobs.example.com/")
+    assert error.value.code == "job_offer.forbidden_url"
+
+
+# --- Réponses du site ------------------------------------------------------------------------
+
+
+def test_timeout(client, auth_headers, web):
+    web.fail = httpx.ReadTimeout("trop lent")
+    response = _import(client, auth_headers, "https://slow.example.com/job")
+    assert response.status_code == 504
+    assert response.json()["code"] == "job_offer.timeout"
+
+
+def test_network_error(client, auth_headers, web):
+    web.fail = httpx.ConnectError("refusé")
+    assert _import(client, auth_headers, "https://down.example.com/job").json()["code"] == "job_offer.unreachable"
+
+
+def test_non_html_content(client, auth_headers, web):
+    web.pages["https://jobs.example.com/offre.pdf"] = (200, {"content-type": "application/pdf"}, b"%PDF-1.4")
+    response = _import(client, auth_headers, "https://jobs.example.com/offre.pdf")
+    assert response.status_code == 415
+    assert response.json()["code"] == "job_offer.not_html"
+
+
+def test_response_too_large(client, auth_headers, web, monkeypatch):
+    monkeypatch.setattr(fetch, "MAX_RESPONSE_BYTES", 1000)
+    web.pages["https://jobs.example.com/big"] = html("x" * 2000)
+    assert _import(client, auth_headers, "https://jobs.example.com/big").json()["code"] == "job_offer.too_large"
+    web.pages["https://jobs.example.com/declared"] = html("x", **{"content-length": "999999"})
+    assert _import(client, auth_headers, "https://jobs.example.com/declared").json()["code"] == "job_offer.too_large"
+
+
+def test_not_found(client, auth_headers, web):
+    response = _import(client, auth_headers, "https://jobs.example.com/removed")
+    assert response.status_code == 404
+    assert response.json()["code"] == "job_offer.not_found"
+
+
+@pytest.mark.parametrize(
+    "url",
+    ["https://www.linkedin.com/jobs/view/123", "https://fr.indeed.com/viewjob?jk=abc", "https://www.glassdoor.fr/job"],
+)
+def test_known_blocking_sites(client, auth_headers, web, url):
+    response = _import(client, auth_headers, url)
+    assert response.status_code == 422
+    assert response.json()["code"] == "job_offer.site_blocked"
+    assert web.calls == []
+
+
+@pytest.mark.parametrize("status", [403, 429, 999])
+def test_site_refusing_robots(client, auth_headers, web, status):
+    web.pages["https://protected.example.com/job"] = html("Access denied", status=status)
+    assert _import(client, auth_headers, "https://protected.example.com/job").json()["code"] == "job_offer.site_blocked"
+
+
+def test_redirect_to_blocking_site(client, auth_headers, web):
+    web.pages["https://lnkd.example.com/abc"] = (302, {"location": "https://www.linkedin.com/jobs/view/1"}, "")
+    assert _import(client, auth_headers, "https://lnkd.example.com/abc").json()["code"] == "job_offer.site_blocked"
+    assert web.calls == ["https://lnkd.example.com/abc"]
+
+
+def test_error_messages_are_translated(client, auth_headers, web):
+    response = client.post(
+        "/api/job-offers/import",
+        headers={**auth_headers, "Accept-Language": "en"},
+        json={"url": "https://www.linkedin.com/jobs/view/1"},
+    )
+    assert response.json()["detail"].startswith("This site blocks automatic import")
+
+
+# --- Cache, authentification, nettoyage IA ------------------------------------------------------
+
+
+def test_result_is_cached_by_url(client, auth_headers, web):
+    web.pages["https://jobs.example.com/offre/42"] = html(job_posting_page())
+    first = _import(client, auth_headers, "https://jobs.example.com/offre/42").json()
+    second = _import(client, auth_headers, "https://jobs.example.com/offre/42#postuler").json()
+    assert first["cached"] is False
+    assert second["cached"] is True
+    assert second["title"] == first["title"]
+    assert len(web.calls) == 1
+
+
+def test_requires_auth(client, web):
+    assert client.post("/api/job-offers/import", json={"url": "https://jobs.example.com/"}).status_code in (401, 403)
+
+
+def test_ai_cleanup_requires_verified_email(client, unverified_user, web):
+    headers = {"Authorization": f"Bearer {unverified_user['token']}"}
+    web.pages["https://careers.acme.test/data-analyst"] = html(ARTICLE_PAGE)
+    # Import simple autorisé, nettoyage IA réservé aux comptes vérifiés
+    assert _import(client, headers, "https://careers.acme.test/data-analyst").status_code == 200
+    response = _import(client, headers, "https://careers.acme.test/data-analyst", ai_cleanup=True)
+    assert response.status_code == 403
+    assert response.json()["code"] == "auth.email_not_verified"
+
+
+def test_ai_cleanup(client, auth_headers, web):
+    web.pages["https://careers.acme.test/data-analyst"] = html(ARTICLE_PAGE)
+    cleaned = {
+        "title": "Data Analyst",
+        "company": "ACME",
+        "location": "Lyon",
+        "text": "Missions : construire les tableaux de bord de pilotage. " * 6,
+    }
+    prompts = []
+    llm = SimpleNamespace(generate_json=lambda prompt, temperature: prompts.append(prompt) or cleaned)
+    with patch("app.routers.job_offers.ai_for_user", return_value=SimpleNamespace(llm=llm)):
+        offer = _import(client, auth_headers, "https://careers.acme.test/data-analyst", ai_cleanup=True).json()
+    assert offer["method"] == "ai"
+    assert offer["company"] == "ACME"
+    assert offer["source_url"] == "https://careers.acme.test/data-analyst"
+    assert "Modéliser les données de ventes" in prompts[0]
+
+
+def test_ai_cleanup_keeps_extraction_when_answer_is_empty(client, auth_headers, web):
+    web.pages["https://careers.acme.test/data-analyst"] = html(ARTICLE_PAGE)
+    llm = SimpleNamespace(generate_json=lambda prompt, temperature: {"text": ""})
+    with patch("app.routers.job_offers.ai_for_user", return_value=SimpleNamespace(llm=llm)):
+        offer = _import(client, auth_headers, "https://careers.acme.test/data-analyst", ai_cleanup=True).json()
+    assert offer["method"] == "html"
+
+
+# --- URL de l'offre dans l'historique ------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("https://jobs.example.com/offre/42?ref=talento", "https://jobs.example.com/offre/42?ref=talento"),
+        ("http://jobs.example.com/a", "http://jobs.example.com/a"),
+        ("javascript:alert(document.cookie)", None),
+        ("data:text/html,<script>", None),
+        ("  ", None),
+        (None, None),
+        ("https://" + "a" * 2050, None),
+    ],
+)
+def test_safe_offer_url(value, expected):
+    assert safe_offer_url(value) == expected
+
+
+def test_comparison_history_keeps_offer_url(client, auth_headers, db_session, registered_user):
+    with patch("app.services.comparison_service.ai_service.compare_offer_and_cv", return_value=FAKE_RESULT):
+        with client.stream(
+            "POST",
+            "/api/compare-stream",
+            headers={**auth_headers, "Accept": "text/event-stream"},
+            json={"offer_text": "Offre", "cv_text": "CV", "offer_url": "https://jobs.example.com/offre/42"},
+        ) as response:
+            "".join(response.iter_text())
+
+    db_session.expire_all()
+    record = db_session.scalars(
+        select(ComparisonRecord).where(ComparisonRecord.user_id == UUID(registered_user["user"]["id"]))
+    ).one()
+    assert record.offer_url == "https://jobs.example.com/offre/42"
+    listing = client.get("/api/comparisons", headers=auth_headers).json()
+    assert listing["items"][0]["offer_url"] == "https://jobs.example.com/offre/42"

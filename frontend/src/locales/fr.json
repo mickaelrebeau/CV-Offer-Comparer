@@ -244,6 +244,38 @@
     "cvFormat": "Format du CV",
     "cvTextLabel": "Texte de votre CV"
   },
+  "offerInput": {
+    "mode": "Mode de saisie de l'offre",
+    "paste": "Coller le texte",
+    "fromUrl": "Importer depuis une URL",
+    "urlLabel": "Lien de l'annonce",
+    "urlPlaceholder": "https://www.exemple.com/offres/developpeur-front",
+    "urlHint": "Welcome to the Jungle, sites carrières, Lever, Greenhouse, Workable, Ashby… LinkedIn et Indeed bloquent l'import : collez le texte de l'offre.",
+    "import": "Importer",
+    "importing": "Import en cours…",
+    "imported": "Offre importée depuis {domain}",
+    "another": "Importer une autre offre",
+    "aiCleanup": "Nettoyer avec l'IA",
+    "pasteInstead": "Coller le texte de l'offre",
+    "source": "Source :",
+    "detach": "retirer le lien",
+    "offline": "Hors ligne : l'import sera possible au retour du réseau. Vous pouvez coller le texte.",
+    "fields": {
+      "title": "Poste",
+      "company": "Entreprise",
+      "location": "Lieu",
+      "text": "Description de l'offre"
+    },
+    "methods": {
+      "jsonLd": "Offre importée (données structurées) :",
+      "api": "Offre importée :",
+      "html": "Texte extrait de la page, à vérifier :",
+      "ai": "Offre nettoyée par l'IA :"
+    },
+    "errors": {
+      "generic": "L'import a échoué. Réessayez, ou collez le texte de l'offre."
+    }
+  },
   "context": {
     "title": "Contexte actuel",
     "regionAria": "Contexte de candidature : CV et offre partagés entre les modules",
@@ -448,7 +480,8 @@
     "delete": "Supprimer",
     "noOfferExcerpt": "Offre sans extrait",
     "noCvExcerpt": "CV sans extrait",
-    "deleteError": "Suppression impossible"
+    "deleteError": "Suppression impossible",
+    "offerLinkAria": "Ouvrir l'annonce sur {domain}"
   },
   "interview": {
     "label": "Simulateur",

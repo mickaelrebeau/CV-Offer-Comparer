@@ -39,6 +39,7 @@ export interface ComparisonResult {
 export interface HistoryContext {
   cvText: string;
   offerText: string;
+  offerUrl?: string | null;
 }
 
 export const useCompareStore = defineStore("compare", () => {
@@ -195,7 +196,8 @@ export const useCompareStore = defineStore("compare", () => {
           error.value = errorMessage;
           errorCode.value = code || null;
           console.error("Erreur de comparaison:", errorMessage);
-        }
+        },
+        context.offerUrl,
       );
     } catch (err: any) {
       error.value = err.message || t("comparison.errors.generic");
@@ -230,7 +232,11 @@ export const useCompareStore = defineStore("compare", () => {
     errorCode.value = null;
     try {
       const detail = await getComparison(comparisonId);
-      const fromHistory = { cvText: detail.cv_text || "", offerText: detail.offer_text || "" };
+      const fromHistory = {
+        cvText: detail.cv_text || "",
+        offerText: detail.offer_text || "",
+        offerUrl: detail.offer_url || null,
+      };
       // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
       if (!context.hasContext) context.setContext(fromHistory, "compare");
       historyContext.value =

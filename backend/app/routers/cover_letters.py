@@ -13,6 +13,7 @@ from app.models.user import User
 from app.routers.compare import _sse_headers
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.cover_letter_service import LANGUAGES, LENGTHS, TONES, stream_cover_letter
+from app.services.job_offers.service import safe_offer_url
 from app.services.llm_credentials_service import ai_for_user
 from app.services.rate_limit_service import rate_limit
 from app.services.upload_service import PDFExtractionError, UploadService, read_upload
@@ -55,6 +56,7 @@ async def generate_cover_letter(
     tone: str = Form(default="professional"),
     length: str = Form(default="standard"),
     language: str = Form(default="auto"),
+    offer_url: Optional[str] = Form(default=None),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     locale: str = Depends(request_locale),
@@ -79,6 +81,7 @@ async def generate_cover_letter(
             user_id=user.id,
             job_text=job,
             cv_text=cv,
+            offer_url=safe_offer_url(offer_url),
             tone=tone,
             length=length,
             letter=letter,

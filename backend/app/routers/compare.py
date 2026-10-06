@@ -11,6 +11,7 @@ from app.dependencies import require_debug_endpoints
 from app.i18n import request_locale
 from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
+from app.services.job_offers.service import safe_offer_url
 from app.models.user import User
 from app.services.auth_service import AuthService, require_verified_user
 from app.services.comparison_service import stream_comparison
@@ -70,6 +71,7 @@ async def compare_cv_offer_stream(
             user_id=user.id,
             offer_text=request.offer_text,
             cv_text=request.cv_text,
+            offer_url=safe_offer_url(request.offer_url),
             items=items,
             summary=summary,
         )

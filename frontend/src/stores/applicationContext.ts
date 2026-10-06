@@ -165,9 +165,11 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     touch(options.from)
   }
 
+  /** Offre saisie ou importée ; `url` omis = lien conservé, effacé avec le texte. */
   function setOffer(value: string, options: { url?: string | null; from?: ContextModule } = {}) {
     offerText.value = String(value || '')
-    if (options.url !== undefined) offerUrl.value = optionalText(options.url)
+    if (!offerText.value.trim()) offerUrl.value = null
+    else if (options.url !== undefined) offerUrl.value = optionalText(options.url)
     touch(options.from)
   }
 

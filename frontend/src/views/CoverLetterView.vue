@@ -24,18 +24,7 @@
     <div class="space-y-10">
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Offre -->
-        <div class="panel overflow-hidden">
-          <label for="cover-letter-offer" class="panel-header">{{ t('cvInput.offerHeader') }}</label>
-          <div class="p-4 sm:p-5">
-            <Textarea
-              id="cover-letter-offer"
-              :model-value="context.offerText"
-              :placeholder="t('coverLetter.offerPlaceholder')"
-              class="min-h-[220px]"
-              @update:model-value="(value) => context.setOffer(String(value), { from: 'coverLetter' })"
-            />
-          </div>
-        </div>
+        <OfferInput module="coverLetter" textarea-id="cover-letter-offer" :placeholder="t('coverLetter.offerPlaceholder')" />
 
         <!-- CV -->
         <div class="panel overflow-hidden">
@@ -185,6 +174,7 @@ import posthog from 'posthog-js'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
+import OfferInput from '@/components/OfferInput.vue'
 import PDFUpload from '@/components/PDFUpload.vue'
 import SavedCvPicker from '@/components/SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'

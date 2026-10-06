@@ -12,6 +12,7 @@ from app.models.interview_record import InterviewRecord
 from app.models.user import User
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
+from app.services.job_offers.service import safe_offer_url
 from app.services.llm_credentials_service import ai_for_user
 from app.services.upload_service import PDFExtractionError, UploadService, read_upload
 from app.services.rate_limit_service import rate_limit
@@ -89,6 +90,7 @@ async def analyze_interview_responses(
     cv_text: str = Form(...),
     job_text: str = Form(...),
     duration_seconds: int = Form(default=0),
+    offer_url: Optional[str] = Form(default=None),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -113,6 +115,7 @@ async def analyze_interview_responses(
             user_id=user.id,
             job_text=job_text,
             cv_text=cv_text,
+            offer_url=safe_offer_url(offer_url),
             questions=questions_list,
             answers=answers_list,
             analysis=analysis,

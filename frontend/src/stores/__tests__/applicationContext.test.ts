@@ -74,6 +74,17 @@ describe('persistance', () => {
   })
 })
 
+describe('lien de l’offre', () => {
+  it('est conservé quand le texte est retouché, effacé avec le texte', () => {
+    const store = freshStore()
+    store.setOffer(OFFER, { url: 'https://jobs.example.com/42', from: 'compare' })
+    store.setOffer(`${OFFER} (retouchée)`)
+    expect(store.offerUrl).toBe('https://jobs.example.com/42')
+    store.setOffer('')
+    expect(store.offerUrl).toBeNull()
+  })
+})
+
 describe('hydratation', () => {
   it('restaure le contexte après un rechargement', () => {
     sessionStorage.setItem(

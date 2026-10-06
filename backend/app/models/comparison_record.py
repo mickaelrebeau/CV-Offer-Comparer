@@ -41,6 +41,8 @@ class ComparisonRecord(Base):
     items: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     offer_text: Mapped[str] = mapped_column(Text, nullable=False)
     cv_text: Mapped[str] = mapped_column(Text, nullable=False)
+    # Lien de l'annonce quand l'offre a été importée depuis son URL
+    offer_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -55,6 +57,7 @@ class ComparisonRecord(Base):
         user_id: uuid.UUID,
         offer_text: str,
         cv_text: str,
+        offer_url: str | None = None,
         items: list[Any],
         summary: dict[str, Any],
     ) -> "ComparisonRecord":
@@ -71,6 +74,7 @@ class ComparisonRecord(Base):
             items=items,
             offer_text=offer_text,
             cv_text=cv_text,
+            offer_url=offer_url,
         )
 
     def to_list_dict(self) -> dict[str, Any]:
@@ -83,6 +87,7 @@ class ComparisonRecord(Base):
             "matches": self.matches,
             "missing": self.missing,
             "unclear": self.unclear,
+            "offer_url": self.offer_url,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 

@@ -79,6 +79,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
           tone: tone.value,
           length: length.value,
           language: language.value,
+          offerUrl: context.offerUrl,
         },
         {
           onStatus: (message) => (status.value = message),
@@ -117,7 +118,11 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     errorCode.value = null
     try {
       const detail = await getCoverLetter(id)
-      const fromHistory = { cvText: detail.cv_text || '', offerText: detail.job_text || '' }
+      const fromHistory = {
+        cvText: detail.cv_text || '',
+        offerText: detail.job_text || '',
+        offerUrl: detail.offer_url || null,
+      }
       // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
       if (!context.hasContext) context.setContext(fromHistory, 'coverLetter')
       historyContext.value = context.matches(fromHistory.cvText, fromHistory.offerText) ? null : fromHistory

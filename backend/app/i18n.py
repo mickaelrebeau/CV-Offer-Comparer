@@ -223,6 +223,47 @@ MESSAGES: dict[str, dict[str, str]] = {
         "fr": "Vous avez atteint la limite de {max} CV enregistrés. Supprimez-en un depuis votre profil pour en ajouter un nouveau.",
         "en": "You have reached the limit of {max} saved resumes. Delete one from your profile to add a new one.",
     },
+    # Import d'offre depuis une URL
+    "job_offer.invalid_url": {
+        "fr": "Adresse invalide : collez le lien complet de l'offre (https://…)",
+        "en": "Invalid address: paste the full link to the job offer (https://…)",
+    },
+    "job_offer.forbidden_url": {
+        "fr": "Cette adresse ne peut pas être importée. Collez le texte de l'offre à la place.",
+        "en": "This address cannot be imported. Paste the job offer text instead.",
+    },
+    "job_offer.unreachable": {
+        "fr": "Impossible de joindre ce site. Vérifiez le lien, ou collez le texte de l'offre.",
+        "en": "Could not reach this site. Check the link, or paste the job offer text.",
+    },
+    "job_offer.timeout": {
+        "fr": "Le site met trop de temps à répondre. Réessayez, ou collez le texte de l'offre.",
+        "en": "The site is taking too long to respond. Try again, or paste the job offer text.",
+    },
+    "job_offer.too_many_redirects": {
+        "fr": "Ce lien redirige trop de fois. Ouvrez l'offre et copiez son adresse finale, ou collez son texte.",
+        "en": "This link redirects too many times. Open the offer and copy its final address, or paste its text.",
+    },
+    "job_offer.not_found": {
+        "fr": "Offre introuvable : elle a peut-être été retirée.",
+        "en": "Job offer not found: it may have been removed.",
+    },
+    "job_offer.not_html": {
+        "fr": "Ce lien ne mène pas à une page web. Pour un PDF, copiez-collez le texte de l'offre.",
+        "en": "This link does not lead to a web page. For a PDF, copy and paste the job offer text.",
+    },
+    "job_offer.too_large": {
+        "fr": "Cette page est trop volumineuse pour être importée. Collez le texte de l'offre.",
+        "en": "This page is too large to import. Paste the job offer text.",
+    },
+    "job_offer.site_blocked": {
+        "fr": "Ce site bloque l'import automatique (LinkedIn, Indeed…). Ouvrez l'offre, copiez son texte et collez-le dans l'onglet « Coller le texte ».",
+        "en": "This site blocks automatic import (LinkedIn, Indeed…). Open the offer, copy its text and paste it in the “Paste text” tab.",
+    },
+    "job_offer.no_content": {
+        "fr": "Aucune offre lisible sur cette page (contenu chargé dynamiquement ou connexion requise). Collez le texte de l'offre.",
+        "en": "No readable job offer on this page (dynamically loaded content or sign-in required). Paste the job offer text.",
+    },
     # Limites
     "rate.too_many": {
         "fr": "Trop de requêtes. Réessayez dans un instant.",

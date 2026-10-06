@@ -47,6 +47,8 @@ class CoverLetterRecord(Base):
     word_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     letter: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     cv_text: Mapped[str] = mapped_column(Text, nullable=False)
+    # Lien de l'annonce quand l'offre a été importée depuis son URL
+    offer_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     job_text: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -62,6 +64,7 @@ class CoverLetterRecord(Base):
         user_id: uuid.UUID,
         job_text: str,
         cv_text: str,
+        offer_url: str | None = None,
         tone: str,
         length: str,
         letter: dict[str, Any],
@@ -77,6 +80,7 @@ class CoverLetterRecord(Base):
             word_count=letter_word_count(letter),
             letter=letter,
             cv_text=cv_text,
+            offer_url=offer_url,
             job_text=job_text,
         )
 
@@ -90,6 +94,7 @@ class CoverLetterRecord(Base):
             "length": self.length,
             "language": self.language,
             "word_count": self.word_count,
+            "offer_url": self.offer_url,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 

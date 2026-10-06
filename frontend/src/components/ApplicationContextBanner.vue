@@ -29,15 +29,11 @@
         <Briefcase class="mt-0.5 h-4 w-4 shrink-0 text-ink-soft" aria-hidden="true" />
         <div class="min-w-0">
           <dt class="field-label">{{ t('context.offer') }}</dt>
-          <dd class="line-clamp-2 text-ink" :class="{ 'text-ink-soft': !context.hasOffer }">
-            <a
-              v-if="context.offerUrl"
-              :href="context.offerUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline underline-offset-4"
-            >{{ context.offerUrl }}</a>
-            <template v-else>{{ offerSummary }}</template>
+          <dd class="line-clamp-2 text-ink" :class="{ 'text-ink-soft': !context.hasOffer }">{{ offerSummary }}</dd>
+          <dd v-if="offerLink" class="mt-1 font-mono text-micro">
+            <a :href="offerLink" target="_blank" rel="noopener noreferrer" class="text-ink-soft underline underline-offset-4 hover:text-ink">
+              {{ offerDomain(offerLink) }}
+            </a>
           </dd>
         </div>
       </div>
@@ -62,6 +58,7 @@ import { computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Briefcase, FileText } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+import { offerDomain, safeHttpUrl } from '@/lib/jobOffer'
 import { useApplicationContextStore } from '@/stores/applicationContext'
 
 const props = withDefaults(
@@ -80,6 +77,7 @@ const { t } = useI18n()
 const context = useApplicationContextStore()
 
 const EXCERPT_LENGTH = 160
+const offerLink = computed(() => safeHttpUrl(context.offerUrl))
 
 const cvSummary = computed(() => {
   if (!context.hasCv) return t('context.noCv')

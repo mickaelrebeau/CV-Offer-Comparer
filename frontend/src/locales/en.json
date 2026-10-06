@@ -244,6 +244,38 @@
     "cvFormat": "Resume format",
     "cvTextLabel": "Your resume text"
   },
+  "offerInput": {
+    "mode": "Job offer input mode",
+    "paste": "Paste text",
+    "fromUrl": "Import from a URL",
+    "urlLabel": "Job posting link",
+    "urlPlaceholder": "https://www.example.com/jobs/front-end-developer",
+    "urlHint": "Welcome to the Jungle, career sites, Lever, Greenhouse, Workable, Ashby… LinkedIn and Indeed block imports: paste the job offer text.",
+    "import": "Import",
+    "importing": "Importing…",
+    "imported": "Job offer imported from {domain}",
+    "another": "Import another offer",
+    "aiCleanup": "Clean up with AI",
+    "pasteInstead": "Paste the job offer text",
+    "source": "Source:",
+    "detach": "remove link",
+    "offline": "Offline: you can import once you are back online. You can paste the text.",
+    "fields": {
+      "title": "Position",
+      "company": "Company",
+      "location": "Location",
+      "text": "Job description"
+    },
+    "methods": {
+      "jsonLd": "Job offer imported (structured data):",
+      "api": "Job offer imported:",
+      "html": "Text extracted from the page, please review:",
+      "ai": "Job offer cleaned up by AI:"
+    },
+    "errors": {
+      "generic": "The import failed. Try again, or paste the job offer text."
+    }
+  },
   "context": {
     "title": "Current context",
     "regionAria": "Application context: CV and job offer shared across modules",
@@ -448,7 +480,8 @@
     "delete": "Delete",
     "noOfferExcerpt": "Job offer without excerpt",
     "noCvExcerpt": "Resume without excerpt",
-    "deleteError": "Could not delete"
+    "deleteError": "Could not delete",
+    "offerLinkAria": "Open the job posting on {domain}"
   },
   "interview": {
     "label": "Simulator",
