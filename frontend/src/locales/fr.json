@@ -314,8 +314,7 @@
       "sites": "Fonctionne aussi sur les autres sites d'emploi et pages carrières.",
       "mobile": "Sur mobile, les favoris de ce type ne sont pas pris en charge : utilisez le copier-coller depuis le champ offre.",
       "privacy": "Le bouton lit uniquement la page de l'offre, dans votre navigateur, et l'envoie à Talento. Rien n'est transmis au site d'emploi ni à des tiers.",
-      "bookmarkName": "📨 Envoyer vers Talento",
-      "icon": "Les navigateurs n'affichent pas de logo pour ce type de favori (il ne pointe vers aucun site) : l'emoji 📨 sert de repère dans la barre. Vous pouvez renommer le favori (clic droit → Modifier), par exemple en « 📨 Talento » pour gagner de la place."
+      "bookmarkName": "Envoyer vers Talento"
     }
   },
   "context": {

@@ -314,8 +314,7 @@
       "sites": "Also works on other job boards and career pages.",
       "mobile": "On mobile, this kind of bookmark is not supported: use copy and paste from the job offer field.",
       "privacy": "The button only reads the job offer page, in your browser, and sends it to Talento. Nothing is sent to the job board or to third parties.",
-      "bookmarkName": "📨 Send to Talento",
-      "icon": "Browsers show no logo for this kind of bookmark (it doesn't point to a website): the 📨 emoji makes it easy to spot in the bar. You can rename the bookmark (right-click → Edit), for example to “📨 Talento” to save space."
+      "bookmarkName": "Send to Talento"
     }
   },
   "context": {
