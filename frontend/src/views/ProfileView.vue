@@ -33,6 +33,18 @@
 
       <SavedCvsSection />
 
+      <!-- Bouton « Envoyer vers Talento » : offres Indeed, LinkedIn, Welcome to the Jungle -->
+      <section class="panel space-y-4 p-6" aria-labelledby="send-to-talento-title">
+        <div class="space-y-2 border-b border-ink/10 pb-3">
+          <h2 id="send-to-talento-title" class="font-mono text-caption uppercase">{{ t('profile.sendToTalento.title') }}</h2>
+          <p class="text-sm text-ink-soft">{{ t('profile.sendToTalento.text') }}</p>
+        </div>
+        <RouterLink :to="localePath('/import')" class="btn-secondary inline-flex h-9 items-center gap-2 px-4 text-micro">
+          <Send class="h-3.5 w-3.5" aria-hidden="true" />
+          {{ t('profile.sendToTalento.action') }}
+        </RouterLink>
+      </section>
+
       <LlmProvidersSection />
 
       <div class="panel p-6 space-y-4">
@@ -68,6 +80,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Send } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import InstallAppButton from '@/components/InstallAppButton.vue'
@@ -82,7 +95,7 @@ import { canInstall } from '@/lib/pwa'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
-const { push, formatDate } = useLocale()
+const { push, formatDate, localePath } = useLocale()
 const authStore = useAuthStore()
 
 const { user } = storeToRefs(authStore)

@@ -652,7 +652,12 @@
     "deleted": "Votre compte a été supprimé.",
     "deleteError": "Erreur : {message}",
     "deleteFailed": "Une erreur est survenue lors de la suppression.",
-    "app": "Application"
+    "app": "Application",
+    "sendToTalento": {
+      "title": "Envoyer vers Talento",
+      "text": "Un bouton à placer dans la barre de favoris de votre navigateur : depuis une offre Indeed, LinkedIn ou Welcome to the Jungle, il l'importe dans Talento en un clic.",
+      "action": "Installer ou réinstaller le bouton"
+    }
   },
   "llmProviders": {
     "title": "Providers IA & clés API",

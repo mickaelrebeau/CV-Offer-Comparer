@@ -652,7 +652,12 @@
     "deleted": "Your account has been deleted.",
     "deleteError": "Error: {message}",
     "deleteFailed": "Something went wrong while deleting your account.",
-    "app": "App"
+    "app": "App",
+    "sendToTalento": {
+      "title": "Send to Talento",
+      "text": "A button for your browser's bookmarks bar: from an Indeed, LinkedIn or Welcome to the Jungle job offer, it imports it into Talento in one click.",
+      "action": "Install or reinstall the button"
+    }
   },
   "llmProviders": {
     "title": "AI providers & API keys",

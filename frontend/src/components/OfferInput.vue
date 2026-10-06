@@ -61,7 +61,12 @@
               {{ importing ? t('offerInput.importing') : t('offerInput.import') }}
             </Button>
           </div>
-          <p class="text-xs text-ink-soft">{{ t('offerInput.urlHint') }}</p>
+          <p class="text-xs text-ink-soft">
+            {{ t('offerInput.urlHint') }}
+            <RouterLink :to="localePath('/import')" class="text-ink underline underline-offset-4">
+              {{ t('offerInput.assisted.bookmarkletInstall') }}
+            </RouterLink>
+          </p>
           <p v-if="!isOnline" class="font-mono text-micro uppercase text-ink-soft">{{ t('offerInput.offline') }}</p>
         </form>
 
