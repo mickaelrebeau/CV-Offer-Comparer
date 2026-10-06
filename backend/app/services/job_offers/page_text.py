@@ -1,9 +1,8 @@
-"""Offre Indeed extraite du texte visible de la page (copier-coller, ou bouton « Envoyer vers Talento »
-quand les sélecteurs CSS ne correspondent plus).
+"""Offre extraite du texte visible d'une page Indeed ou LinkedIn (copier-coller, ou bouton
+« Envoyer vers Talento » quand les sélecteurs CSS ne correspondent plus).
 
-Les classes d'Indeed changent souvent, pas ses libellés : le panneau de l'offre affichée suit
-toujours « titre, entreprise, (note), lieu, contrat, Postuler… », puis « Description du poste »,
-la description, et « Signaler l'offre ». La liste des offres recommandées qui précède est ignorée.
+Leurs classes CSS changent souvent (LinkedIn les génère), pas leurs libellés. On repère le panneau
+de l'offre affichée grâce à eux et on ignore la liste de résultats, les menus et les encarts.
 """
 
 from __future__ import annotations
@@ -78,3 +77,68 @@ def from_indeed_text(text: str) -> ExtractedOffer | None:
         text=description[:MAX_TEXT_CHARS],
         method="page",
     )
+
+
+# --- LinkedIn -------------------------------------------------------------------------------------
+# Panneau de l'offre : « entreprise », « titre », « lieu · il y a 2 semaines · 90 candidats »,
+# (« Hybride », « Temps plein », « Postuler »…), puis « À propos de l'offre d'emploi », la
+# description, et « … plus » / l'encart Premium / « À propos de l'entreprise ».
+
+LINKEDIN_DESCRIPTION_START = _line(r"à propos de l[’']offre d[’']emploi|about the job|à propos du poste")
+LINKEDIN_DESCRIPTION_END = _line(
+    r"… ?plus|\.\.\. ?plus|… ?more|\.\.\. ?more|afficher moins|voir moins|show less|see less"
+    r"|à propos de l[’']entreprise|about the company|des recherches d[’']emploi plus rapides avec premium"
+    r"|job search faster with premium|.*millions d[’']autres membres utilisent premium.*"
+)
+# « Lille, Hauts-de-France, France · il y a 2 semaines · 90 personnes ont cliqué sur Postuler »
+LINKEDIN_META = re.compile(
+    r"^(?P<location>[^·]+?)\s+·\s+.*\b(il y a|republiée|reposted|ago|candidat|applicant|clicked apply|postuler)\b",
+    re.IGNORECASE,
+)
+WORKPLACE = _line(r"hybride|sur site|à distance|télétravail|hybrid|on-site|remote")
+LINKEDIN_META_WINDOW = 15
+
+
+def from_linkedin_text(text: str) -> ExtractedOffer | None:
+    lines = _lines(text)
+    start = next((i for i, line in enumerate(lines) if LINKEDIN_DESCRIPTION_START.match(line)), None)
+    if start is None:
+        return None
+    end = next((i for i in range(start + 1, len(lines)) if LINKEDIN_DESCRIPTION_END.match(lines[i])), len(lines))
+    description = re.sub(r"\n{3,}", "\n\n", "\n".join(lines[start + 1 : end])).strip()
+    if len(description) < MIN_TEXT_CHARS:
+        return None
+
+    title = company = location = ""
+    # Dernière ligne « lieu · date · candidats » avant la description : en-tête de l'offre affichée
+    meta = next(
+        (i for i in range(start - 1, -1, -1) if LINKEDIN_META.match(lines[i])),
+        None,
+    )
+    if meta is not None:
+        location = LINKEDIN_META.match(lines[meta])["location"].strip()
+        above = [line for line in lines[max(0, meta - 6) : meta] if line]
+        if above:
+            title = above[-1]
+        if len(above) > 1:
+            company = above[-2]
+        workplace = next(
+            (line for line in lines[meta + 1 : meta + LINKEDIN_META_WINDOW] if WORKPLACE.match(line)), None
+        )
+        if workplace and workplace.lower() not in location.lower():
+            location = f"{location} ({workplace})"
+
+    return ExtractedOffer(
+        title=title[:300],
+        company=company[:300],
+        location=location[:300],
+        text=description[:MAX_TEXT_CHARS],
+        method="page",
+    )
+
+
+def from_page_text(text: str, host: str = "") -> ExtractedOffer | None:
+    """Extracteur du site du lien d'abord, puis l'autre (lien d'un site, texte copié d'un autre)."""
+    if re.search(r"(^|\.)linkedin\.", host):
+        return from_linkedin_text(text) or from_indeed_text(text)
+    return from_indeed_text(text) or from_linkedin_text(text)

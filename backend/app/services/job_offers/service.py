@@ -22,7 +22,7 @@ from app.services.job_offers.extract import (
     workable_api_url,
 )
 from app.services.job_offers.fetch import fetch_html, fetch_json, validate_url
-from app.services.job_offers.page_text import from_indeed_text
+from app.services.job_offers.page_text import from_page_text
 from app.services.redis_service import redis_service
 
 CACHE_TTL_SECONDS = 15 * 60
@@ -120,6 +120,7 @@ MAX_TITLE_CHARS = 300
 def _page_title(title: str) -> str:
     """Titre d'onglet sans le nom du site (« Développeur H/F - Paris - Indeed.com » → « Développeur H/F - Paris »)."""
     title = re.sub(r"\s+", " ", title or "").strip()[:MAX_TITLE_CHARS]
+    title = re.sub(r"^\(\d+\)\s*", "", title)  # compteur de notifications : « (3) Titre »
     return re.sub(r"\s*[-|–·]\s*(Indeed(\.\w+)*|LinkedIn|Welcome to the Jungle)\s*$", "", title, flags=re.I)
 
 
@@ -132,8 +133,8 @@ def _short(value: str | None, limit: int = MAX_TITLE_CHARS) -> str:
     return re.sub(r"\s+", " ", value or "").strip()[:limit]
 
 
-def _is_indeed(url: str | None) -> bool:
-    return bool(re.search(r"(^|\.)indeed\.[a-z.]+$", (urlsplit(url).hostname or "") if url else ""))
+def _is_text_parsed_site(host: str) -> bool:
+    return bool(re.search(r"(^|\.)(indeed|linkedin)\.[a-z.]+$", host))
 
 
 def _from_page_fields(fields: dict[str, str] | None) -> ExtractedOffer | None:
@@ -177,9 +178,10 @@ def parse_offer(
     source_url = safe_offer_url(url)
     title_hint = (fields or {}).get("title") or _page_title(title)
     offer = _from_page_fields(fields)
-    # Indeed : panneau de l'offre affichée repéré par ses libellés (page d'accueil, recherche, copier-coller)
-    if offer is None and (_is_indeed(source_url) or not raws):
-        offer = from_indeed_text(text)
+    # Indeed / LinkedIn : panneau de l'offre affichée repéré par ses libellés (accueil, recherche, copier-coller)
+    host = (urlsplit(source_url).hostname or "").lower() if source_url else ""
+    if offer is None and (_is_text_parsed_site(host) or not raws):
+        offer = from_page_text(text, host)
         if offer is not None and not offer.title:
             offer.title = _page_title(title)
     if offer is None and raws:

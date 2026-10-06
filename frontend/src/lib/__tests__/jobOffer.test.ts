@@ -164,6 +164,17 @@ describe('bookmarklet', () => {
     expect(payload?.x).toContain('Missions : développer en Angular.')
   })
 
+  it('LinkedIn aux classes générées : texte de la page, URL de l’offre sélectionnée', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://www.linkedin.com/jobs/collections/recommended/?currentJobId=4300000001'), configurable: true })
+    document.body.innerHTML = `
+      <div class="a1b2c3"><p>Développeur web</p><p>HARA Consulting</p></div>
+      <div class="d4e5f6"><p>Viveris</p><h1 class="x9y8">Développeur Fullstack NodeJS / VueJS H/F</h1><h2>À propos de l’offre d’emploi</h2><p>Viveris est un groupe de conseil.</p></div>`
+    const payload = runBookmarklet()
+    expect(payload?.u).toBe('https://www.linkedin.com/jobs/view/4300000001/')
+    expect(payload?.f).toBeNull()
+    expect(payload?.x).toContain('À propos de l’offre d’emploi')
+  })
+
   it('Indeed : offre affichée dans une iframe du même site', () => {
     Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/emplois?q=dev&vjk=99'), configurable: true })
     document.body.innerHTML = '<iframe id="vjs-container-iframe"></iframe>'

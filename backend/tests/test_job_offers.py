@@ -665,3 +665,60 @@ def test_indeed_english_labels(client, auth_headers):
     offer = _parse(client, auth_headers, url="https://uk.indeed.com/viewjob?jk=2", text=page).json()
     assert (offer["title"], offer["company"], offer["location"]) == ("Senior Data Engineer", "Acme Corp", "London")
     assert "Report job" not in offer["text"]
+
+
+# --- LinkedIn : texte visible de la page (exemple réel, liste de recherche + offre sélectionnée) ---
+
+LINKEDIN_SEARCH = (Path(__file__).parent / "fixtures" / "linkedin_recherche_fr.txt").read_text(encoding="utf-8")
+
+
+def _assert_viveris_offer(offer):
+    assert offer["method"] == "page"
+    assert offer["title"] == "Développeur Fullstack NodeJS / VueJS H/F"
+    assert offer["company"] == "Viveris"
+    assert offer["location"] == "Lille, Hauts-de-France, France (Hybride)"
+    assert offer["text"].startswith("Viveris est un groupe de conseil")
+    assert "monitoring (datadog)" in offer["text"]
+    assert offer["text"].endswith("Ref : 30957580")
+    # Ni la liste de résultats, ni l'équipe de recrutement, ni Premium, ni « À propos de l'entreprise »
+    for noise in ("HARA Consulting", "LITY", "Prénom NOM", "Premium", "28 258 abonnés", "… plus", "Postuler"):
+        assert noise not in offer["text"]
+
+
+def test_linkedin_bookmarklet_page_text(client, auth_headers, web):
+    offer = _parse(
+        client,
+        auth_headers,
+        url="https://www.linkedin.com/jobs/view/4012345678/",
+        title="(3) Développeur Fullstack NodeJS / VueJS H/F | Viveris | LinkedIn",
+        text=LINKEDIN_SEARCH,
+    ).json()
+    _assert_viveris_offer(offer)
+    assert offer["source_url"] == "https://www.linkedin.com/jobs/view/4012345678/"
+    assert web.calls == []
+
+
+def test_linkedin_copy_paste_without_link(client, auth_headers):
+    """Copier-coller sans lien : le site est reconnu à ses libellés."""
+    _assert_viveris_offer(_parse(client, auth_headers, text=LINKEDIN_SEARCH).json())
+
+
+def test_linkedin_english_labels(client, auth_headers):
+    page = "\n".join(
+        [
+            "Other job", "Other company", "Paris", "1 week ago",
+            "Acme", "Backend Engineer", "Berlin, Germany · 3 days ago · 25 applicants", "Remote", "Full-time", "Apply",
+            "About the job", "You will design and run our payment APIs in Go and PostgreSQL. " * 4, "… more",
+            "About the company", "Acme builds payments.",
+        ]
+    )
+    offer = _parse(client, auth_headers, url="https://www.linkedin.com/jobs/view/1/", text=page).json()
+    assert (offer["title"], offer["company"], offer["location"]) == ("Backend Engineer", "Acme", "Berlin, Germany (Remote)")
+    assert "About the company" not in offer["text"]
+
+
+def test_page_title_cleanup(client, auth_headers):
+    """Sans en-tête repérable : titre de l'onglet sans compteur de notifications ni « | LinkedIn »."""
+    text = "À propos de l’offre d’emploi\n" + "Description détaillée du poste et du profil. " * 8
+    offer = _parse(client, auth_headers, url="https://www.linkedin.com/jobs/view/2/", title="(12) Data Analyst | LinkedIn", text=text).json()
+    assert offer["title"] == "Data Analyst"
