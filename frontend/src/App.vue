@@ -146,6 +146,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import OfflineBanner from '@/components/OfflineBanner.vue'
 import UserMenu from '@/components/UserMenu.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSavedCvsStore } from '@/stores/savedCvs'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { stripLocale } from '@/i18n/routing'
 import { useLocale } from '@/i18n/useLocale'
@@ -154,6 +155,7 @@ import { isOnline } from '@/lib/pwa'
 const { t } = useI18n()
 const { localePath, push } = useLocale()
 const authStore = useAuthStore()
+const savedCvs = useSavedCvsStore()
 const route = useRoute()
 
 const isMobileMenuOpen = ref(false)
@@ -176,6 +178,15 @@ watch(
   () => {
     isMobileMenuOpen.value = false
   },
+)
+
+// Connexion (ou session restaurée) : le CV par défaut de « Mes CV » rejoint le contexte partagé
+watch(
+  () => authStore.isAuthenticated,
+  (authenticated) => {
+    if (authenticated) savedCvs.preloadDefault()
+  },
+  { immediate: true },
 )
 
 // Session gardée hors ligne : la revérifier dès le retour du réseau

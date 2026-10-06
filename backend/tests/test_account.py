@@ -5,7 +5,8 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from sqlalchemy import text
 
-from app.db import _migrate_email_verification, engine
+from app.db import engine
+from app.migrations import upgrade_legacy_schema
 from app.models.auth_token import AuthToken
 from app.models.comparison_record import ComparisonRecord
 from app.models.interview_record import InterviewRecord
@@ -158,8 +159,9 @@ def test_migration_marks_existing_users_verified(db_session):
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users DROP COLUMN email_verified_at"))
 
-    _migrate_email_verification()
-    _migrate_email_verification()  # idempotente
+    for _ in range(2):  # idempotente
+        with engine.begin() as conn:
+            upgrade_legacy_schema(conn)
 
     db_session.expire_all()
     legacy = db_session.query(User).filter_by(email="legacy@example.com").one()

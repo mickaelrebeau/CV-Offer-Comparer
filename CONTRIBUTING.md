@@ -74,6 +74,24 @@ Ne committez jamais de fichiers `.env` ni de clés API.
 - Typage et modèles Pydantic quand c’est pertinent
 - Pas de dépendances lourdes inutiles (l’IA passe par Gemini uniquement)
 - Garder les endpoints SSE non bloquants (`asyncio.to_thread` pour les appels Gemini)
+- Schéma de base : toute modification d'un modèle SQLAlchemy s'accompagne d'une migration Alembic (voir ci-dessous)
+
+### Migrations de base de données (Alembic)
+
+Les migrations sont appliquées automatiquement au démarrage de l'API (`app/migrations.py`, sous verrou PostgreSQL). Depuis `backend/`, avec `DATABASE_URL` défini :
+
+```bash
+# Après avoir modifié ou ajouté un modèle (pensez à l'importer dans app/models/tables.py)
+alembic revision --autogenerate --rev-id 0003 -m "ajout de la colonne x"
+# Relire le fichier généré dans migrations/versions/, puis :
+alembic upgrade head      # appliquer
+alembic check             # vérifier que le schéma correspond aux modèles
+alembic downgrade -1      # annuler la dernière migration
+```
+
+- Numérotez les révisions à la suite (`0003`, `0004`…) ; une seule tête de migration (`tests/test_migrations.py` le vérifie).
+- Écrivez toujours le `downgrade()` et relisez l'autogénération (index partiels, valeurs par défaut, renommages détectés comme suppression + ajout).
+- Une migration ne modifie jamais une révision déjà mergée : ajoutez-en une nouvelle.
 
 ### Frontend (Vue 3 / TypeScript)
 

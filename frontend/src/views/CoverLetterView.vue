@@ -56,6 +56,7 @@
             </div>
           </div>
           <div class="p-4 sm:p-5">
+            <SavedCvPicker module="coverLetter" class="mb-4" />
             <PDFUpload
               v-if="cvTab === 'upload'"
               :model-value="context.cvText"
@@ -185,6 +186,7 @@ import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
 import PDFUpload from '@/components/PDFUpload.vue'
+import SavedCvPicker from '@/components/SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'

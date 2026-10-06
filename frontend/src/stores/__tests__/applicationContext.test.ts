@@ -56,11 +56,21 @@ describe('persistance', () => {
     expect(sessionStorage.getItem(KEY)).toBeNull()
   })
 
-  it('oublie le nom de fichier quand le CV est saisi à la main', () => {
+  it('oublie le nom de fichier et le CV enregistré quand le CV est saisi à la main', () => {
     const store = freshStore()
-    store.setCv(CV, { fileName: 'cv.pdf' })
+    store.setCv(CV, { fileName: 'cv.pdf', savedCvId: 'cv-1' })
+    expect(store.savedCvId).toBe('cv-1')
     store.setCv(`${CV} (modifié)`)
     expect(store.cvFileName).toBeNull()
+    expect(store.savedCvId).toBeNull()
+  })
+
+  it('persiste le lien vers le CV enregistré', async () => {
+    const store = freshStore()
+    store.setCv(CV, { fileName: 'CV Lead', savedCvId: 'cv-1' })
+    await nextTick()
+    expect(stored().savedCvId).toBe('cv-1')
+    expect(freshStore().savedCvId).toBe('cv-1')
   })
 })
 

@@ -208,6 +208,21 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "Invalid API key format (whitespace or excessive length)",
     },
     "llm.credential_not_found": {"fr": "Configuration IA introuvable", "en": "AI configuration not found"},
+    # Bibliothèque de CV
+    "cvs.not_found": {"fr": "CV enregistré introuvable", "en": "Saved resume not found"},
+    "cvs.invalid_label": {
+        "fr": "Donnez un nom à ce CV ({max_chars} caractères maximum)",
+        "en": "Give this resume a name ({max_chars} characters max)",
+    },
+    "cvs.empty_text": {"fr": "Le CV à enregistrer est vide", "en": "The resume to save is empty"},
+    "cvs.text_too_long": {
+        "fr": "Le CV est limité à {max_chars} caractères",
+        "en": "The resume is limited to {max_chars} characters",
+    },
+    "cvs.limit_reached": {
+        "fr": "Vous avez atteint la limite de {max} CV enregistrés. Supprimez-en un depuis votre profil pour en ajouter un nouveau.",
+        "en": "You have reached the limit of {max} saved resumes. Delete one from your profile to add a new one.",
+    },
     # Limites
     "rate.too_many": {
         "fr": "Trop de requêtes. Réessayez dans un instant.",

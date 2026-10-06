@@ -31,6 +31,8 @@
         </div>
       </div>
 
+      <SavedCvsSection />
+
       <LlmProvidersSection />
 
       <div class="panel p-6 space-y-4">
@@ -71,6 +73,7 @@ import AppPageHeader from '@/components/AppPageHeader.vue'
 import InstallAppButton from '@/components/InstallAppButton.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import LlmProvidersSection from '@/components/LlmProvidersSection.vue'
+import SavedCvsSection from '@/components/SavedCvsSection.vue'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import { Notification } from '@/components/ui/notification'
