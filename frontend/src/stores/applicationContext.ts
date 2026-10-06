@@ -14,6 +14,8 @@ export type ContextModule = 'compare' | 'interview' | 'coverLetter'
 export interface ApplicationContext {
   cvText: string
   cvFileName: string | null
+  /** CV de la bibliothèque (« Mes CV ») dont provient le texte, tant qu'il n'est pas modifié */
+  savedCvId: string | null
   offerText: string
   offerUrl: string | null
   updatedAt: string | null
@@ -33,7 +35,15 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '')
 const optionalText = (value: unknown) => (typeof value === 'string' && value.trim() ? value : null)
 
 export function emptyContext(): ApplicationContext {
-  return { cvText: '', cvFileName: null, offerText: '', offerUrl: null, updatedAt: null, source: null }
+  return {
+    cvText: '',
+    cvFileName: null,
+    savedCvId: null,
+    offerText: '',
+    offerUrl: null,
+    updatedAt: null,
+    source: null,
+  }
 }
 
 /**
@@ -50,6 +60,7 @@ export function migrateContext(raw: unknown): ApplicationContext | null {
   const context: ApplicationContext = {
     cvText: text(data.cvText ?? data.cv_text),
     cvFileName: optionalText(data.cvFileName ?? data.cv_file_name),
+    savedCvId: optionalText(data.savedCvId),
     offerText: text(data.offerText ?? data.jobText ?? data.offer_text ?? data.job_text),
     offerUrl: optionalText(data.offerUrl ?? data.offer_url),
     updatedAt: optionalText(data.updatedAt ?? data.updated_at),
@@ -111,6 +122,7 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
 
   const cvText = ref(initial.cvText)
   const cvFileName = ref<string | null>(initial.cvFileName)
+  const savedCvId = ref<string | null>(initial.savedCvId)
   const offerText = ref(initial.offerText)
   const offerUrl = ref<string | null>(initial.offerUrl)
   const updatedAt = ref<string | null>(initial.updatedAt)
@@ -124,6 +136,7 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
   const snapshot = computed<ApplicationContext>(() => ({
     cvText: cvText.value,
     cvFileName: cvFileName.value,
+    savedCvId: savedCvId.value,
     offerText: offerText.value,
     offerUrl: offerUrl.value,
     updatedAt: updatedAt.value,
@@ -137,10 +150,18 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     if (from) source.value = from
   }
 
-  /** CV saisi ou importé ; le nom de fichier est oublié dès que le texte est édité à la main. */
-  function setCv(value: string, options: { fileName?: string | null; from?: ContextModule } = {}) {
+  /**
+   * CV saisi, importé ou choisi dans « Mes CV ». Le nom de fichier et le lien vers le CV
+   * enregistré sont oubliés dès que le texte est édité à la main.
+   */
+  function setCv(
+    value: string,
+    options: { fileName?: string | null; savedCvId?: string | null; from?: ContextModule } = {},
+  ) {
     cvText.value = String(value || '')
-    cvFileName.value = cvText.value.trim() ? options.fileName ?? null : null
+    const hasText = Boolean(cvText.value.trim())
+    cvFileName.value = hasText ? options.fileName ?? null : null
+    savedCvId.value = hasText ? options.savedCvId ?? null : null
     touch(options.from)
   }
 
@@ -154,6 +175,7 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
   function setContext(next: Partial<ApplicationContext>, from?: ContextModule) {
     cvText.value = text(next.cvText)
     cvFileName.value = optionalText(next.cvFileName)
+    savedCvId.value = optionalText(next.savedCvId)
     offerText.value = text(next.offerText)
     offerUrl.value = optionalText(next.offerUrl)
     touch(from)
@@ -168,6 +190,7 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     const empty = emptyContext()
     cvText.value = empty.cvText
     cvFileName.value = empty.cvFileName
+    savedCvId.value = empty.savedCvId
     offerText.value = empty.offerText
     offerUrl.value = empty.offerUrl
     updatedAt.value = empty.updatedAt
@@ -189,6 +212,7 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
   return {
     cvText,
     cvFileName,
+    savedCvId,
     offerText,
     offerUrl,
     updatedAt,

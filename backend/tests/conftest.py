@@ -27,6 +27,7 @@ from app.models.comparison_record import ComparisonRecord  # noqa: F401,E402
 from app.models.cover_letter_record import CoverLetterRecord  # noqa: F401,E402
 from app.models.interview_record import InterviewRecord  # noqa: F401,E402
 from app.models.llm_credential import UserLLMCredential  # noqa: F401,E402
+from app.models.saved_cv import SavedCV  # noqa: F401,E402
 from app.models.user import User  # noqa: F401,E402
 from app.services.rate_limit_service import rate_limiter  # noqa: E402
 from app.services.redis_service import redis_service  # noqa: E402
