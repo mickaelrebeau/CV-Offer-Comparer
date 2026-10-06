@@ -63,7 +63,14 @@ L'offre est lue dans le navigateur de l'utilisateur, qui y a accès :
    - le JSON-LD `JobPosting` : une seule offre, retenue ; plusieurs (liste, offres similaires),
      seule celle dont le titre correspond à l'offre affichée (sinon aucune) ;
    - un texte de secours : sélection de l'utilisateur (prioritaire sur tout le reste), zone de
-     description connue ou page. Le fragment `#…` n'est jamais envoyé au serveur
+     description connue ou page.
+
+   **Indeed** change souvent ses classes CSS (page d'accueil « Emplois recommandés » : aucun repère
+   connu). Sans description trouvée par sélecteur, le bouton envoie le texte de la page et le serveur
+   repère l'offre affichée grâce à ses libellés, stables (`app/services/job_offers/page_text.py`) :
+   « titre, entreprise, (note), lieu, contrat, Postuler… » puis « Description du poste » →
+   « Signaler l'offre » (libellés anglais gérés aussi). Le copier-coller de toute la page passe par le
+   même chemin. Exemple réel en test : `backend/tests/fixtures/indeed_accueil_fr.txt`. Le fragment `#…` n'est jamais envoyé au serveur
    web ; la page l'efface de la barre d'adresse puis l'analyse via `POST /api/job-offers/parse`.
    Ordinateur uniquement (les navigateurs mobiles ne gèrent pas ces favoris).
 2. **Copier-coller guidé** dans le champ offre : lien de l'annonce conservé, page copiée (Ctrl+A,

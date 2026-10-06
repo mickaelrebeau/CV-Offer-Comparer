@@ -1,6 +1,7 @@
 """Import d'offre depuis une URL : extraction (JSON-LD, contenu principal) et protection SSRF."""
 
 import json
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 from uuid import UUID
@@ -491,8 +492,10 @@ def test_parse_pasted_page_text(client, auth_headers, web):
         title="Développeur Full Stack H/F - Doctolib | LinkedIn",
         text=INDEED_PAGE_TEXT,
     ).json()
-    assert offer["method"] == "paste"
+    # Libellé « Description du poste » repéré : seule la description est gardée ; titre de l'onglet
+    assert offer["method"] == "page"
     assert offer["title"] == "Développeur Full Stack H/F - Doctolib"
+    assert "Passer au contenu principal" not in offer["text"]
     assert "Ruby on Rails et React" in offer["text"]
     assert offer["source_url"] == "https://www.linkedin.com/jobs/view/42"
     assert web.calls == []
@@ -603,3 +606,62 @@ def test_server_import_uses_h1_to_pick_posting(client, auth_headers, web):
     page = f'<html><head><script type="application/ld+json">{blocks}</script></head><body><h1>Développeur Vue.js</h1></body></html>'
     web.pages["https://jobs.example.com/vue"] = html(page)
     assert _import(client, auth_headers, "https://jobs.example.com/vue").json()["company"] == "Talento"
+
+
+# --- Indeed : texte visible de la page (exemple réel, page d'accueil « Emplois recommandés ») ------
+
+INDEED_HOME = (Path(__file__).parent / "fixtures" / "indeed_accueil_fr.txt").read_text(encoding="utf-8")
+
+
+def _assert_iscod_offer(offer):
+    assert offer["method"] == "page"
+    assert offer["title"] == "Alternance Développeur Fullstack .NET & Angular (F/H)"
+    assert offer["company"] == "ISCOD"
+    assert offer["location"] == "51100 Reims"
+    assert offer["text"].startswith("Description :")
+    assert "Piloter l’architecture technique" in offer["text"]
+    assert offer["text"].endswith("Poste à pourvoir dès que possible !")
+    # Ni la liste des offres recommandées, ni l'en-tête, ni le pied de page d'Indeed
+    for noise in ("Capfinances", "Verisure", "Bienvenue", "Avis sur les entreprises", "Signaler l'offre", "© 2026 Indeed"):
+        assert noise not in offer["text"]
+
+
+def test_indeed_bookmarklet_page_text(client, auth_headers, web):
+    """Bouton sur la page d'accueil Indeed : aucun sélecteur reconnu, texte de toute la page envoyé."""
+    offer = _parse(
+        client,
+        auth_headers,
+        url="https://fr.indeed.com/viewjob?jk=0011aabbccddeeff",
+        title="Emplois, Travail | Indeed.com",
+        text=INDEED_HOME,
+        fields=None,
+    ).json()
+    _assert_iscod_offer(offer)
+    assert offer["source_url"] == "https://fr.indeed.com/viewjob?jk=0011aabbccddeeff"
+    assert web.calls == []
+
+
+def test_indeed_copy_paste_of_whole_page(client, auth_headers):
+    """Copier-coller guidé (Ctrl+A, Ctrl+C) de la même page."""
+    _assert_iscod_offer(_parse(client, auth_headers, url="https://fr.indeed.com/?vjk=0011aabbccddeeff", text=INDEED_HOME).json())
+
+
+def test_indeed_text_beats_unrelated_json_ld(client, auth_headers):
+    other = json.dumps(_posting("Commercial terrain", "Verisure SAS"))
+    offer = _parse(client, auth_headers, url="https://fr.indeed.com/viewjob?jk=1", json_ld=[other], text=INDEED_HOME).json()
+    assert offer["company"] == "ISCOD"
+
+
+def test_indeed_english_labels(client, auth_headers):
+    page = "\n".join(
+        [
+            "Recommended jobs", "Other job", "Other company", "Show more jobs",
+            "Senior Data Engineer", "Acme Corp", "·", "4.1", "London", "Full-time", "Apply now",
+            "Job details", "£70,000 - £80,000 a year", "Full job description",
+            "We are looking for a senior data engineer to build our streaming platform. " * 4,
+            "Report job", "Hiring Lab",
+        ]
+    )
+    offer = _parse(client, auth_headers, url="https://uk.indeed.com/viewjob?jk=2", text=page).json()
+    assert (offer["title"], offer["company"], offer["location"]) == ("Senior Data Engineer", "Acme Corp", "London")
+    assert "Report job" not in offer["text"]

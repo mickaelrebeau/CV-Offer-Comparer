@@ -22,6 +22,7 @@ from app.services.job_offers.extract import (
     workable_api_url,
 )
 from app.services.job_offers.fetch import fetch_html, fetch_json, validate_url
+from app.services.job_offers.page_text import from_indeed_text
 from app.services.redis_service import redis_service
 
 CACHE_TTL_SECONDS = 15 * 60
@@ -131,6 +132,10 @@ def _short(value: str | None, limit: int = MAX_TITLE_CHARS) -> str:
     return re.sub(r"\s+", " ", value or "").strip()[:limit]
 
 
+def _is_indeed(url: str | None) -> bool:
+    return bool(re.search(r"(^|\.)indeed\.[a-z.]+$", (urlsplit(url).hostname or "") if url else ""))
+
+
 def _from_page_fields(fields: dict[str, str] | None) -> ExtractedOffer | None:
     """Champs lus par le bookmarklet dans le panneau de l'offre affichée (Indeed, LinkedIn)."""
     if not fields:
@@ -172,6 +177,11 @@ def parse_offer(
     source_url = safe_offer_url(url)
     title_hint = (fields or {}).get("title") or _page_title(title)
     offer = _from_page_fields(fields)
+    # Indeed : panneau de l'offre affichée repéré par ses libellés (page d'accueil, recherche, copier-coller)
+    if offer is None and (_is_indeed(source_url) or not raws):
+        offer = from_indeed_text(text)
+        if offer is not None and not offer.title:
+            offer.title = _page_title(title)
     if offer is None and raws:
         offer = job_posting_from_blocks(parse_json_ld(raws), title_hint=title_hint)
     if offer is None:

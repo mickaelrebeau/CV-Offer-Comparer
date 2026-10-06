@@ -151,6 +151,32 @@ describe('bookmarklet', () => {
     expect(payload?.f).toEqual({ ti: 'Data Engineer', co: 'Qonto', lo: 'Paris, Île-de-France, France', de: 'Vous construirez nos pipelines de données.' })
   })
 
+  it('Indeed sans sélecteur reconnu : texte de la page, sans champs partiels', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/?vjk=0011aabbccddeeff'), configurable: true })
+    document.body.innerHTML = `
+      <h1>Emplois</h1>
+      <div class="css-x1"><h2 class="css-y2">Alternance Développeur (F/H)</h2><div>ISCOD</div></div>
+      <div class="css-z3"><h2>Description du poste</h2><div>Missions : développer en Angular.</div></div>`
+    const payload = runBookmarklet()
+    expect(payload?.u).toBe('https://fr.indeed.com/viewjob?jk=0011aabbccddeeff')
+    expect(payload?.f).toBeNull()
+    expect(payload?.x).toContain('Description du poste')
+    expect(payload?.x).toContain('Missions : développer en Angular.')
+  })
+
+  it('Indeed : offre affichée dans une iframe du même site', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/emplois?q=dev&vjk=99'), configurable: true })
+    document.body.innerHTML = '<iframe id="vjs-container-iframe"></iframe>'
+    const frame = (document.getElementById('vjs-container-iframe') as HTMLIFrameElement).contentDocument!
+    frame.body.innerHTML = `
+      <h1 class="jobsearch-JobInfoHeader-title">Data Analyst</h1>
+      <div data-testid="inlineHeader-companyName">ACME</div>
+      <div data-testid="inlineHeader-companyLocation">Lyon (69)</div>
+      <div id="jobDescriptionText">Tableaux de bord et SQL.</div>`
+    const payload = runBookmarklet()
+    expect(payload?.f).toEqual({ ti: 'Data Analyst', co: 'ACME', lo: 'Lyon (69)', de: 'Tableaux de bord et SQL.' })
+  })
+
   it('une sélection de l’utilisateur prime sur la lecture automatique', () => {
     Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/viewjob?jk=abc'), configurable: true })
     document.body.innerHTML = `<div id="jobDescriptionText">Description complète</div><p id="sel">Texte choisi</p>`

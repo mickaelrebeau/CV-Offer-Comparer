@@ -128,23 +128,25 @@ export const SITE_SELECTORS = {
  * - Indeed / LinkedIn : les champs du panneau de l'offre affichée et son URL propre
  *   (`viewjob?jk=…`, `/jobs/view/<id>/`), y compris depuis une page de recherche ;
  * - les balises JSON-LD JobPosting de la page ;
- * - un texte de secours : sélection de l'utilisateur, zone de description connue ou page.
+ * - un texte de secours : sélection de l'utilisateur, zone de description connue ou page
+ *   (Indeed / LinkedIn : texte de la page, découpé côté serveur grâce aux libellés de l'offre).
  */
 export function bookmarkletSource(importUrl: string): string {
   const code = `(()=>{
 const S=${JSON.stringify(SITE_SELECTORS)};
 const v=e=>e?(e.innerText||e.textContent||'').replace(/[ \\t]+/g,' ').trim():'';
-const q=l=>{for(const k of l){const e=document.querySelector(k);if(v(e))return e}return null};
+const D=[document];document.querySelectorAll('iframe').forEach(i=>{try{if(i.contentDocument)D.push(i.contentDocument)}catch(_){}});
+const q=l=>{for(const d of D)for(const k of l){const e=d.querySelector(k);if(v(e))return e}return null};
 const H=location.hostname,P=new URLSearchParams(location.search);
 let u=location.href,f=null,site=null;
 if(/(^|\\.)indeed\\./.test(H)){site=S.indeed;const id=P.get('vjk')||P.get('jk');if(id)u=location.origin+'/viewjob?jk='+encodeURIComponent(id)}
 else if(/(^|\\.)linkedin\\./.test(H)){site=S.linkedin;const id=P.get('currentJobId')||(location.pathname.match(/\\/jobs\\/view\\/(\\d+)/)||[])[1];if(id)u='https://www.linkedin.com/jobs/view/'+id+'/'}
-if(site){f={ti:v(q(site.title)).replace(/\\s*[-–]\\s*(job post|offre d'emploi)\\s*$/i,''),co:v(q(site.company)),lo:v(q(site.location)).split(/\\s+·\\s+/)[0],de:v(q(site.description))}}
+if(site){f={ti:v(q(site.title)).replace(/\\s*[-–]\\s*(job post|offre d'emploi)\\s*$/i,''),co:v(q(site.company)),lo:v(q(site.location)).split(/\\s+·\\s+/)[0],de:v(q(site.description))};if(!f.de)f=null}
 const s=String(getSelection()||'').trim();
 if(s)f=null;
 const j=s?[]:[...document.querySelectorAll('script[type="application/ld+json"]')].map(e=>e.textContent||'').filter(t=>/JobPosting/.test(t)).slice(0,5);
 const z=q(['#jobDescriptionText','.jobs-description__content','.show-more-less-html__markup','[data-testid="job-section-description"]']);
-const x=s||(j.length||(f&&f.de)?'':[v(document.querySelector('h1')),v(z||document.body)].join('\\n\\n')).slice(0,150000);
+const x=s||(j.length||f?'':(site?v(document.body):[v(document.querySelector('h1')),v(z||document.body)].join('\\n\\n'))).slice(0,150000);
 const b=new TextEncoder().encode(JSON.stringify({u:u,t:document.title,j:j,x:x,f:f}));
 let r='';b.forEach(c=>r+=String.fromCharCode(c));
 window.open(${JSON.stringify(importUrl)}+'#${BOOKMARKLET_HASH_KEY}='+btoa(r).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''),'_blank');
