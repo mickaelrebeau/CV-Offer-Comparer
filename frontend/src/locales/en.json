@@ -275,7 +275,8 @@
       "api": "Job offer imported:",
       "html": "Text extracted from the page, please review:",
       "ai": "Job offer cleaned up by AI:",
-      "paste": "Pasted text, please review:"
+      "paste": "Pasted text, please review:",
+      "page": "Job offer read from the page:"
     },
     "errors": {
       "generic": "The import failed. Try again, or paste the job offer text."

@@ -19,12 +19,21 @@ class ImportIn(BaseModel):
     ai_cleanup: bool = False
 
 
+class PageFields(BaseModel):
+    # Panneau de l'offre affichée, lu par le bookmarklet (Indeed, LinkedIn)
+    title: str = ""
+    company: str = ""
+    location: str = ""
+    description: str = ""
+
+
 class ParseIn(BaseModel):
-    # Contenu lu dans le navigateur de l'utilisateur : bookmarklet (JSON-LD) ou texte collé
+    # Contenu lu dans le navigateur de l'utilisateur : bookmarklet (champs, JSON-LD) ou texte collé
     url: str | None = None
     title: str = ""
     json_ld: list[str] = []
     text: str = ""
+    fields: PageFields | None = None
     ai_cleanup: bool = False
 
 
@@ -36,7 +45,13 @@ def parse_job_offer(body: ParseIn, user: User = Depends(get_current_user), db: S
     """Sites qui bloquent l'import serveur (Indeed, LinkedIn…) : analyse du contenu fourni, sans requête au site."""
     if body.ai_cleanup and not user.email_verified:
         raise ApiError(403, "auth.email_not_verified")
-    offer = service.parse_offer(url=body.url, title=body.title, json_ld=body.json_ld, text=body.text)
+    offer = service.parse_offer(
+        url=body.url,
+        title=body.title,
+        json_ld=body.json_ld,
+        text=body.text,
+        fields=body.fields.model_dump() if body.fields else None,
+    )
     if body.ai_cleanup:
         offer = service.clean_with_ai(ai_for_user(db, user), offer)
     return offer

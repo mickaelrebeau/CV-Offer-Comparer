@@ -275,7 +275,8 @@
       "api": "Offre importée :",
       "html": "Texte extrait de la page, à vérifier :",
       "ai": "Offre nettoyée par l'IA :",
-      "paste": "Texte collé, à vérifier :"
+      "paste": "Texte collé, à vérifier :",
+      "page": "Offre lue sur la page :"
     },
     "errors": {
       "generic": "L'import a échoué. Réessayez, ou collez le texte de l'offre."

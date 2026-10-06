@@ -110,7 +110,7 @@ export type ImportedOffer = {
   text: string
   source_url: string
   /** json-ld (données structurées), api (API d'un ATS), html (contenu principal), paste (texte collé), ai (nettoyée) */
-  method: 'json-ld' | 'api' | 'html' | 'paste' | 'ai'
+  method: 'json-ld' | 'api' | 'html' | 'page' | 'paste' | 'ai'
   cached?: boolean
 }
 
@@ -130,6 +130,7 @@ export async function parseJobOffer(body: {
   title?: string
   json_ld?: string[]
   text?: string
+  fields?: { title: string; company: string; location: string; description: string } | null
   ai_cleanup?: boolean
 }) {
   const { data } = await api.post<ImportedOffer>('/job-offers/parse', body, {

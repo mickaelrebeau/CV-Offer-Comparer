@@ -137,6 +137,9 @@ async function receive() {
       title: payload.value.t,
       json_ld: payload.value.j,
       text: payload.value.x,
+      fields: payload.value.f
+        ? { title: payload.value.f.ti, company: payload.value.f.co, location: payload.value.f.lo, description: payload.value.f.de }
+        : null,
     })
     apply(result)
     status.value = 'done'

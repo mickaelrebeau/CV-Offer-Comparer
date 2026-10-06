@@ -61,7 +61,13 @@ describe('browserAssistedSite', () => {
 
 describe('payload du bookmarklet', () => {
   it('fait l’aller-retour en UTF-8', () => {
-    const payload = { u: 'https://fr.indeed.com/viewjob?jk=1', t: 'Développeur·se — Île-de-France', j: ['{"a":"é"}'], x: '✓' }
+    const payload = {
+      u: 'https://fr.indeed.com/viewjob?jk=1',
+      t: 'Développeur·se — Île-de-France',
+      j: ['{"a":"é"}'],
+      x: '✓',
+      f: { ti: 'Développeur·se', co: 'Café & Co', lo: 'Île-de-France', de: '✓' },
+    }
     const encoded = encodeOfferPayload(payload)
     expect(encoded).not.toMatch(/[+/=]/)
     expect(decodeOfferPayload(encoded)).toEqual(payload)
@@ -74,6 +80,7 @@ describe('payload du bookmarklet', () => {
       t: '',
       j: ['ok'],
       x: '',
+      f: null,
     })
   })
 })
@@ -92,7 +99,11 @@ describe('bookmarklet', () => {
     return decodeOfferPayload(target.split(`#${BOOKMARKLET_HASH_KEY}=`)[1])
   }
 
+  const originalLocation = window.location
+
   afterEach(() => {
+    // Certains tests simulent une page Indeed / LinkedIn
+    Object.defineProperty(window, 'location', { value: originalLocation, configurable: true })
     vi.restoreAllMocks()
     document.head.innerHTML = ''
     document.body.innerHTML = ''
@@ -109,7 +120,50 @@ describe('bookmarklet', () => {
     expect(payload?.t).toBe('Développeur H/F - Paris - Indeed.com')
   })
 
-  it('sans JSON-LD : titre et zone de description connue (Indeed)', () => {
+  it('Indeed, page de recherche : offre du panneau affiché, pas le JSON-LD de la liste', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/emplois?q=developpeur&l=Paris&vjk=1a2b3c4d5e6f7a8b'), configurable: true })
+    document.head.innerHTML = `<script type="application/ld+json">{"@type":"ItemList","itemListElement":[{"@type":"JobPosting","title":"Autre offre"}]}</script>`
+    document.body.innerHTML = `
+      <h1>Emplois : developpeur - Paris</h1>
+      <ul><li><h2 class="jobTitle">Autre offre</h2></li></ul>
+      <div id="jobsearch-ViewjobPaneWrapper">
+        <h2 data-testid="jobsearch-JobInfoHeader-title"><span>Développeur Full Stack H/F</span><span> - job post</span></h2>
+        <div data-testid="inlineHeader-companyName"><a>Doctolib</a></div>
+        <div data-testid="inlineHeader-companyLocation">Paris (75)</div>
+        <div id="jobDescriptionText">Rejoignez l’équipe produit.</div>
+      </div>`
+    const payload = runBookmarklet()
+    expect(payload?.u).toBe('https://fr.indeed.com/viewjob?jk=1a2b3c4d5e6f7a8b')
+    expect(payload?.f).toEqual({ ti: 'Développeur Full Stack H/F', co: 'Doctolib', lo: 'Paris (75)', de: 'Rejoignez l’équipe produit.' })
+    expect(payload?.x).toBe('')
+  })
+
+  it('LinkedIn, liste de recherche : offre affichée et URL /jobs/view/<id>/', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://www.linkedin.com/jobs/search/?currentJobId=4012345678&keywords=dev'), configurable: true })
+    document.body.innerHTML = `
+      <h1>Développeur – 2 000 résultats</h1>
+      <div class="job-details-jobs-unified-top-card__job-title"><h1>Data Engineer</h1></div>
+      <div class="job-details-jobs-unified-top-card__company-name"><a>Qonto</a></div>
+      <div class="job-details-jobs-unified-top-card__primary-description-container">Paris, Île-de-France, France · il y a 2 jours · 87 candidats</div>
+      <div class="jobs-description__content">Vous construirez nos pipelines de données.</div>`
+    const payload = runBookmarklet()
+    expect(payload?.u).toBe('https://www.linkedin.com/jobs/view/4012345678/')
+    expect(payload?.f).toEqual({ ti: 'Data Engineer', co: 'Qonto', lo: 'Paris, Île-de-France, France', de: 'Vous construirez nos pipelines de données.' })
+  })
+
+  it('une sélection de l’utilisateur prime sur la lecture automatique', () => {
+    Object.defineProperty(window, 'location', { value: new URL('https://fr.indeed.com/viewjob?jk=abc'), configurable: true })
+    document.body.innerHTML = `<div id="jobDescriptionText">Description complète</div><p id="sel">Texte choisi</p>`
+    const range = document.createRange()
+    range.selectNodeContents(document.getElementById('sel')!)
+    window.getSelection()!.addRange(range)
+    const payload = runBookmarklet()
+    window.getSelection()!.removeAllRanges()
+    expect(payload?.f).toBeNull()
+    expect(payload?.x).toBe('Texte choisi')
+  })
+
+  it('autre site sans JSON-LD : titre et zone de description connue', () => {
     document.body.innerHTML = `
       <nav>Accueil Avis sur les entreprises</nav>
       <h1>Développeur Full Stack H/F</h1>

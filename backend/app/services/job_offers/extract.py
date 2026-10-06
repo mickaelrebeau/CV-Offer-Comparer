@@ -29,7 +29,7 @@ class ExtractedOffer:
     company: str
     location: str
     text: str
-    method: str  # "json-ld" | "api" | "html" | "paste" | "ai"
+    method: str  # "json-ld" | "api" | "html" | "page" | "paste" | "ai"
 
     def to_dict(self) -> dict[str, str]:
         return asdict(self)
@@ -128,29 +128,52 @@ def _location(value: Any) -> str:
 
 
 def from_json_ld(document: lxml.html.HtmlElement) -> ExtractedOffer | None:
-    return job_posting_from_blocks(_json_ld_blocks(document))
+    headings = document.xpath("//h1")
+    title_hint = _clean(headings[0].text_content()) if headings else ""
+    return job_posting_from_blocks(_json_ld_blocks(document), title_hint=title_hint)
 
 
-def job_posting_from_blocks(blocks: list[Any]) -> ExtractedOffer | None:
-    """Première offre `JobPosting` exploitable parmi des blocs JSON-LD déjà décodés."""
-    for block in blocks:
-        for node in _iter_nodes(block):
-            if not _is_job_posting(node):
-                continue
-            text = html_to_text(str(node.get("description") or ""))
-            if len(text) < MIN_TEXT_CHARS:
-                continue
-            location = _location(node.get("jobLocation"))
-            if not location and str(node.get("jobLocationType", "")).upper() == "TELECOMMUTE":
-                location = "Remote"
-            return ExtractedOffer(
-                title=_clean(node.get("title")),
-                company=_name(node.get("hiringOrganization")),
-                location=location,
-                text=text[:MAX_TEXT_CHARS],
-                method="json-ld",
-            )
-    return None
+def _comparable(value: str) -> str:
+    return re.sub(r"[^\w]+", " ", (value or "").lower()).strip()
+
+
+def _same_title(a: str, b: str) -> bool:
+    a, b = _comparable(a), _comparable(b)
+    return bool(a and b) and (a in b or b in a)
+
+
+def _posting_offer(node: dict) -> ExtractedOffer | None:
+    text = html_to_text(str(node.get("description") or ""))
+    if len(text) < MIN_TEXT_CHARS:
+        return None
+    location = _location(node.get("jobLocation"))
+    if not location and str(node.get("jobLocationType", "")).upper() == "TELECOMMUTE":
+        location = "Remote"
+    return ExtractedOffer(
+        title=_clean(node.get("title")),
+        company=_name(node.get("hiringOrganization")),
+        location=location,
+        text=text[:MAX_TEXT_CHARS],
+        method="json-ld",
+    )
+
+
+def job_posting_from_blocks(blocks: list[Any], title_hint: str = "") -> ExtractedOffer | None:
+    """Offre `JobPosting` de la page parmi des blocs JSON-LD déjà décodés.
+
+    Une seule offre : retenue. Plusieurs (liste de résultats, « offres similaires ») : seule celle
+    dont le titre correspond à l'offre affichée (`title_hint`) est retenue, sinon aucune — prendre
+    la première afficherait l'offre d'un autre employeur.
+    """
+    offers = [
+        offer
+        for block in blocks
+        for node in _iter_nodes(block)
+        if _is_job_posting(node) and (offer := _posting_offer(node)) is not None
+    ]
+    if len(offers) == 1:
+        return offers[0]
+    return next((offer for offer in offers if _same_title(offer.title, title_hint)), None)
 
 
 # --- Contenu principal (fallback) ------------------------------------------------------------

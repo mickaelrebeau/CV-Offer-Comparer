@@ -54,17 +54,25 @@ dépassés ; LinkedIn : connexion requise). Ils ne sont **jamais appelés** par 
 L'offre est lue dans le navigateur de l'utilisateur, qui y a accès :
 
 1. **Bouton « Envoyer vers Talento »** (bookmarklet, page `/import`) : glissé une fois dans la barre de
-   favoris, il lit sur la page de l'offre le JSON-LD `JobPosting` (sinon le titre et la zone de
-   description connue — Indeed `#jobDescriptionText`, LinkedIn `.jobs-description__content` —, la
-   sélection ou la page) et ouvre `/import#offer=…`. Le fragment `#…` n'est jamais envoyé au serveur
+   favoris, il ouvre `/import#offer=…` avec, par ordre de priorité côté serveur :
+   - **Indeed / LinkedIn** : poste, entreprise, lieu et description lus dans le **panneau de l'offre
+     affichée** (sélecteurs `SITE_SELECTORS` de `frontend/src/lib/jobOffer.ts`, plusieurs par champ) et
+     l'URL propre de l'offre (`viewjob?jk=…` depuis `vjk`, `/jobs/view/<id>/` depuis `currentJobId`).
+     Sur leurs pages de recherche, le JSON-LD, le premier `<h1>` et l'URL décrivent la liste, pas
+     l'offre ouverte ;
+   - le JSON-LD `JobPosting` : une seule offre, retenue ; plusieurs (liste, offres similaires),
+     seule celle dont le titre correspond à l'offre affichée (sinon aucune) ;
+   - un texte de secours : sélection de l'utilisateur (prioritaire sur tout le reste), zone de
+     description connue ou page. Le fragment `#…` n'est jamais envoyé au serveur
    web ; la page l'efface de la barre d'adresse puis l'analyse via `POST /api/job-offers/parse`.
    Ordinateur uniquement (les navigateurs mobiles ne gèrent pas ces favoris).
 2. **Copier-coller guidé** dans le champ offre : lien de l'annonce conservé, page copiée (Ctrl+A,
    Ctrl+C) puis analysée ; « Nettoyer avec l'IA » extrait poste, entreprise et lieu.
 
-Vérifié le 6 octobre 2026 : bookmarklet exécuté sur une page au format Indeed (JSON-LD, ou sans
-JSON-LD avec `#jobDescriptionText`). À contrôler à la main sur de vraies pages Indeed, LinkedIn et
-Welcome to the Jungle (structure susceptible d'évoluer).
+Vérifié le 6 octobre 2026 sur des pages reproduisant la structure d'Indeed (page de recherche avec
+`vjk`) et de LinkedIn (liste avec `currentJobId`) : à contrôler à la main sur les vraies pages, dont les
+classes changent régulièrement. Si un site change, mettre à jour `SITE_SELECTORS` (les utilisateurs
+doivent alors réinstaller le bouton).
 
 Également refusants à l'usage (401 / 403 / 429 / 999 → même parcours) : APEC (`apec.fr`, 403).
 

@@ -127,23 +127,53 @@ def _clean_pasted_text(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
 
+def _short(value: str | None, limit: int = MAX_TITLE_CHARS) -> str:
+    return re.sub(r"\s+", " ", value or "").strip()[:limit]
+
+
+def _from_page_fields(fields: dict[str, str] | None) -> ExtractedOffer | None:
+    """Champs lus par le bookmarklet dans le panneau de l'offre affichée (Indeed, LinkedIn)."""
+    if not fields:
+        return None
+    description = _clean_pasted_text(fields.get("description", ""))
+    if len(description) < MIN_TEXT_CHARS:
+        return None
+    return ExtractedOffer(
+        title=_short(fields.get("title")),
+        company=_short(fields.get("company")),
+        location=_short(fields.get("location")),
+        text=description[:MAX_TEXT_CHARS],
+        method="page",
+    )
+
+
 def parse_offer(
     *,
     url: str | None,
     title: str = "",
     json_ld: list[str] | None = None,
     text: str = "",
+    fields: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Offre lue dans le navigateur (sites qui bloquent l'import serveur). Rien n'est téléchargé.
 
-    `json_ld` : balises JSON-LD de la page (bookmarklet) ; `text` : texte de l'offre ou de la page.
+    Priorité : `fields` (panneau de l'offre affichée, lu par le bookmarklet) → `json_ld` (balises
+    de la page ; plusieurs offres → celle dont le titre correspond) → `text` (offre ou page collée).
     """
     raws = [raw for raw in (json_ld or []) if isinstance(raw, str)]
-    if sum(len(raw) for raw in raws) > MAX_JSON_LD_CHARS or len(text or "") > MAX_PASTED_CHARS:
+    fields_size = sum(len(str(value or "")) for value in (fields or {}).values())
+    if (
+        sum(len(raw) for raw in raws) > MAX_JSON_LD_CHARS
+        or len(text or "") > MAX_PASTED_CHARS
+        or fields_size > MAX_PASTED_CHARS
+    ):
         raise ApiError(413, "job_offer.too_large")
 
     source_url = safe_offer_url(url)
-    offer = job_posting_from_blocks(parse_json_ld(raws)) if raws else None
+    title_hint = (fields or {}).get("title") or _page_title(title)
+    offer = _from_page_fields(fields)
+    if offer is None and raws:
+        offer = job_posting_from_blocks(parse_json_ld(raws), title_hint=title_hint)
     if offer is None:
         cleaned = _clean_pasted_text(text)
         if len(cleaned) < MIN_TEXT_CHARS:

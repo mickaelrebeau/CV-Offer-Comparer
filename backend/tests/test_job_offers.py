@@ -539,3 +539,67 @@ def test_welcome_to_the_jungle_goes_through_the_browser(client, auth_headers, we
     url = "https://www.welcometothejungle.com/fr/companies/acme/jobs/dev_paris"
     assert _import(client, auth_headers, url).json()["code"] == "job_offer.site_blocked"
     assert web.calls == []
+
+
+def _posting(title: str, company: str) -> dict:
+    return {
+        "@type": "JobPosting",
+        "title": title,
+        "hiringOrganization": {"name": company},
+        "description": f"<p>{title} chez {company}. " + "Missions détaillées et profil recherché. " * 8 + "</p>",
+    }
+
+
+def test_parse_prefers_fields_of_displayed_offer(client, auth_headers):
+    """Page de recherche Indeed : le JSON-LD décrit la liste, les champs décrivent l'offre ouverte."""
+    listing = {"@type": "ItemList", "itemListElement": [_posting("Autre offre", "Autre employeur")]}
+    offer = _parse(
+        client,
+        auth_headers,
+        url="https://fr.indeed.com/viewjob?jk=1a2b3c4d5e6f7a8b",
+        title="Emplois : développeur - Paris | Indeed",
+        json_ld=[json.dumps(listing)],
+        fields={
+            "title": "Développeur Full Stack H/F",
+            "company": "Doctolib",
+            "location": "Paris (75)",
+            "description": INDEED_PAGE_TEXT,
+        },
+    ).json()
+    assert offer["method"] == "page"
+    assert (offer["title"], offer["company"], offer["location"]) == ("Développeur Full Stack H/F", "Doctolib", "Paris (75)")
+    assert "Autre employeur" not in offer["text"]
+
+
+def test_parse_ignores_incomplete_fields(client, auth_headers):
+    """Sélecteurs périmés (description vide) : repli sur le JSON-LD de l'offre affichée."""
+    posting = _posting("Data Engineer", "Qonto")
+    offer = _parse(
+        client,
+        auth_headers,
+        json_ld=[json.dumps(posting)],
+        fields={"title": "Data Engineer", "company": "", "location": "", "description": ""},
+    ).json()
+    assert offer["method"] == "json-ld"
+    assert offer["company"] == "Qonto"
+
+
+def test_several_postings_pick_the_displayed_one(client, auth_headers):
+    blocks = [json.dumps({"@graph": [_posting("Autre offre", "Autre employeur"), _posting("Data Engineer", "Qonto")]})]
+    offer = _parse(client, auth_headers, title="Data Engineer - Qonto | LinkedIn", json_ld=blocks, text=INDEED_PAGE_TEXT).json()
+    assert offer["company"] == "Qonto"
+
+
+def test_several_postings_without_match_are_not_trusted(client, auth_headers):
+    """Plusieurs offres sans correspondance : jamais la première par défaut (mauvais employeur)."""
+    blocks = [json.dumps([_posting("Offre A", "Employeur A"), _posting("Offre B", "Employeur B")])]
+    offer = _parse(client, auth_headers, title="Titre sans rapport", json_ld=blocks, text=INDEED_PAGE_TEXT).json()
+    assert offer["method"] == "paste"
+    assert "Employeur A" not in offer["text"]
+
+
+def test_server_import_uses_h1_to_pick_posting(client, auth_headers, web):
+    blocks = json.dumps([_posting("Offre similaire", "Autre employeur"), _posting("Développeur Vue.js", "Talento")])
+    page = f'<html><head><script type="application/ld+json">{blocks}</script></head><body><h1>Développeur Vue.js</h1></body></html>'
+    web.pages["https://jobs.example.com/vue"] = html(page)
+    assert _import(client, auth_headers, "https://jobs.example.com/vue").json()["company"] == "Talento"
