@@ -46,6 +46,7 @@
             </div>
           </div>
           <div class="p-4 sm:p-5">
+            <SavedCvPicker module="interview" class="mb-4" />
             <PDFUpload
               v-if="cvActiveTab === 'upload'"
               :model-value="context.cvText"
@@ -189,6 +190,7 @@ import {
 } from 'lucide-vue-next'
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 import PDFUpload from '@/components/PDFUpload.vue'
+import SavedCvPicker from '@/components/SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'

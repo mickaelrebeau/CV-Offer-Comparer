@@ -100,6 +100,66 @@ export async function deleteComparison(id: string) {
   return data
 }
 
+// --- CV enregistrés ---------------------------------------------------------------
+
+export type SavedCv = {
+  id: string
+  label: string
+  source_filename: string | null
+  is_default: boolean
+  char_count: number
+  excerpt: string
+  created_at: string | null
+  updated_at: string | null
+}
+
+export type SavedCvDetail = SavedCv & { text: string }
+
+export type SavedCvListing = {
+  items: SavedCv[]
+  default_id: string | null
+  limit: number
+}
+
+export async function listSavedCvs() {
+  const { data } = await api.get<SavedCvListing>('/cvs')
+  return data
+}
+
+export async function getSavedCv(id: string) {
+  const { data } = await api.get<SavedCvDetail>(`/cvs/${id}`)
+  return data
+}
+
+export async function createSavedCv(body: {
+  label: string
+  text: string
+  source_filename?: string | null
+  is_default?: boolean
+}) {
+  const { data } = await api.post<SavedCvDetail>('/cvs', body)
+  return data
+}
+
+/** Renommer (`label`) et/ou remplacer le contenu (`text` + `source_filename`). */
+export async function updateSavedCv(
+  id: string,
+  body: { label?: string; text?: string; source_filename?: string | null },
+) {
+  const { data } = await api.patch<SavedCvDetail>(`/cvs/${id}`, body)
+  return data
+}
+
+export async function setDefaultSavedCv(id: string) {
+  const { data } = await api.post<SavedCvListing>(`/cvs/${id}/default`)
+  return data
+}
+
+export async function deleteSavedCv(id: string) {
+  const { data } = await api.delete<SavedCvListing>(`/cvs/${id}`)
+  return data
+}
+
 export type InterviewHistoryItem = {
   id: string
   job_excerpt: string

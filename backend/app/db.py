@@ -47,6 +47,7 @@ def init_db() -> None:
     from app.models.cover_letter_record import CoverLetterRecord  # noqa: F401
     from app.models.interview_record import InterviewRecord  # noqa: F401
     from app.models.llm_credential import UserLLMCredential  # noqa: F401
+    from app.models.saved_cv import SavedCV  # noqa: F401
     from app.models.user import User  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
