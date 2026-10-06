@@ -8,6 +8,7 @@ import {
   getComparison,
 } from "@/lib/api";
 import { useAuthStore } from "./auth";
+import { useApplicationContextStore } from "./applicationContext";
 import posthog from "posthog-js";
 import { STORAGE_KEYS, readStorage, removeStorage } from "@/lib/storageKeys";
 import { t } from "@/i18n";
@@ -34,9 +35,16 @@ export interface ComparisonResult {
   };
 }
 
+/** CV + offre d'un élément de l'historique, proposés comme contexte courant */
+export interface HistoryContext {
+  cvText: string;
+  offerText: string;
+}
+
 export const useCompareStore = defineStore("compare", () => {
-  const offerText = ref("");
-  const cvText = ref("");
+  // CV et offre : contexte de candidature partagé entre les modules
+  const context = useApplicationContextStore();
+  const historyContext = ref<HistoryContext | null>(null);
   const comparisonResult = ref<ComparisonResult | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -76,11 +84,7 @@ export const useCompareStore = defineStore("compare", () => {
     hasUsedFreeAnalysis.value = false;
   };
 
-  const hasData = computed(() => {
-    const offer = String(offerText.value || "");
-    const cv = String(cvText.value || "");
-    return offer.trim() && cv.trim();
-  });
+  const hasData = computed(() => context.isComplete);
 
   const canAnalyze = computed(() => {
     const { isAuthenticated } = useAuthStore();
@@ -88,8 +92,8 @@ export const useCompareStore = defineStore("compare", () => {
   });
 
   async function compareCVWithOffer() {
-    const offer = String(offerText.value || "");
-    const cv = String(cvText.value || "");
+    const offer = context.offerText;
+    const cv = context.cvText;
 
     if (!offer.trim() || !cv.trim()) {
       error.value = t("comparison.errors.missingInput");
@@ -121,8 +125,8 @@ export const useCompareStore = defineStore("compare", () => {
   }
 
   async function compareCVWithOfferStream() {
-    const offer = String(offerText.value || "");
-    const cv = String(cvText.value || "");
+    const offer = context.offerText;
+    const cv = context.cvText;
 
     if (!offer.trim() || !cv.trim()) {
       error.value = t("comparison.errors.missingInput");
@@ -133,6 +137,7 @@ export const useCompareStore = defineStore("compare", () => {
     error.value = null;
     errorCode.value = null;
     comparisonResult.value = null;
+    historyContext.value = null;
     progress.value = 0;
     status.value = t("comparison.statusStart");
 
@@ -201,20 +206,22 @@ export const useCompareStore = defineStore("compare", () => {
     }
   }
 
-  function clearData() {
-    offerText.value = "";
-    cvText.value = "";
+  function clearResult() {
     comparisonResult.value = null;
+    historyContext.value = null;
     error.value = null;
     errorCode.value = null;
   }
 
-  function updateOfferText(text: string) {
-    offerText.value = String(text || "");
+  /** Définit le CV et l'offre de l'élément d'historique ouvert comme contexte courant */
+  function adoptHistoryContext() {
+    if (!historyContext.value) return;
+    context.setContext(historyContext.value, "compare");
+    historyContext.value = null;
   }
 
-  function updateCVText(text: string) {
-    cvText.value = String(text || "");
+  function dismissHistoryContext() {
+    historyContext.value = null;
   }
 
   async function loadFromHistory(comparisonId: string) {
@@ -223,8 +230,11 @@ export const useCompareStore = defineStore("compare", () => {
     errorCode.value = null;
     try {
       const detail = await getComparison(comparisonId);
-      offerText.value = detail.offer_text || "";
-      cvText.value = detail.cv_text || "";
+      const fromHistory = { cvText: detail.cv_text || "", offerText: detail.offer_text || "" };
+      // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
+      if (!context.hasContext) context.setContext(fromHistory, "compare");
+      historyContext.value =
+        context.matches(fromHistory.cvText, fromHistory.offerText) ? null : fromHistory;
       comparisonResult.value = {
         items: (detail.items || []) as ComparisonItem[],
         summary: {
@@ -248,8 +258,7 @@ export const useCompareStore = defineStore("compare", () => {
   }
 
   return {
-    offerText,
-    cvText,
+    historyContext,
     comparisonResult,
     loading,
     error,
@@ -261,9 +270,9 @@ export const useCompareStore = defineStore("compare", () => {
     canAnalyze,
     compareCVWithOffer,
     compareCVWithOfferStream,
-    clearData,
-    updateOfferText,
-    updateCVText,
+    clearResult,
+    adoptHistoryContext,
+    dismissHistoryContext,
     loadFromHistory,
     checkFreeAnalysisUsage,
     markFreeAnalysisAsUsed,

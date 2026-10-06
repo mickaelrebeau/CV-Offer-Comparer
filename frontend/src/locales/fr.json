@@ -244,6 +244,21 @@
     "cvFormat": "Format du CV",
     "cvTextLabel": "Texte de votre CV"
   },
+  "context": {
+    "title": "Contexte actuel",
+    "regionAria": "Contexte de candidature : CV et offre partagés entre les modules",
+    "cv": "CV",
+    "offer": "Offre",
+    "cvManual": "Texte saisi · {count} caractères",
+    "noCv": "Aucun CV",
+    "noOffer": "Aucune offre",
+    "edit": "Modifier",
+    "clear": "Effacer",
+    "clearConfirm": "Effacer le CV et l'offre du contexte ? Ils ne seront plus pré-remplis dans le comparateur, le simulateur d'entretien et la lettre de motivation.",
+    "historyPrompt": "Cet élément de l'historique porte sur un autre CV ou une autre offre que votre contexte actuel.",
+    "historyAdopt": "Définir comme contexte courant",
+    "historyDismiss": "Garder le contexte actuel"
+  },
   "comparison": {
     "offerPlaceholder": "Collez l'offre d'emploi ici...",
     "cvPlaceholder": "Collez le texte de votre CV ici...",
@@ -272,7 +287,13 @@
     },
     "statusStart": "Début de l'analyse...",
     "statusDone": "Comparaison terminée",
-    "historyLoaded": "Historique chargé"
+    "historyLoaded": "Historique chargé",
+    "next": {
+      "label": "Étape suivante",
+      "text": "Votre CV et cette offre sont déjà chargés dans les autres modules.",
+      "interview": "Préparer l'entretien",
+      "coverLetter": "Générer la lettre"
+    }
   },
   "compare": {
     "label": "Comparateur",

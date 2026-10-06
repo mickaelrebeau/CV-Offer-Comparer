@@ -6,6 +6,13 @@
       :description="t('results.description')"
     />
 
+    <ApplicationContextBanner
+      v-if="historyContext"
+      :proposal="historyContext"
+      @adopt="adoptHistoryContext"
+      @dismiss="historyContext = null"
+    />
+
     <AppStatus v-if="isLoading" kind="loading" centered :message="t('results.loading')" />
 
     <div v-else-if="error" class="space-y-4">
@@ -102,15 +109,34 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
+import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
 import { Button } from '@/components/ui/button'
 import { useLocale } from '@/i18n/useLocale'
 import { getInterview } from '@/lib/api'
 import { isOnline } from '@/lib/pwa'
+import { useApplicationContextStore } from '@/stores/applicationContext'
+import type { HistoryContext } from '@/stores/compare'
 import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const { push } = useLocale()
 const route = useRoute()
+const context = useApplicationContextStore()
+// CV + offre de l'entretien rouvert depuis l'historique, proposés comme contexte courant
+const historyContext = ref<HistoryContext | null>(null)
+
+function proposeHistoryContext(cvText: string, offerText: string) {
+  if (!cvText.trim() && !offerText.trim()) return
+  // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
+  if (!context.hasContext) context.setContext({ cvText, offerText }, 'interview')
+  historyContext.value = context.matches(cvText, offerText) ? null : { cvText, offerText }
+}
+
+function adoptHistoryContext() {
+  if (!historyContext.value) return
+  context.setContext(historyContext.value, 'interview')
+  historyContext.value = null
+}
 
 const isLoading = ref(true)
 const error = ref('')
@@ -164,6 +190,7 @@ const loadInterviewData = async () => {
         analysis: detail.analysis,
         duration: detail.duration_seconds,
       })
+      proposeHistoryContext(detail.cv_text || '', detail.job_text || '')
       localStorage.removeItem('interviewAnalysis')
       return
     }

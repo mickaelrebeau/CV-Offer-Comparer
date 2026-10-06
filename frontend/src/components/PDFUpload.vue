@@ -13,9 +13,9 @@
       class="cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/60"
       :class="{
         'border-ink/40 bg-ink/5': isDragOver,
-        'border-emerald-500/40 bg-emerald-500/5': uploadedFile,
+        'border-emerald-500/40 bg-emerald-500/5': displayedFileName,
         'border-rose-500/40 bg-rose-500/5': uploadError,
-        'border-ink/20 hover:border-ink/40': !isDragOver && !uploadedFile && !uploadError
+        'border-ink/20 hover:border-ink/40': !isDragOver && !displayedFileName && !uploadError
       }"
     >
       <input
@@ -28,7 +28,7 @@
         aria-hidden="true"
       />
       
-      <div v-if="!uploadedFile && !uploading" class="space-y-3">
+      <div v-if="!displayedFileName && !uploading" class="space-y-3">
         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-paper-dim text-ink-soft">
           <Upload class="h-5 w-5" aria-hidden="true" />
         </div>
@@ -44,7 +44,7 @@
         <p class="font-mono text-micro uppercase text-ink-soft">{{ t('upload.extractingHint') }}</p>
       </div>
 
-      <div v-else-if="uploadedFile" class="space-y-3">
+      <div v-else-if="displayedFileName" class="space-y-3">
         <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
           <CheckCircle class="h-5 w-5" aria-hidden="true" />
         </div>
@@ -53,7 +53,7 @@
             {{ t('upload.success') }}
           </p>
           <p class="text-xs font-mono text-muted-foreground mt-1">
-            {{ t('upload.fileInfo', { name: uploadedFile.name, count: extractedText.length }) }}
+            {{ t('upload.fileInfo', { name: displayedFileName, count: (extractedText || modelValue || '').length }) }}
           </p>
         </div>
         <Button variant="outline" size="sm" class="mt-2 text-xs" @click.stop="removeFile">
@@ -104,12 +104,15 @@ import posthog from 'posthog-js'
 
 interface Props {
   modelValue?: string
+  /** Nom du fichier déjà importé (contexte partagé) : affiché tant que le texte n'a pas changé */
+  fileName?: string | null
   /** Accepte aussi un CV .txt, lu directement dans le navigateur */
   allowTxt?: boolean
 }
 
 interface Emits {
   (e: 'update:modelValue', value: string): void
+  (e: 'update:fileName', value: string | null): void
 }
 
 const props = defineProps<Props>()
@@ -124,13 +127,16 @@ const uploadError = ref<string | null>(null)
 const extractedText = ref('')
 const showPreview = ref(false)
 
-const isIdle = computed(() => !uploadedFile.value && !uploading.value && !uploadError.value)
+const displayedFileName = computed(
+  () => uploadedFile.value?.name ?? (props.modelValue && props.fileName ? props.fileName : null),
+)
+const isIdle = computed(() => !displayedFileName.value && !uploading.value && !uploadError.value)
 
 // Annonce l'état de l'upload aux lecteurs d'écran
 const liveMessage = computed(() => {
   if (uploading.value) return t('upload.live.extracting')
   if (uploadError.value) return t('upload.live.error', { message: uploadError.value })
-  if (uploadedFile.value) return t('upload.live.success', { name: uploadedFile.value.name })
+  if (displayedFileName.value) return t('upload.live.success', { name: displayedFileName.value })
   return ''
 })
 
@@ -200,6 +206,7 @@ const handleFile = async (file: File) => {
     if (response.data.success) {
       extractedText.value = response.data.text
       emit('update:modelValue', response.data.text)
+      emit('update:fileName', file.name)
       posthog.capture('cv_uploaded', { upload_source: 'pdf' })
       showPreview.value = true
     } else {
@@ -227,6 +234,7 @@ const handleTextFile = async (file: File) => {
     if (!text) throw new Error(t('upload.emptyTxt'))
     extractedText.value = text
     emit('update:modelValue', text)
+    emit('update:fileName', file.name)
     posthog.capture('cv_uploaded', { upload_source: 'txt' })
     showPreview.value = true
   } catch (error: any) {
@@ -242,6 +250,7 @@ const removeFile = () => {
   extractedText.value = ''
   uploadError.value = null
   emit('update:modelValue', '')
+  emit('update:fileName', null)
   if (fileInput.value) {
     fileInput.value.value = ''
   }
