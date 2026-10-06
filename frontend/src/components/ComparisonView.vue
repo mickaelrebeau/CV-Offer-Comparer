@@ -10,7 +10,7 @@
         <div class="p-4 sm:p-5">
           <Textarea
             id="compare-offer"
-            :model-value="compareStore.offerText"
+            :model-value="context.offerText"
             :placeholder="t('comparison.offerPlaceholder')"
             class="min-h-[220px]"
             @input="handleOfferInput"
@@ -44,11 +44,17 @@
           </div>
         </div>
         <div class="p-4 sm:p-5">
-          <PDFUpload v-if="activeTab === 'upload'" :model-value="compareStore.cvText" @update:model-value="(val) => compareStore.updateCVText(val)" />
+          <PDFUpload
+            v-if="activeTab === 'upload'"
+            :model-value="context.cvText"
+            :file-name="context.cvFileName"
+            @update:model-value="(val) => context.setCv(val, { from: 'compare' })"
+            @update:file-name="(name) => (context.cvFileName = name)"
+          />
           <Textarea
             v-else
             aria-labelledby="compare-cv-label"
-            :model-value="compareStore.cvText"
+            :model-value="context.cvText"
             :placeholder="t('comparison.cvPlaceholder')"
             class="min-h-[220px]"
             @input="handleCVInput"
@@ -93,6 +99,27 @@
         <div v-for="stat in summaryStats" :key="stat.label" class="panel p-5 text-center">
           <div class="mb-1 font-mono text-micro uppercase text-ink-soft">{{ stat.label }}</div>
           <div class="text-3xl font-medium tabular-nums" :class="stat.color">{{ stat.value }}</div>
+        </div>
+      </div>
+
+      <!-- Passerelles : le contexte (CV + offre) est déjà chargé dans les autres modules -->
+      <div
+        v-if="!compareStore.loading"
+        class="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <p class="font-mono text-micro uppercase text-ink-soft">{{ t('comparison.next.label') }}</p>
+          <p class="mt-1 text-sm text-ink">{{ t('comparison.next.text') }}</p>
+        </div>
+        <div class="flex shrink-0 flex-wrap gap-2">
+          <Button size="sm" @click="push('/interview-simulator')">
+            <MessageSquare class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ t('comparison.next.interview') }}
+          </Button>
+          <Button size="sm" variant="outline" @click="push('/cover-letter')">
+            <PenLine class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ t('comparison.next.coverLetter') }}
+          </Button>
         </div>
       </div>
 
@@ -145,20 +172,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { FileText, ArrowRightLeft, Loader2 } from 'lucide-vue-next'
+import { FileText, ArrowRightLeft, Loader2, MessageSquare, PenLine } from 'lucide-vue-next'
+import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
+import { useApplicationContextStore } from '@/stores/applicationContext'
 import { useCompareStore } from '@/stores/compare'
 import PDFUpload from './PDFUpload.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 
 const { t } = useI18n()
-const { formatPercent } = useLocale()
+const { formatPercent, push } = useLocale()
 const compareStore = useCompareStore()
-const activeTab = ref<'upload' | 'manual'>('upload')
+const context = useApplicationContextStore()
+const activeTab = useCvInputTab()
 
 const summaryStats = computed(() => {
   const s = compareStore.comparisonResult?.summary
@@ -172,11 +202,11 @@ const summaryStats = computed(() => {
 })
 
 const handleOfferInput = (event: Event) => {
-  compareStore.updateOfferText((event.target as HTMLTextAreaElement).value)
+  context.setOffer((event.target as HTMLTextAreaElement).value, { from: 'compare' })
 }
 
 const handleCVInput = (event: Event) => {
-  compareStore.updateCVText((event.target as HTMLTextAreaElement).value)
+  context.setCv((event.target as HTMLTextAreaElement).value, { from: 'compare' })
 }
 
 const statusTone = (st: string) => {

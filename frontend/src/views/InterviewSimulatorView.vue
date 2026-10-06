@@ -6,6 +6,8 @@
       :description="t('interview.description')"
     />
 
+    <ApplicationContextBanner edit-target="job-text" @edit="editContext" />
+
     <!-- Annonce le changement d'étape et de question aux lecteurs d'écran -->
     <p class="sr-only" aria-live="polite">{{ stepAnnouncement }}</p>
 
@@ -15,7 +17,7 @@
         <div class="panel overflow-hidden">
           <label for="job-text" class="panel-header">{{ t('cvInput.offerHeader') }}</label>
           <div class="p-4 sm:p-5">
-            <Textarea id="job-text" :model-value="jobText" :placeholder="t('interview.jobPlaceholder')" class="min-h-[200px]" @input="handleJobInput" />
+            <Textarea id="job-text" :model-value="context.offerText" :placeholder="t('interview.jobPlaceholder')" class="min-h-[200px]" @input="handleJobInput" />
           </div>
         </div>
 
@@ -44,8 +46,14 @@
             </div>
           </div>
           <div class="p-4 sm:p-5">
-            <PDFUpload v-if="cvActiveTab === 'upload'" :model-value="cvText" @update:model-value="handleCVTextUpdate" />
-            <Textarea v-else aria-labelledby="cv-label" :model-value="cvText" :placeholder="t('interview.cvPlaceholder')" class="min-h-[200px]" @input="handleCVInput" />
+            <PDFUpload
+              v-if="cvActiveTab === 'upload'"
+              :model-value="context.cvText"
+              :file-name="context.cvFileName"
+              @update:model-value="handleCVTextUpdate"
+              @update:file-name="(name) => (context.cvFileName = name)"
+            />
+            <Textarea v-else aria-labelledby="cv-label" :model-value="context.cvText" :placeholder="t('interview.cvPlaceholder')" class="min-h-[200px]" @input="handleCVInput" />
           </div>
         </div>
       </div>
@@ -53,7 +61,7 @@
       <LlmErrorNotice v-if="error" :message="error" :code="errorCode" />
 
       <div class="flex justify-center">
-        <Button :disabled="!cvText || !jobText || isLoading" size="lg" @click="generateQuestions">
+        <Button :disabled="!context.isComplete || isLoading" size="lg" @click="generateQuestions">
           <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
           <MessageSquare v-else class="mr-2 h-4 w-4" aria-hidden="true" />
           {{ t('interview.generate') }}
@@ -173,6 +181,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
+import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -181,16 +190,21 @@ import {
 import { generateInterviewQuestions, analyzeInterviewResponses } from '@/lib/api'
 import PDFUpload from '@/components/PDFUpload.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
+import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
+import { useApplicationContextStore } from '@/stores/applicationContext'
 import posthog from 'posthog-js'
 
 const { t } = useI18n()
 const { push, formatPercent } = useLocale()
 
+const context = useApplicationContextStore()
 const currentStep = ref(1)
-const cvText = ref('')
-const jobText = ref('')
-const cvActiveTab = ref('upload')
+// CV et offre figés à la génération des questions : l'analyse finale reste cohérente
+// même si le contexte partagé est modifié ou effacé pendant l'entretien
+const sessionCvText = ref('')
+const sessionJobText = ref('')
+const cvActiveTab = useCvInputTab()
 const isLoading = ref(false)
 const error = ref('')
 const errorCode = ref<string | null>(null)
@@ -219,22 +233,24 @@ const currentQuestionCategory = computed(() => questions.value[currentQuestionIn
 const estimatedTime = computed(() => Math.round(questions.value.length * 2))
 
 const handleCVInput = (event: Event) => {
-  cvText.value = (event.target as HTMLTextAreaElement).value
+  context.setCv((event.target as HTMLTextAreaElement).value, { from: 'interview' })
   error.value = ''
 }
 
 const handleJobInput = (event: Event) => {
-  jobText.value = (event.target as HTMLTextAreaElement).value
+  context.setOffer((event.target as HTMLTextAreaElement).value, { from: 'interview' })
   error.value = ''
 }
 
 const handleCVTextUpdate = (text: string) => {
-  cvText.value = text
+  context.setCv(text, { from: 'interview' })
   error.value = ''
 }
 
 const generateQuestions = async () => {
-  if (!cvText.value || !jobText.value) {
+  const cvText = context.cvText
+  const jobText = context.offerText
+  if (!cvText.trim() || !jobText.trim()) {
     error.value = t('interview.errors.missingInput')
     return
   }
@@ -244,11 +260,13 @@ const generateQuestions = async () => {
   errorCode.value = null
 
   try {
-    const cvBlob = new Blob([cvText.value], { type: 'text/plain' })
+    const cvBlob = new Blob([cvText], { type: 'text/plain' })
     const cvFile = new File([cvBlob], 'cv.txt', { type: 'text/plain' })
-    const result = await generateInterviewQuestions(cvFile, jobText.value, 5)
+    const result = await generateInterviewQuestions(cvFile, jobText, 5)
 
     if (result.success && result.interview_session) {
+      sessionCvText.value = cvText
+      sessionJobText.value = jobText
       questions.value = result.interview_session.questions
       interviewSession.value = result.interview_session
       currentStep.value = 2
@@ -334,8 +352,8 @@ const finishInterview = async () => {
       const result = await analyzeInterviewResponses(
         questions.value,
         answers.value,
-        cvText.value,
-        jobText.value,
+        sessionCvText.value,
+        sessionJobText.value,
         interviewTimer.value,
       )
 
@@ -346,8 +364,8 @@ const finishInterview = async () => {
           answers: answers.value,
           analysis: result.analysis,
           duration: interviewTimer.value,
-          cv_text: cvText.value,
-          job_text: jobText.value,
+          cv_text: sessionCvText.value,
+          job_text: sessionJobText.value,
         }))
         posthog.capture('interview_completed', {
           answered_question_count: answers.value.length,
@@ -389,10 +407,13 @@ const formatTime = (seconds: number) => {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+// Le contexte partagé (CV + offre) est conservé : seul l'entretien en cours est abandonné
 const resetSimulator = () => {
+  if (timerInterval) clearInterval(timerInterval)
+  timerInterval = null
   currentStep.value = 1
-  cvText.value = ''
-  jobText.value = ''
+  sessionCvText.value = ''
+  sessionJobText.value = ''
   questions.value = []
   isInterviewStarted.value = false
   currentQuestionIndex.value = 0
@@ -401,6 +422,15 @@ const resetSimulator = () => {
   answers.value = []
   error.value = ''
 }
+
+// « Modifier » depuis l'encart de contexte : retour à la saisie (confirmation si l'entretien a commencé)
+const editContext = () => {
+  if (currentStep.value === 1) return
+  if (hasUnsavedSession.value && !window.confirm(t('interview.leaveConfirm'))) return
+  resetSimulator()
+}
+
+onMounted(() => context.trackReuse('interview'))
 
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)

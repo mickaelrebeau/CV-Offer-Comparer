@@ -14,6 +14,12 @@
       :action-label="t('common.retry')"
       @action="pendingHistoryId && loadHistory(pendingHistoryId)"
     />
+    <ApplicationContextBanner
+      edit-target="compare-offer"
+      :proposal="compareStore.historyContext"
+      @adopt="compareStore.adoptHistoryContext"
+      @dismiss="compareStore.dismissHistoryContext"
+    />
     <ComparisonView />
   </div>
 </template>
@@ -24,15 +30,18 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
+import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
 import ComparisonView from '@/components/ComparisonView.vue'
 import { useLocale } from '@/i18n/useLocale'
 import { isOnline } from '@/lib/pwa'
+import { useApplicationContextStore } from '@/stores/applicationContext'
 import { useCompareStore } from '@/stores/compare'
 
 const { t } = useI18n()
 const { replace } = useLocale()
 const route = useRoute()
 const compareStore = useCompareStore()
+const context = useApplicationContextStore()
 const historyLoading = ref(false)
 const pendingHistoryId = ref<string | null>(null)
 const historyError = ref('')
@@ -56,6 +65,7 @@ async function loadHistory(historyId: string) {
 }
 
 onMounted(() => {
+  context.trackReuse('compare')
   const historyId = typeof route.query.history === 'string' ? route.query.history : null
   if (historyId) loadHistory(historyId)
 })

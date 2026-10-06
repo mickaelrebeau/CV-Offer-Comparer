@@ -14,6 +14,12 @@
       :action-label="t('common.retry')"
       @action="pendingHistoryId && loadHistory(pendingHistoryId)"
     />
+    <ApplicationContextBanner
+      edit-target="cover-letter-offer"
+      :proposal="store.historyContext"
+      @adopt="store.adoptHistoryContext"
+      @dismiss="store.dismissHistoryContext"
+    />
 
     <div class="space-y-10">
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -23,9 +29,10 @@
           <div class="p-4 sm:p-5">
             <Textarea
               id="cover-letter-offer"
-              v-model="store.jobText"
+              :model-value="context.offerText"
               :placeholder="t('coverLetter.offerPlaceholder')"
               class="min-h-[220px]"
+              @update:model-value="(value) => context.setOffer(String(value), { from: 'coverLetter' })"
             />
           </div>
         </div>
@@ -49,10 +56,18 @@
             </div>
           </div>
           <div class="p-4 sm:p-5">
-            <PDFUpload v-if="cvTab === 'upload'" v-model="store.cvText" allow-txt />
+            <PDFUpload
+              v-if="cvTab === 'upload'"
+              :model-value="context.cvText"
+              :file-name="context.cvFileName"
+              allow-txt
+              @update:model-value="(value) => context.setCv(value, { from: 'coverLetter' })"
+              @update:file-name="(name) => (context.cvFileName = name)"
+            />
             <Textarea
               v-else
-              v-model="store.cvText"
+              :model-value="context.cvText"
+              @update:model-value="(value) => context.setCv(String(value), { from: 'coverLetter' })"
               aria-labelledby="cover-letter-cv-label"
               :placeholder="t('coverLetter.cvPlaceholder')"
               class="min-h-[220px]"
@@ -168,21 +183,25 @@ import { Check, Copy, Download, Loader2, PenLine } from 'lucide-vue-next'
 import posthog from 'posthog-js'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
+import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
 import PDFUpload from '@/components/PDFUpload.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
 import { downloadCoverLetter, formatCoverLetter, type CoverLetterFormat } from '@/lib/coverLetter'
 import { isOnline } from '@/lib/pwa'
+import { useApplicationContextStore } from '@/stores/applicationContext'
 import { useCoverLetterStore } from '@/stores/coverLetter'
 
 const { t } = useI18n()
 const { replace } = useLocale()
 const route = useRoute()
 const store = useCoverLetterStore()
+const context = useApplicationContextStore()
 
-const cvTab = ref<'upload' | 'manual'>(store.cvText ? 'manual' : 'upload')
+const cvTab = useCvInputTab()
 const cvTabs = computed(() => [
   { value: 'upload' as const, label: t('coverLetter.cvFile') },
   { value: 'manual' as const, label: t('common.text') },
@@ -265,7 +284,6 @@ async function loadHistory(historyId: string) {
   historyError.value = ''
   try {
     await store.loadFromHistory(historyId)
-    cvTab.value = 'manual'
     pendingHistoryId.value = null
     replace({ path: '/cover-letter', query: {} })
   } catch {
@@ -285,6 +303,7 @@ watch(
 )
 
 onMounted(() => {
+  context.trackReuse('coverLetter')
   const historyId = typeof route.query.history === 'string' ? route.query.history : null
   if (historyId) loadHistory(historyId)
 })

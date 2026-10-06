@@ -5,6 +5,7 @@ import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/authToke
 import posthog from 'posthog-js'
 import type { AuthResponse, AuthUser } from '@/types/auth'
 import { t } from '@/i18n'
+import { useApplicationContextStore } from './applicationContext'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -37,6 +38,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // CV et offre en session : jamais laissés au prochain utilisateur du poste
+  function clearApplicationContext() {
+    if (typeof window !== 'undefined') useApplicationContextStore().clear()
+  }
+
   async function fetchMe(): Promise<AuthUser | null> {
     const token = getAccessToken()
     if (!token) {
@@ -59,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
       clearAccessToken()
       user.value = null
       sessionUnverified.value = false
+      clearApplicationContext()
       resetPostHog()
       return null
     }
@@ -82,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function applyAuth(payload: AuthResponse) {
     if (user.value && user.value.id !== payload.user.id) {
+      clearApplicationContext()
       resetPostHog()
     }
 
@@ -181,6 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
     clearAccessToken()
     user.value = null
     sessionUnverified.value = false
+    clearApplicationContext()
     resetPostHog()
     return { error: null }
   }
@@ -195,6 +204,7 @@ export const useAuthStore = defineStore('auth', () => {
       await api.delete('/auth/me')
       clearAccessToken()
       user.value = null
+      clearApplicationContext()
       resetPostHog()
       return { error: null }
     } catch (error: any) {

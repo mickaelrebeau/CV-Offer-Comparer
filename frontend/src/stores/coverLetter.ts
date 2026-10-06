@@ -12,10 +12,13 @@ import {
 } from '@/lib/api'
 import { letterFromSections } from '@/lib/coverLetter'
 import { t } from '@/i18n'
+import { useApplicationContextStore } from './applicationContext'
+import type { HistoryContext } from './compare'
 
 export const useCoverLetterStore = defineStore('coverLetter', () => {
-  const jobText = ref('')
-  const cvText = ref('')
+  // CV et offre : contexte de candidature partagé entre les modules
+  const context = useApplicationContextStore()
+  const historyContext = ref<HistoryContext | null>(null)
   const tone = ref<CoverLetterTone>('professional')
   const length = ref<CoverLetterLength>('standard')
   const language = ref<CoverLetterLanguage>('auto')
@@ -31,7 +34,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
   const error = ref<string | null>(null)
   const errorCode = ref<string | null>(null)
 
-  const hasData = computed(() => Boolean(jobText.value.trim() && cvText.value.trim()))
+  const hasData = computed(() => context.isComplete)
   const letter = computed<CoverLetter | null>(() => {
     if (finalLetter.value) return finalLetter.value
     return sections.value.length ? letterFromSections(sections.value) : null
@@ -41,8 +44,20 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     sections.value = []
     finalLetter.value = null
     letterId.value = null
+    historyContext.value = null
     error.value = null
     errorCode.value = null
+  }
+
+  /** Définit le CV et l'offre de la lettre ouverte depuis l'historique comme contexte courant */
+  function adoptHistoryContext() {
+    if (!historyContext.value) return
+    context.setContext(historyContext.value, 'coverLetter')
+    historyContext.value = null
+  }
+
+  function dismissHistoryContext() {
+    historyContext.value = null
   }
 
   async function generate() {
@@ -59,8 +74,8 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     try {
       await streamCoverLetter(
         {
-          jobText: jobText.value,
-          cvText: cvText.value,
+          jobText: context.offerText,
+          cvText: context.cvText,
           tone: tone.value,
           length: length.value,
           language: language.value,
@@ -102,8 +117,10 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     errorCode.value = null
     try {
       const detail = await getCoverLetter(id)
-      jobText.value = detail.job_text || ''
-      cvText.value = detail.cv_text || ''
+      const fromHistory = { cvText: detail.cv_text || '', offerText: detail.job_text || '' }
+      // Contexte vide ou identique : repris directement, sinon proposé à l'utilisateur
+      if (!context.hasContext) context.setContext(fromHistory, 'coverLetter')
+      historyContext.value = context.matches(fromHistory.cvText, fromHistory.offerText) ? null : fromHistory
       tone.value = detail.tone
       length.value = detail.length
       sections.value = []
@@ -119,8 +136,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
   }
 
   return {
-    jobText,
-    cvText,
+    historyContext,
     tone,
     length,
     language,
@@ -135,5 +151,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
     generate,
     loadFromHistory,
     clearResult,
+    adoptHistoryContext,
+    dismissHistoryContext,
   }
 })

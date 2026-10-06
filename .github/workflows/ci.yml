@@ -26,6 +26,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm exec eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore
+      - name: Tests unitaires
+        run: pnpm test
       - run: pnpm build
         env:
           VITE_API_URL: http://localhost:8000
