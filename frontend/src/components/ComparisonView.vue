@@ -133,6 +133,15 @@
             <RefreshCw class="h-3.5 w-3.5" aria-hidden="true" />
             {{ t('comparison.rescore.action') }}
           </Button>
+          <Button
+            v-if="compareStore.currentComparisonId && !compareStore.rescoreParent"
+            size="sm"
+            variant="outline"
+            @click="push({ path: '/cv-optimizer', query: { comparison: compareStore.currentComparisonId } })"
+          >
+            <Sparkles class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ t('comparison.next.optimize') }}
+          </Button>
           <Button size="sm" @click="push('/interview-simulator')">
             <MessageSquare class="h-3.5 w-3.5" aria-hidden="true" />
             {{ t('comparison.next.interview') }}
@@ -205,7 +214,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowRightLeft, Loader2, MessageSquare, PenLine, RefreshCw } from 'lucide-vue-next'
+import { ArrowRightLeft, Loader2, MessageSquare, PenLine, RefreshCw, Sparkles } from 'lucide-vue-next'
 import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
 import { useApplicationContextStore } from '@/stores/applicationContext'

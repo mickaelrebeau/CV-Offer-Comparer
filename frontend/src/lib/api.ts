@@ -513,6 +513,132 @@ export async function streamCompare(
   }
 }
 
+export type CvSuggestion = {
+  id: string
+  section: string
+  /** Extrait tel qu'il figure dans le CV (remplacé par la proposition si elle est acceptée) */
+  original: string
+  proposed: string
+  requirement: string
+  rationale: string
+}
+
+export type CvOptimizationHistoryItem = {
+  id: string
+  comparison_id: string | null
+  job_excerpt: string
+  cv_excerpt: string
+  summary: string
+  suggestion_count: number
+  offer_url: string | null
+  created_at: string | null
+}
+
+export type CvOptimizationHistoryDetail = CvOptimizationHistoryItem & {
+  suggestions: CvSuggestion[]
+  cv_text: string
+  job_text: string
+}
+
+export async function listCvOptimizations(limit = 20, offset = 0) {
+  const { data } = await api.get<{
+    items: CvOptimizationHistoryItem[]
+    total: number
+    limit: number
+    offset: number
+  }>('/cv-optimizations', { params: { limit, offset } })
+  return data
+}
+
+export async function getCvOptimization(id: string) {
+  const { data } = await api.get<CvOptimizationHistoryDetail>(`/cv-optimizations/${id}`)
+  return data
+}
+
+export async function deleteCvOptimization(id: string) {
+  const { data } = await api.delete<{ success: boolean }>(`/cv-optimizations/${id}`)
+  return data
+}
+
+/** Optimiseur de CV (flux SSE) : à partir d'une analyse (`comparisonId`) ou du CV et de l'offre. */
+export async function streamCvOptimization(
+  params: { comparisonId?: string | null; cvText?: string; jobText?: string; offerUrl?: string | null },
+  handlers: {
+    onStatus: (message: string) => void
+    onProgress: (progress: number) => void
+    onSuggestion: (suggestion: CvSuggestion) => void
+    onResult: (summary: string, id: string | null) => void
+    onError: (error: string, code?: string) => void
+  },
+) {
+  try {
+    const response = await fetch(`${getApiBaseURL()}/cv-optimizer`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+        Accept: 'text/event-stream',
+        ...localeHeaders(),
+      },
+      body: JSON.stringify({
+        comparison_id: params.comparisonId || null,
+        cv_text: params.cvText || '',
+        job_text: params.jobText || '',
+        offer_url: params.offerUrl || null,
+      }),
+    })
+
+    if (!response.ok) throw await requestError(response)
+
+    const reader = response.body?.getReader()
+    if (!reader) {
+      throw new Error(t('errors.readStream'))
+    }
+
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        let data: any
+        try {
+          data = JSON.parse(line.slice(6))
+        } catch (e) {
+          console.error('Erreur parsing SSE:', e)
+          continue
+        }
+        switch (data.type) {
+          case 'status':
+            handlers.onStatus(data.message)
+            break
+          case 'progress':
+            handlers.onProgress(data.value)
+            break
+          case 'suggestion':
+            handlers.onSuggestion(data.suggestion)
+            break
+          case 'result':
+            handlers.onResult(data.summary || '', data.id ?? null)
+            break
+          case 'error':
+            handlers.onError(data.message, data.code)
+            break
+        }
+      }
+    }
+  } catch (error: any) {
+    handlers.onError(error.message || t('cvOptimizer.errors.generic'), errorCode(error))
+  }
+}
+
 export async function streamFreeCompare(
   offerText: string,
   cvText: string,

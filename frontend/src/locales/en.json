@@ -42,7 +42,8 @@
     "terms": "Terms",
     "privacy": "Privacy",
     "contact": "Contact",
-    "github": "GitHub"
+    "github": "GitHub",
+    "cvOptimizer": "Optimizer"
   },
   "session": {
     "loading": "Loading your session"
@@ -115,6 +116,10 @@
     "importOffer": {
       "title": "Send to Talento",
       "description": "Import a job offer from Indeed, LinkedIn or Welcome to the Jungle in one click."
+    },
+    "cvOptimizer": {
+      "title": "Resume optimizer",
+      "description": "Rewrite excerpts of your resume for a job offer, without inventing anything: accept or reject each suggestion."
     }
   },
   "cookies": {
@@ -411,7 +416,8 @@
       "label": "Next step",
       "text": "Your CV and this job offer are already loaded in the other modules.",
       "interview": "Prepare the interview",
-      "coverLetter": "Generate the letter"
+      "coverLetter": "Generate the letter",
+      "optimize": "Optimize my resume for this job"
     },
     "rescore": {
       "label": "Re-analysis of the same job offer",
@@ -496,6 +502,17 @@
           "Copy and export .txt / .md"
         ],
         "cta": "Write a letter"
+      },
+      "cvOptimizer": {
+        "id": "Module 04",
+        "title": "Resume optimizer",
+        "description": "Rewrite excerpts of your resume for the target job, one suggestion at a time, without inventing anything.",
+        "features": [
+          "Targets missing or unclear requirements",
+          "Accept, reject or edit",
+          "Export .txt / .md and re-analyze"
+        ],
+        "cta": "Optimize my resume"
       }
     },
     "history": "History",
@@ -540,7 +557,17 @@
     "noOfferExcerpt": "Job offer without excerpt",
     "noCvExcerpt": "Resume without excerpt",
     "deleteError": "Could not delete",
-    "offerLinkAria": "Open the job posting on {domain}"
+    "offerLinkAria": "Open the job posting on {domain}",
+    "optimizations": {
+      "title": "Recent resume optimizations",
+      "loading": "Loading optimizations…",
+      "empty": "No optimization saved yet. Optimize your resume for a job offer — the suggestions will show up here.",
+      "cta": "Optimize my resume",
+      "suggestions": "{count} suggestion(s)",
+      "view": "View the optimization of {date}",
+      "delete": "Delete the optimization of {date}",
+      "loadError": "Unable to load optimizations"
+    }
   },
   "interview": {
     "label": "Simulator",
@@ -675,6 +702,69 @@
       "missingInput": "Please fill in the job offer and your resume",
       "loadHistory": "Could not load this letter",
       "copy": "Copy failed: select the text manually"
+    }
+  },
+  "cvOptimizer": {
+    "label": "Resume optimizer",
+    "title": "A resume that speaks the job offer's language",
+    "description": "Targeted rewrites of your bullet points and sections, to accept, reject or edit one by one before exporting your resume.",
+    "historyLoading": "Loading the optimization…",
+    "guardrail": {
+      "title": "The AI rewrites, it never invents",
+      "text": "Each suggestion rewrites an excerpt already in your resume. No experience, degree, skill or figure missing from your resume is added; suggestions that break this rule are discarded. Review each one before accepting it."
+    },
+    "fromAnalysis": {
+      "label": "From your analysis",
+      "text": "The analysis' resume and job offer are reused, and missing or unclear requirements are targeted first.",
+      "useContext": "Use another resume or job offer"
+    },
+    "offerPlaceholder": "Paste the job offer here...",
+    "cvPlaceholder": "Paste your resume text here...",
+    "progressAria": "Optimization progress",
+    "run": "Optimize my resume",
+    "rerun": "Run the optimization again",
+    "statusStart": "Preparing the optimization...",
+    "statusDone": "Suggestions ready",
+    "statusReady": "{count} rewrite suggestion(s)",
+    "historyLoaded": "Optimization loaded from history",
+    "suggestions": {
+      "title": "Rewrite suggestions",
+      "counts": "{accepted} accepted · {rejected} rejected · {pending} to review",
+      "acceptAll": "Accept all",
+      "noSection": "Resume",
+      "targets": "target: {requirement}",
+      "original": "Current text",
+      "proposed": "Suggestion"
+    },
+    "status": {
+      "pending": "To review",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "actions": {
+      "accept": "Accept",
+      "edit": "Edit",
+      "reject": "Reject",
+      "undo": "Undo my choice",
+      "saveAndAccept": "Accept this version"
+    },
+    "result": {
+      "title": "Optimized resume ({count} change(s))",
+      "downloadAria": "Download the optimized resume as .{format}",
+      "save": "Save as a new resume",
+      "saved": "Resume saved",
+      "savedLabel": "Optimized resume – {date}",
+      "rescore": "Re-analyze with this resume",
+      "limitReached": "You have reached the limit of {max} saved resumes: delete one from your profile to save this one.",
+      "skipped": "{count} accepted suggestion(s) could not be applied: their excerpt was already rewritten by another suggestion.",
+      "reviewHint": "Review the optimized resume before sending it: check every wording.",
+      "filename": "optimized-resume"
+    },
+    "errors": {
+      "generic": "Error while optimizing the resume",
+      "missingInput": "Add your resume and the job offer to start the optimization.",
+      "loadHistory": "Unable to load this optimization",
+      "save": "Unable to save this resume"
     }
   },
   "profile": {
@@ -944,6 +1034,7 @@
         "Ranked gaps and rewrites",
         "Interview simulator with feedback",
         "Targeted cover letter",
+        "Resume optimizer (no invention)",
         "PDF import and automatic extraction",
         "Your own API key (Gemini, OpenAI, Claude…)",
         "Open source, self-hostable"
@@ -969,7 +1060,7 @@
         {
           "id": "Q.003",
           "question": "Are my documents stored?",
-          "answer": "The resume and the offer are sent to Google Gemini for the analysis, then processed in memory on the server. For signed-in accounts, the history (analyses, interview simulations, cover letters) can be saved. Only your account (and that history) is stored long-term; you can delete everything from your profile. Details: Privacy page."
+          "answer": "The resume and the offer are sent to Google Gemini for the analysis, then processed in memory on the server. For signed-in accounts, the history (analyses, interview simulations, cover letters, resume optimizations) can be saved. Only your account (and that history) is stored long-term; you can delete everything from your profile. Details: Privacy page."
         },
         {
           "id": "Q.007",
@@ -980,6 +1071,11 @@
           "id": "Q.008",
           "question": "Does Talento also write the cover letter?",
           "answer": "Yes, for signed-in accounts. The cover letter module writes a targeted letter (hook, body, closing) from your resume and the job offer, in the tone, length and language you choose. It relies only on your resume: review it before sending. Copy or export it as .txt / .md, and find it again in your dashboard history."
+        },
+        {
+          "id": "Q.010",
+          "question": "Can Talento rewrite my resume?",
+          "answer": "Yes, for signed-in accounts. The resume optimizer suggests targeted rewrites of your bullet points and sections for a job offer, focusing first on the missing or unclear requirements from your analysis. It only rewrites what is already in your resume: no experience, skill or figure is invented. You accept, reject or edit each suggestion, then export the resume (.txt / .md), save it or re-analyze it."
         },
         {
           "id": "Q.009",

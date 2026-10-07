@@ -21,8 +21,9 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Auth email/mot de passe + **Google OAuth**
 - Simulateur d’entretien personnalisé
 - Générateur de lettre de motivation (ton, longueur, langue ; copie et export `.txt` / `.md`)
-- Upload PDF (ou TXT pour la lettre) + saisie texte
-- Historique des comparaisons, simulations et lettres (utilisateurs connectés, Postgres)
+- Optimiseur de CV : reformulations ciblées par offre, à accepter / rejeter / modifier, sans rien inventer (export `.txt` / `.md`, enregistrement, réanalyse)
+- Upload PDF, DOCX ou TXT + saisie texte
+- Historique des comparaisons, simulations, lettres et optimisations (utilisateurs connectés, Postgres)
 - **Clés API personnelles (BYOK)** : Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi ou endpoint compatible OpenAI, pour continuer quand le quota Gemini de la plateforme est épuisé
 
 ## Stack
@@ -135,6 +136,7 @@ Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par
 | `POST /api/interview/generate-questions` | user + IP | `DAILY_QUOTA_INTERVIEW_GENERATE` (30) |
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
 | `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
+| `POST /api/cv-optimizer` | user + IP | `DAILY_QUOTA_CV_OPTIMIZER` (20) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `PUT /api/profile/llm-credentials` | user + IP | `DAILY_QUOTA_LLM_CREDENTIALS` (50) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 analyse gratuite par client |

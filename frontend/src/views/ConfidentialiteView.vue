@@ -4,7 +4,7 @@
     label="Privacy"
     title="Privacy policy"
     description="Data collected, purposes, processors and your rights."
-    updated-at="2026-10-06"
+    updated-at="2026-10-07"
   >
     <section>
       <h2>1. Data controller</h2>
@@ -41,6 +41,12 @@
         <li>Generated letter (subject, paragraphs, sign-off) and chosen options (tone, length, language)</li>
         <li>Generation date</li>
       </ul>
+      <h3>Resume optimizer history (signed-in accounts)</h3>
+      <ul>
+        <li>Texts of the job offer / resume that were optimized, and the analysis they come from when applicable</li>
+        <li>Rewrite suggestions (original excerpt, proposed text, targeted requirement, rationale); your accept / reject choices stay in your browser</li>
+        <li>Generation date</li>
+      </ul>
       <h3>Saved resumes (signed-in accounts, optional)</h3>
       <ul>
         <li>Name you give each resume (e.g. “Front-end dev resume”), text extracted from the resume and, if any, the original file name (the imported PDF / TXT file itself is never stored)</li>
@@ -74,7 +80,7 @@
     <section>
       <h2>3. Purposes</h2>
       <ul>
-        <li>Provide the analysis service, the interview simulator and the cover letter generator</li>
+        <li>Provide the analysis service, the interview simulator, the cover letter generator and the resume optimizer</li>
         <li>Authenticate users and keep the requested history</li>
         <li>Let you reuse your saved resumes in every module without importing them again, and pre-load the default one when you sign in</li>
         <li>Verify email addresses and allow password resets</li>
@@ -87,7 +93,7 @@
     <section>
       <h2>4. Transfer to AI providers</h2>
       <p>
-        To produce the analysis or the cover letter, the <strong>text of the resume and the job offer</strong> is sent
+        To produce the analysis, the cover letter or the resume rewrite suggestions, the <strong>text of the resume and the job offer</strong> is sent
         to <strong>Google Gemini</strong> (Google AI API) for the duration of the processing. This
         content is not meant to build a public profile; it is necessary for the service to work.
         Please also review Google’s terms for the use of the API.
@@ -114,7 +120,7 @@
         <li>Account: until deleted by the user or upon request</li>
         <li>Personal API keys (encrypted): until deleted from the profile or until the account is deleted</li>
         <li>Saved resumes: until deleted (or replaced) from the profile, or until the account is deleted</li>
-        <li>Comparison, interview simulation and cover letter history: until manually deleted (from the dashboard) or until the account is deleted</li>
+        <li>Comparison, interview simulation, cover letter and resume optimizer history: until manually deleted (from the dashboard) or until the account is deleted</li>
         <li>Email verification and password reset tokens: valid for 48 h and 60 min respectively; deleted once used, when a new link is sent or when the account is deleted</li>
         <li>Free trial (Redis): short duration (around 24 h depending on configuration)</li>
         <li>Rate-limiting counters (Redis): one minute, or until midnight UTC for daily quotas</li>
@@ -139,7 +145,7 @@
       <p>The service uses the following strictly necessary storage, which does not require consent:</p>
       <ul>
         <li>browser local storage: authentication token (<code>talento_access_token</code>), interface language preference (<code>talento_locale</code>), free trial marker (<code>talento_free_analysis_used</code>), and a temporary copy of the latest interview report (<code>interviewAnalysis</code>, including the resume and job offer texts), deleted as soon as the results are displayed;</li>
-        <li>browser session storage (<code>talento_application_context</code>): the resume and job offer currently in use, shared between the comparer, the interview simulator and the cover letter; deleted when the tab is closed, on sign-out or when the account is deleted;</li>
+        <li>browser session storage (<code>talento_application_context</code>): the resume and job offer currently in use, shared between the comparer, the interview simulator, the cover letter and the resume optimizer; deleted when the tab is closed, on sign-out or when the account is deleted;</li>
         <li>an <code>oauth_state</code> cookie (httpOnly, 10 min), set only during Google sign-in to protect it against forgery;</li>
         <li>the app’s cache (service worker, Cache Storage): only the application’s files (pages, scripts, styles, icons, fonts), to make it load faster and keep it available offline — never API responses or your documents.</li>
       </ul>
@@ -186,7 +192,7 @@
     label="Vie privée"
     title="Politique de confidentialité"
     description="Données collectées, finalités, sous-traitants et vos droits."
-    updated-at="2026-10-06"
+    updated-at="2026-10-07"
   >
     <section>
       <h2>1. Responsable du traitement</h2>
@@ -223,6 +229,12 @@
         <li>Lettre générée (objet, paragraphes, formule de politesse) et options choisies (ton, longueur, langue)</li>
         <li>Date de génération</li>
       </ul>
+      <h3>Historique de l’optimiseur de CV (comptes connectés)</h3>
+      <ul>
+        <li>Textes de l’offre / du CV optimisé et, le cas échéant, analyse d’origine</li>
+        <li>Propositions de reformulation (extrait d’origine, texte proposé, exigence ciblée, justification) ; vos choix accepter / rejeter restent dans votre navigateur</li>
+        <li>Date de génération</li>
+      </ul>
       <h3>CV enregistrés (comptes connectés, facultatif)</h3>
       <ul>
         <li>Nom donné à chaque CV (ex. « CV Dev Front »), texte extrait du CV et, le cas échéant, nom du fichier d’origine (le fichier PDF / TXT importé n’est jamais conservé)</li>
@@ -256,7 +268,7 @@
     <section>
       <h2>3. Finalités</h2>
       <ul>
-        <li>Fournir le service d’analyse, le simulateur d’entretien et le générateur de lettre de motivation</li>
+        <li>Fournir le service d’analyse, le simulateur d’entretien, le générateur de lettre de motivation et l’optimiseur de CV</li>
         <li>Authentifier les utilisateurs et conserver l’historique demandé</li>
         <li>Permettre de réutiliser vos CV enregistrés dans chaque module sans les réimporter, et pré-charger le CV par défaut à la connexion</li>
         <li>Vérifier les adresses e-mail et permettre la réinitialisation du mot de passe</li>
@@ -269,7 +281,7 @@
     <section>
       <h2>4. Transfert vers les fournisseurs d’IA</h2>
       <p>
-        Pour produire l’analyse ou la lettre de motivation, le <strong>texte du CV et de l’offre</strong> est transmis à
+        Pour produire l’analyse, la lettre de motivation ou les reformulations du CV, le <strong>texte du CV et de l’offre</strong> est transmis à
         <strong>Google Gemini</strong> (API Google AI) le temps du traitement. Ce contenu n’est
         pas destiné à constituer un profil public ; il est nécessaire au fonctionnement du
         service. Consultez également les conditions Google relatives à l’usage de l’API.
@@ -296,7 +308,7 @@
         <li>Compte : jusqu’à suppression par l’utilisateur ou demande</li>
         <li>Clés API personnelles (chiffrées) : jusqu’à suppression depuis le profil ou suppression du compte</li>
         <li>CV enregistrés : jusqu’à leur suppression (ou remplacement) depuis le profil, ou suppression du compte</li>
-        <li>Historique des comparaisons, des simulations d’entretien et des lettres de motivation : jusqu’à suppression manuelle (depuis le tableau de bord) ou suppression du compte</li>
+        <li>Historique des comparaisons, des simulations d’entretien, des lettres de motivation et de l’optimiseur de CV : jusqu’à suppression manuelle (depuis le tableau de bord) ou suppression du compte</li>
         <li>Jetons de vérification d’e-mail et de réinitialisation : valables respectivement 48 h et 60 min ; supprimés à l’utilisation, à l’envoi d’un nouveau lien ou à la suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
         <li>Compteurs de limitation de débit (Redis) : une minute, ou jusqu’à minuit UTC pour les quotas journaliers</li>
@@ -321,7 +333,7 @@
       <p>Le service utilise les stockages strictement nécessaires suivants, qui ne requièrent pas de consentement :</p>
       <ul>
         <li>stockage local du navigateur : jeton d’authentification (<code>talento_access_token</code>), préférence de langue de l’interface (<code>talento_locale</code>), indicateur d’essai gratuit (<code>talento_free_analysis_used</code>) et copie temporaire du dernier rapport d’entretien (<code>interviewAnalysis</code>, qui contient les textes du CV et de l’offre), effacée dès l’affichage des résultats ;</li>
-        <li>stockage de session du navigateur (<code>talento_application_context</code>) : CV et offre en cours d’utilisation, partagés entre le comparateur, le simulateur d’entretien et la lettre de motivation ; effacé à la fermeture de l’onglet, à la déconnexion ou à la suppression du compte ;</li>
+        <li>stockage de session du navigateur (<code>talento_application_context</code>) : CV et offre en cours d’utilisation, partagés entre le comparateur, le simulateur d’entretien, la lettre de motivation et l’optimiseur de CV ; effacé à la fermeture de l’onglet, à la déconnexion ou à la suppression du compte ;</li>
         <li>un cookie <code>oauth_state</code> (httpOnly, 10 min), posé uniquement pendant la connexion Google pour la protéger contre la falsification ;</li>
         <li>le cache de l’application (service worker, Cache Storage) : uniquement les fichiers de l’application (pages, scripts, styles, icônes, polices), pour accélérer le chargement et la rendre disponible hors ligne — jamais les réponses de l’API ni vos documents.</li>
       </ul>
