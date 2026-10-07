@@ -3,7 +3,7 @@ import pytest
 from app.config import settings
 from app.services.rate_limit_service import RateLimiter
 
-PDF = {"file": ("cv.txt", b"not a pdf", "text/plain")}
+PDF = {"file": ("cv.odt", b"not a pdf", "application/vnd.oasis.opendocument.text")}
 
 
 def _upload(client, headers, ip="1.1.1.1"):
@@ -28,7 +28,7 @@ def limits(monkeypatch):
 
 def test_user_per_minute_limit_returns_429_with_retry_after(client, auth_headers, limits):
     limits(RATE_LIMIT_USER_PER_MINUTE=2)
-    assert _upload(client, auth_headers).status_code == 400  # passe le limiter, rejeté car non PDF
+    assert _upload(client, auth_headers).status_code == 400  # passe le limiter, rejeté car format non accepté
     assert _upload(client, auth_headers, ip="2.2.2.2").status_code == 400
 
     blocked = _upload(client, auth_headers, ip="3.3.3.3")

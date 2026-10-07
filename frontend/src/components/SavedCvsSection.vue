@@ -105,7 +105,7 @@
           <!-- Remplacer : nouveau fichier, le nom et le statut par défaut sont conservés -->
           <div v-if="editing?.id === cv.id && editing.mode === 'replace'" class="space-y-2 border-t border-ink/10 pt-3">
             <p class="text-xs text-ink-soft">{{ t('savedCvs.replaceHint') }}</p>
-            <PDFUpload allow-txt @loaded="(file) => replace(cv.id, file)" />
+            <PDFUpload @loaded="(file) => replace(cv.id, file)" />
             <Button type="button" size="sm" variant="ghost" @click="editing = null">{{ t('common.cancel') }}</Button>
           </div>
         </li>
@@ -114,7 +114,7 @@
       <!-- Ajouter -->
       <p v-if="savedCvs.limitReached" class="text-sm text-ink-soft">{{ t('savedCvs.limitReached', { max: savedCvs.limit }) }}</p>
       <div v-else-if="adding" class="space-y-3 rounded-lg border border-dashed border-ink/20 p-4">
-        <PDFUpload allow-txt @loaded="onNewFile" />
+        <PDFUpload @loaded="onNewFile" />
         <form v-if="newCv" class="flex flex-col gap-2 sm:flex-row sm:items-end" @submit.prevent="add">
           <div class="min-w-0 flex-1 space-y-1">
             <label for="saved-cv-new-label" class="field-label">{{ t('savedCvs.labelField') }}</label>

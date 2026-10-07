@@ -10,7 +10,7 @@
     "refresh": "Actualiser",
     "retry": "Réessayer",
     "cancel": "Annuler",
-    "pdf": "PDF",
+    "file": "Fichier",
     "text": "Texte"
   },
   "language": {
@@ -216,10 +216,10 @@
     }
   },
   "upload": {
-    "dropAria": "Importer votre CV au format PDF (10 Mo maximum)",
-    "dropTitle": "Glissez votre CV (PDF) ici",
+    "dropAria": "Importer votre CV au format PDF, DOCX ou TXT (10 Mo maximum)",
+    "dropTitle": "Glissez votre CV (PDF, DOCX ou TXT) ici",
     "dropHint": "ou cliquez · max 10 Mo",
-    "extracting": "Extraction du PDF...",
+    "extracting": "Extraction du CV...",
     "extractingHint": "Analyse en cours",
     "success": "CV extrait avec succès !",
     "fileInfo": "{name} ({count} caractères)",
@@ -228,19 +228,15 @@
     "preview": "Aperçu extrait",
     "show": "Afficher",
     "hide": "Masquer",
-    "onlyPdf": "Seuls les fichiers PDF sont acceptés",
+    "unsupportedFormat": "Formats acceptés : PDF, DOCX ou TXT",
     "tooLarge": "Le fichier dépasse la limite de 10 Mo",
-    "extractError": "Erreur lors de l'extraction PDF",
+    "extractError": "Erreur lors de l'extraction du CV",
     "uploadError": "Erreur lors de l'upload",
     "live": {
-      "extracting": "Extraction du PDF en cours",
+      "extracting": "Extraction du CV en cours",
       "error": "Erreur lors de l'extraction : {message}",
       "success": "CV extrait avec succès : {name}"
-    },
-    "dropAriaTxt": "Importer votre CV au format PDF ou TXT (10 Mo maximum)",
-    "dropTitleTxt": "Glissez votre CV (PDF ou TXT) ici",
-    "onlyPdfTxt": "Seuls les fichiers PDF et TXT sont acceptés",
-    "emptyTxt": "Le fichier texte est vide"
+    }
   },
   "cvInput": {
     "offerHeader": "01 · Offre d'emploi",

@@ -22,7 +22,7 @@
               class="rounded px-2 py-0.5 transition-colors"
               :class="activeTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
             >
-              {{ t('common.pdf') }}
+              {{ t('common.file') }}
             </button>
             <button
               type="button"
