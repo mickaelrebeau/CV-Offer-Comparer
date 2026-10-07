@@ -416,6 +416,23 @@
       "text": "Votre CV et cette offre sont déjà chargés dans les autres modules.",
       "interview": "Préparer l'entretien",
       "coverLetter": "Générer la lettre"
+    },
+    "rescore": {
+      "label": "Réanalyse de la même offre",
+      "text": "Score précédent : {score}. L'offre est conservée : importez ou choisissez votre CV mis à jour, puis relancez l'analyse.",
+      "run": "Relancer l'analyse",
+      "action": "Réanalyser avec un nouveau CV"
+    },
+    "diff": {
+      "title": "Évolution du score",
+      "since": "Depuis la version du {date}",
+      "delta": "{value} pts",
+      "counts": "{improved} critère(s) amélioré(s) · {regressed} en recul · {unchanged} inchangé(s)",
+      "reworded": "{count} critère(s) reformulé(s) par l’analyse",
+      "improved": "Améliorés ({count})",
+      "regressed": "En recul ({count})",
+      "improvedNone": "Aucun critère amélioré.",
+      "regressedNone": "Aucune régression."
     }
   },
   "compare": {
@@ -495,7 +512,12 @@
       "criteria": "{matches}/{total} critères",
       "view": "Voir la comparaison du {date}",
       "delete": "Supprimer la comparaison du {date}",
-      "loadError": "Impossible de charger l'historique"
+      "loadError": "Impossible de charger l'historique",
+      "version": "Version {version}/{total}",
+      "versionShort": "v{version}",
+      "previousVersions": "Versions précédentes ({count})",
+      "rescore": "Réanalyser",
+      "rescoreAria": "Réanalyser l’offre de la comparaison du {date} avec un nouveau CV"
     },
     "interviews": {
       "title": "Simulations d’entretien récentes",

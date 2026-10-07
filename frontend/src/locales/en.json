@@ -416,6 +416,23 @@
       "text": "Your CV and this job offer are already loaded in the other modules.",
       "interview": "Prepare the interview",
       "coverLetter": "Generate the letter"
+    },
+    "rescore": {
+      "label": "Re-analysis of the same job offer",
+      "text": "Previous score: {score}. The job offer is kept: upload or pick your updated resume, then run the analysis again.",
+      "run": "Run the analysis again",
+      "action": "Re-analyze with a new resume"
+    },
+    "diff": {
+      "title": "Score evolution",
+      "since": "Since the version of {date}",
+      "delta": "{value} pts",
+      "counts": "{improved} criteria improved · {regressed} regressed · {unchanged} unchanged",
+      "reworded": "{count} criteria reworded by the analysis",
+      "improved": "Improved ({count})",
+      "regressed": "Regressed ({count})",
+      "improvedNone": "No criteria improved.",
+      "regressedNone": "No regressions."
     }
   },
   "compare": {
@@ -495,7 +512,12 @@
       "criteria": "{matches}/{total} criteria",
       "view": "View the comparison from {date}",
       "delete": "Delete the comparison from {date}",
-      "loadError": "Could not load the history"
+      "loadError": "Could not load the history",
+      "version": "Version {version}/{total}",
+      "versionShort": "v{version}",
+      "previousVersions": "Previous versions ({count})",
+      "rescore": "Re-analyze",
+      "rescoreAria": "Re-analyze the job offer of the {date} comparison with a new resume"
     },
     "interviews": {
       "title": "Recent interview simulations",

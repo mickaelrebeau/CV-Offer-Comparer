@@ -102,6 +102,7 @@ def _create_legacy_schema(engine) -> None:
     with engine.begin() as conn:
         for table in ("comparisons", "interviews", "cover_letters"):
             conn.execute(text(f"ALTER TABLE {table} DROP COLUMN offer_url"))
+        conn.execute(text("ALTER TABLE comparisons DROP COLUMN parent_comparison_id"))
 
 
 def test_legacy_database_with_saved_cvs_already_created(empty_db):

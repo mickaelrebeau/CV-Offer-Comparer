@@ -11,7 +11,8 @@ from app.i18n import DEFAULT_LOCALE, t
 from app.services.ai_service import AIService, ai_service
 from app.services.llm.errors import LLMError
 
-PersistCallback = Callable[[list[Any], dict[str, Any]], None]
+# Enregistre le résultat et renvoie son identifiant (transmis au client dans l'événement complete)
+PersistCallback = Callable[[list[Any], dict[str, Any]], str | None]
 
 
 def _sse(payload: dict[str, Any]) -> str:
@@ -48,9 +49,10 @@ async def stream_comparison(
         summary = result["summary"]
         total = len(items)
 
+        comparison_id = None
         if on_result is not None:
             try:
-                on_result(items, summary)
+                comparison_id = on_result(items, summary)
             except Exception as persist_exc:
                 print(f"Erreur persistance comparaison: {persist_exc}")
 
@@ -74,7 +76,8 @@ async def stream_comparison(
 
         yield _sse({"type": "progress", "value": 100, "current": total, "total": total})
         yield _sse({"type": "summary", "summary": summary})
-        yield _sse({"type": "complete"})
+        # Identifiant de l'analyse enregistrée (historique), pour la réanalyse et le suivi du score
+        yield _sse({"type": "complete", **({"comparison_id": comparison_id} if comparison_id else {})})
 
     except LLMError as exc:
         # Quota plateforme, clé personnelle invalide… : code stable pour l'UX côté client
