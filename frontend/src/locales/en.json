@@ -582,6 +582,31 @@
     "noSession": "No recent session found.",
     "loadError": "Error while loading"
   },
+  "report": {
+    "export": "Export to PDF",
+    "generatedOn": "Generated on {date}",
+    "offer": "Analyzed job offer",
+    "source": "Source:",
+    "summary": "Summary",
+    "comparison": {
+      "title": "Resume ↔ job offer analysis report",
+      "groups": {
+        "missing": "Missing",
+        "unclear": "To clarify",
+        "match": "Matches"
+      }
+    },
+    "interview": {
+      "title": "Interview report",
+      "suggestions": "Recommendations",
+      "advice": "Advice:",
+      "priority": {
+        "haute": "high priority",
+        "moyenne": "medium priority",
+        "basse": "low priority"
+      }
+    }
+  },
   "coverLetter": {
     "label": "Cover letter",
     "title": "A letter that answers the offer",

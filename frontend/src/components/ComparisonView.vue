@@ -99,6 +99,11 @@
           <p class="mt-1 text-sm text-ink">{{ t('comparison.next.text') }}</p>
         </div>
         <div class="flex shrink-0 flex-wrap gap-2">
+          <ExportPdfButton
+            v-if="compareStore.reportMeta"
+            type="comparison"
+            :file-title="reportFileTitle(t('report.comparison.title'), compareStore.reportMeta.date)"
+          />
           <Button size="sm" @click="push('/interview-simulator')">
             <MessageSquare class="h-3.5 w-3.5" aria-hidden="true" />
             {{ t('comparison.next.interview') }}
@@ -154,6 +159,12 @@
           </div>
         </div>
       </div>
+
+      <ComparisonReport
+        v-if="!compareStore.loading && compareStore.reportMeta"
+        :result="compareStore.comparisonResult"
+        :meta="compareStore.reportMeta"
+      />
     </div>
   </div>
 </template>
@@ -172,6 +183,9 @@ import OfferInput from './OfferInput.vue'
 import PDFUpload from './PDFUpload.vue'
 import SavedCvPicker from './SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
+import ComparisonReport from '@/components/report/ComparisonReport.vue'
+import ExportPdfButton from '@/components/report/ExportPdfButton.vue'
+import { reportFileTitle } from '@/lib/report'
 
 const { t } = useI18n()
 const { formatPercent, push } = useLocale()

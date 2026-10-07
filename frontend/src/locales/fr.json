@@ -582,6 +582,31 @@
     "noSession": "Aucune session récente trouvée.",
     "loadError": "Erreur lors du chargement"
   },
+  "report": {
+    "export": "Exporter en PDF",
+    "generatedOn": "Généré le {date}",
+    "offer": "Offre analysée",
+    "source": "Source :",
+    "summary": "Synthèse",
+    "comparison": {
+      "title": "Rapport d'analyse CV ↔ offre",
+      "groups": {
+        "missing": "Manquants",
+        "unclear": "À préciser",
+        "match": "Correspondances"
+      }
+    },
+    "interview": {
+      "title": "Bilan d'entretien",
+      "suggestions": "Recommandations",
+      "advice": "Conseil :",
+      "priority": {
+        "haute": "priorité haute",
+        "moyenne": "priorité moyenne",
+        "basse": "priorité basse"
+      }
+    }
+  },
   "coverLetter": {
     "label": "Lettre de motivation",
     "title": "Une lettre qui répond à l’offre",

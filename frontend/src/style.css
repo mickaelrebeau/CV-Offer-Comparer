@@ -146,3 +146,155 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(35, 35, 35, 0.25);
 }
+
+/* --- Export PDF (impression) : rapport papier/encre, le reste de l'application est masqué --- */
+.print-report {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body:has(> .print-report) > :not(.print-report) {
+    display: none !important;
+  }
+
+  .print-report {
+    display: block;
+    color: #232323;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-report p {
+    margin: 0.2em 0;
+    overflow-wrap: anywhere;
+  }
+
+  .print-report ul {
+    margin: 0.3em 0 0;
+    padding-left: 1.2em;
+    list-style: disc;
+  }
+
+  .print-report li {
+    margin: 0.15em 0;
+    break-inside: avoid;
+  }
+
+  .print-report-header {
+    padding-bottom: 0.6em;
+    margin-bottom: 1em;
+    border-bottom: 1.5pt solid #232323;
+  }
+
+  .print-report-brand,
+  .print-report-date,
+  .print-report-meta,
+  .print-report h2 {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 8pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5c5a55;
+  }
+
+  .print-report-title {
+    margin: 0.15em 0;
+    font-size: 18pt;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .print-report-section {
+    margin-top: 1.2em;
+  }
+
+  .print-report h2 {
+    margin: 0 0 0.5em;
+    padding-bottom: 0.25em;
+    border-bottom: 0.5pt solid #c9c4b8;
+    color: #232323;
+    break-after: avoid;
+  }
+
+  .print-report-excerpt {
+    white-space: pre-line;
+    color: #5c5a55;
+    font-size: 9.5pt;
+  }
+
+  .print-report-url {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9pt;
+  }
+
+  .print-report-stats {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 0.5em;
+    margin: 0;
+  }
+
+  .print-report-stats > div {
+    padding: 0.5em 0.6em;
+    border: 0.5pt solid #c9c4b8;
+    border-radius: 4pt;
+    break-inside: avoid;
+  }
+
+  .print-report-stats dt {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    color: #5c5a55;
+  }
+
+  .print-report-stats dd {
+    margin: 0.1em 0 0;
+    font-size: 15pt;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .print-report-item {
+    padding: 0.5em 0 0.5em 0.7em;
+    margin-bottom: 0.5em;
+    border-left: 2pt solid #c9c4b8;
+    break-inside: avoid;
+  }
+
+  .print-report-item[data-status='match'] {
+    border-left-color: #10b981;
+  }
+
+  .print-report-item[data-status='missing'] {
+    border-left-color: #f43f5e;
+  }
+
+  .print-report-item[data-status='unclear'] {
+    border-left-color: #f59e0b;
+  }
+
+  .print-report-strong {
+    font-weight: 600;
+  }
+
+  .print-report-muted {
+    color: #5c5a55;
+  }
+
+  .print-report-advice {
+    font-style: italic;
+  }
+}
