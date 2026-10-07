@@ -72,6 +72,50 @@ export type ComparisonHistoryItem = {
   missing: number
   unclear: number
   created_at: string | null
+  /** Version précédente quand l'analyse est une réanalyse de la même offre */
+  parent_comparison_id: string | null
+  /** Fil de versions (listing uniquement) : analyse initiale, rang de cette version, nombre de versions */
+  thread_id?: string
+  version?: number
+  thread_size?: number
+}
+
+export type ComparisonStatus = 'match' | 'missing' | 'unclear'
+
+export type ComparisonDiffSide = {
+  id: string
+  match_percentage: number
+  matches: number
+  missing: number
+  unclear: number
+  total_items: number
+  created_at: string | null
+}
+
+export type ComparisonDiffChange = {
+  category: string
+  offerText: string
+  before: ComparisonStatus
+  after: ComparisonStatus
+  cvText?: string | null
+}
+
+export type ComparisonDiff = {
+  before: ComparisonDiffSide
+  after: ComparisonDiffSide
+  score_delta: number
+  same_offer: boolean
+  improved: ComparisonDiffChange[]
+  regressed: ComparisonDiffChange[]
+  unchanged: number
+  added: { category: string; offerText: string; status: ComparisonStatus }[]
+  removed: { category: string; offerText: string; status: ComparisonStatus }[]
+}
+
+/** Évolution d'une analyse (`beforeId`) vers sa réanalyse (`afterId`). */
+export async function getComparisonDiff(beforeId: string, afterId: string) {
+  const { data } = await api.get<ComparisonDiff>(`/comparisons/${beforeId}/diff/${afterId}`)
+  return data
 }
 
 export type ComparisonHistoryDetail = ComparisonHistoryItem & {
@@ -391,9 +435,10 @@ export async function streamCompare(
   onProgress: (progress: number, current: number, total: number) => void,
   onItem: (item: any) => void,
   onSummary: (summary: any) => void,
-  onComplete: () => void,
+  onComplete: (comparisonId?: string) => void,
   onError: (error: string, code?: string) => void,
   offerUrl?: string | null,
+  parentComparisonId?: string | null,
 ) {
   try {
     const token = getAccessToken();
@@ -410,6 +455,7 @@ export async function streamCompare(
         offer_text: offerText,
         cv_text: cvText,
         offer_url: offerUrl || null,
+        parent_comparison_id: parentComparisonId || null,
       }),
     });
 
@@ -450,7 +496,7 @@ export async function streamCompare(
                 onSummary(data.summary);
                 break;
               case "complete":
-                onComplete();
+                onComplete(data.comparison_id);
                 break;
               case "error":
                 onError(data.message, data.code);

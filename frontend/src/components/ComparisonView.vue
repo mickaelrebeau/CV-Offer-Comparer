@@ -1,11 +1,30 @@
 <template>
   <div class="space-y-10">
+    <!-- Réanalyse : offre conservée, seul le CV change -->
+    <div
+      v-if="compareStore.rescoreParent"
+      class="panel flex flex-col gap-3 border-ink/30 p-5 sm:flex-row sm:items-center sm:justify-between"
+      role="status"
+    >
+      <div>
+        <p class="font-mono text-micro uppercase text-ink-soft">{{ t('comparison.rescore.label') }}</p>
+        <p class="mt-1 text-sm text-ink">
+          {{ t('comparison.rescore.text', { score: formatPercent(compareStore.rescoreParent.matchPercentage) }) }}
+        </p>
+      </div>
+      <Button size="sm" variant="outline" class="shrink-0" @click="compareStore.cancelRescore">
+        {{ t('common.cancel') }}
+      </Button>
+    </div>
+
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <!-- Offre -->
-      <OfferInput module="compare" textarea-id="compare-offer" :placeholder="t('comparison.offerPlaceholder')" />
+      <!-- Offre (verrouillée pendant une réanalyse) -->
+      <fieldset :disabled="Boolean(compareStore.rescoreParent)" class="min-w-0" :class="{ 'opacity-60': compareStore.rescoreParent }">
+        <OfferInput module="compare" textarea-id="compare-offer" :placeholder="t('comparison.offerPlaceholder')" />
+      </fieldset>
 
       <!-- CV -->
-      <div class="panel overflow-hidden">
+      <div id="compare-cv" class="panel overflow-hidden scroll-mt-24">
         <div class="panel-header justify-between">
           <span id="compare-cv-label">{{ t('cvInput.cvHeader') }}</span>
           <div class="flex gap-1" role="group" :aria-label="t('cvInput.cvFormat')">
@@ -74,8 +93,9 @@
         @click="compareStore.compareCVWithOfferStream"
       >
         <Loader2 v-if="compareStore.loading" class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+        <RefreshCw v-else-if="compareStore.rescoreParent" class="mr-2 h-4 w-4" aria-hidden="true" />
         <ArrowRightLeft v-else class="mr-2 h-4 w-4" aria-hidden="true" />
-        {{ t('comparison.run') }}
+        {{ t(compareStore.rescoreParent ? 'comparison.rescore.run' : 'comparison.run') }}
       </Button>
     </div>
 
@@ -104,6 +124,15 @@
             type="comparison"
             :file-title="reportFileTitle(t('report.comparison.title'), compareStore.reportMeta.date)"
           />
+          <Button
+            v-if="compareStore.currentComparisonId && !compareStore.rescoreParent"
+            size="sm"
+            variant="outline"
+            @click="startRescore"
+          >
+            <RefreshCw class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ t('comparison.rescore.action') }}
+          </Button>
           <Button size="sm" @click="push('/interview-simulator')">
             <MessageSquare class="h-3.5 w-3.5" aria-hidden="true" />
             {{ t('comparison.next.interview') }}
@@ -114,6 +143,8 @@
           </Button>
         </div>
       </div>
+
+      <ComparisonDiffPanel v-if="compareStore.diff && !compareStore.loading" :diff="compareStore.diff" />
 
       <div class="panel-dark">
         <div class="panel-dark-inner">
@@ -174,7 +205,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowRightLeft, Loader2, MessageSquare, PenLine } from 'lucide-vue-next'
+import { ArrowRightLeft, Loader2, MessageSquare, PenLine, RefreshCw } from 'lucide-vue-next'
 import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
 import { useApplicationContextStore } from '@/stores/applicationContext'
@@ -186,6 +217,7 @@ import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
 import ComparisonReport from '@/components/report/ComparisonReport.vue'
 import ExportPdfButton from '@/components/report/ExportPdfButton.vue'
 import { reportFileTitle } from '@/lib/report'
+import ComparisonDiffPanel from './ComparisonDiffPanel.vue'
 
 const { t } = useI18n()
 const { formatPercent, push } = useLocale()
@@ -203,6 +235,12 @@ const summaryStats = computed(() => {
     { label: t('comparison.stats.score'), value: formatPercent(s.matchPercentage), color: 'text-ink' },
   ]
 })
+
+// Réanalyse : l'offre est conservée, l'utilisateur choisit ou importe son CV mis à jour
+const startRescore = () => {
+  compareStore.startRescore()
+  document.getElementById('compare-cv')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 
 const handleCVInput = (event: Event) => {
   context.setCv((event.target as HTMLTextAreaElement).value, { from: 'compare' })

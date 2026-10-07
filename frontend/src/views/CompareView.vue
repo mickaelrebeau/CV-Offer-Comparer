@@ -46,12 +46,17 @@ const historyLoading = ref(false)
 const pendingHistoryId = ref<string | null>(null)
 const historyError = ref('')
 
+// Réanalyse demandée depuis l'historique (/compare?history=…&rescore=1)
+const rescoreRequested = ref(false)
+
 // Deep link /compare?history=… : l'id est gardé tant que le chargement échoue (hors ligne)
 async function loadHistory(historyId: string) {
   historyLoading.value = true
   historyError.value = ''
   try {
     await compareStore.loadFromHistory(historyId)
+    if (rescoreRequested.value) compareStore.startRescore()
+    rescoreRequested.value = false
     pendingHistoryId.value = null
     replace({ path: '/compare', query: {} })
   } catch {
@@ -67,6 +72,7 @@ async function loadHistory(historyId: string) {
 onMounted(() => {
   context.trackReuse('compare')
   const historyId = typeof route.query.history === 'string' ? route.query.history : null
+  rescoreRequested.value = route.query.rescore === '1'
   if (historyId) loadHistory(historyId)
 })
 

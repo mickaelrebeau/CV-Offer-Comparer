@@ -13,6 +13,7 @@ from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
 from app.services.job_offers.service import safe_offer_url
 from app.models.user import User
+from app.routers.comparisons import owned_comparison
 from app.services.auth_service import AuthService, require_verified_user
 from app.services.comparison_service import stream_comparison
 from app.services.llm_credentials_service import ai_for_user
@@ -64,23 +65,32 @@ async def compare_cv_offer_stream(
     locale: str = Depends(request_locale),
 ):
     """Compare CV ↔ offre via un seul appel LLM (provider BYOK actif, sinon Gemini plateforme)."""
+    offer_text, offer_url = request.offer_text, safe_offer_url(request.offer_url)
+    parent_id = None
+    if request.parent_comparison_id is not None:
+        # Réanalyse : même offre que la version précédente, quel que soit le texte envoyé
+        parent = owned_comparison(db, user, request.parent_comparison_id)
+        offer_text, offer_url, parent_id = parent.offer_text, parent.offer_url, parent.id
+
     ai = ai_for_user(db, user)
 
-    def persist(items, summary) -> None:
+    def persist(items, summary) -> str:
         record = ComparisonRecord.from_analysis(
             user_id=user.id,
-            offer_text=request.offer_text,
+            offer_text=offer_text,
             cv_text=request.cv_text,
-            offer_url=safe_offer_url(request.offer_url),
+            offer_url=offer_url,
+            parent_comparison_id=parent_id,
             items=items,
             summary=summary,
         )
         db.add(record)
         db.commit()
+        return str(record.id)
 
     return StreamingResponse(
         stream_comparison(
-            request.offer_text,
+            offer_text,
             request.cv_text,
             locale=locale,
             on_result=persist,

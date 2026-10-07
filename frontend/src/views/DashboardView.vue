@@ -67,47 +67,97 @@
       />
 
       <ul v-else class="space-y-3">
-        <li
-          v-for="item in history"
-          :key="item.id"
-          class="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div class="min-w-0 flex-1">
-            <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
-              <span>{{ formatDate(item.created_at) }}</span>
-              <span>{{ t('dashboard.comparisons.match', { value: formatPercent(item.match_percentage) }) }}</span>
-              <span>{{ t('dashboard.comparisons.criteria', { matches: item.matches, total: item.total_items }) }}</span>
-              <a
-                v-if="safeHttpUrl(item.offer_url)"
-                :href="safeHttpUrl(item.offer_url) || undefined"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="normal-case text-ink underline underline-offset-4"
-                :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(item.offer_url) })"
-              >{{ offerDomain(item.offer_url) }}</a>
+        <li v-for="thread in threads" :key="thread.id" class="panel p-5">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0 flex-1">
+              <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
+                <span>{{ formatDate(thread.head.created_at) }}</span>
+                <span>{{ t('dashboard.comparisons.match', { value: formatPercent(thread.head.match_percentage) }) }}</span>
+                <span>{{ t('dashboard.comparisons.criteria', { matches: thread.head.matches, total: thread.head.total_items }) }}</span>
+                <span v-if="thread.size > 1" class="rounded bg-ink/5 px-1.5 py-0.5 text-ink">
+                  {{ t('dashboard.comparisons.version', { version: thread.head.version, total: thread.size }) }}
+                </span>
+                <a
+                  v-if="safeHttpUrl(thread.head.offer_url)"
+                  :href="safeHttpUrl(thread.head.offer_url) || undefined"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="normal-case text-ink underline underline-offset-4"
+                  :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(thread.head.offer_url) })"
+                >{{ offerDomain(thread.head.offer_url) }}</a>
+              </div>
+              <p class="truncate text-sm text-ink">{{ thread.head.offer_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+              <p class="mt-1 truncate text-sm text-ink-soft">{{ thread.head.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
             </div>
-            <p class="truncate text-sm text-ink">{{ item.offer_excerpt || t('dashboard.noOfferExcerpt') }}</p>
-            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
+            <div class="flex shrink-0 flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn-secondary h-9 px-4 text-micro"
+                :aria-label="t('dashboard.comparisons.view', { date: formatDate(thread.head.created_at) })"
+                @click="openHistory(thread.head.id)"
+              >
+                {{ t('dashboard.view') }}
+              </button>
+              <button
+                type="button"
+                class="btn-secondary h-9 px-4 text-micro"
+                :aria-label="t('dashboard.comparisons.rescoreAria', { date: formatDate(thread.head.created_at) })"
+                @click="rescoreHistory(thread.head.id)"
+              >
+                {{ t('dashboard.comparisons.rescore') }}
+              </button>
+              <button
+                type="button"
+                class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
+                :disabled="deletingId === thread.head.id"
+                :aria-label="t('dashboard.comparisons.delete', { date: formatDate(thread.head.created_at) })"
+                @click="removeHistory(thread.head.id)"
+              >
+                {{ t('dashboard.delete') }}
+              </button>
+            </div>
           </div>
-          <div class="flex shrink-0 gap-2">
-            <button
-              type="button"
-              class="btn-secondary h-9 px-4 text-micro"
-              :aria-label="t('dashboard.comparisons.view', { date: formatDate(item.created_at) })"
-              @click="openHistory(item.id)"
-            >
-              {{ t('dashboard.view') }}
-            </button>
-            <button
-              type="button"
-              class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
-              :disabled="deletingId === item.id"
-              :aria-label="t('dashboard.comparisons.delete', { date: formatDate(item.created_at) })"
-              @click="removeHistory(item.id)"
-            >
-              {{ t('dashboard.delete') }}
-            </button>
-          </div>
+
+          <!-- Versions précédentes de la même offre (fil de réanalyses) -->
+          <details v-if="thread.previous.length" class="mt-4 border-t border-ink/10 pt-3">
+            <summary class="cursor-pointer font-mono text-micro uppercase text-ink-soft hover:text-ink">
+              {{ t('dashboard.comparisons.previousVersions', { count: thread.previous.length }) }}
+              · {{ formatPercent(thread.previous[thread.previous.length - 1].match_percentage) }}
+              → {{ formatPercent(thread.head.match_percentage) }}
+            </summary>
+            <ul class="mt-3 space-y-2">
+              <li
+                v-for="version in thread.previous"
+                :key="version.id"
+                class="flex flex-wrap items-center justify-between gap-2 text-sm"
+              >
+                <span class="font-mono text-micro uppercase text-ink-soft">
+                  {{ t('dashboard.comparisons.versionShort', { version: version.version }) }}
+                  · {{ formatDate(version.created_at) }}
+                  · {{ t('dashboard.comparisons.match', { value: formatPercent(version.match_percentage) }) }}
+                </span>
+                <span class="flex gap-2">
+                  <button
+                    type="button"
+                    class="btn-secondary h-8 px-3 text-micro"
+                    :aria-label="t('dashboard.comparisons.view', { date: formatDate(version.created_at) })"
+                    @click="openHistory(version.id)"
+                  >
+                    {{ t('dashboard.view') }}
+                  </button>
+                  <button
+                    type="button"
+                    class="h-8 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
+                    :disabled="deletingId === version.id"
+                    :aria-label="t('dashboard.comparisons.delete', { date: formatDate(version.created_at) })"
+                    @click="removeHistory(version.id)"
+                  >
+                    {{ t('dashboard.delete') }}
+                  </button>
+                </span>
+              </li>
+            </ul>
+          </details>
         </li>
       </ul>
     </section>
@@ -280,6 +330,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import { useLocale } from '@/i18n/useLocale'
+import { groupThreads } from '@/lib/comparisonThreads'
 import { offerDomain, safeHttpUrl } from '@/lib/jobOffer'
 import { isOnline } from '@/lib/pwa'
 import {
@@ -300,6 +351,8 @@ const history = ref<ComparisonHistoryItem[]>([])
 const historyLoading = ref(true)
 const historyError = ref('')
 const deletingId = ref<string | null>(null)
+// Réanalyses d'une même offre regroupées (fil de versions)
+const threads = computed(() => groupThreads(history.value))
 
 const interviewHistory = ref<InterviewHistoryItem[]>([])
 const interviewLoading = ref(true)
@@ -381,6 +434,10 @@ function openHistory(id: string) {
   push({ path: '/compare', query: { history: id } })
 }
 
+function rescoreHistory(id: string) {
+  push({ path: '/compare', query: { history: id, rescore: '1' } })
+}
+
 function openInterviewHistory(id: string) {
   push({ path: '/interview-results', query: { history: id } })
 }
@@ -393,7 +450,10 @@ async function removeHistory(id: string) {
   deletingId.value = id
   try {
     await deleteComparison(id)
+    const removed = history.value.find((item) => item.id === id)
     history.value = history.value.filter((item) => item.id !== id)
+    // Les versions suivantes sont rattachées à la précédente : numéros de version à jour
+    if ((removed?.thread_size ?? 1) > 1) await loadHistory()
   } catch (err: any) {
     historyError.value = err.response?.data?.detail || t('dashboard.deleteError')
   } finally {
