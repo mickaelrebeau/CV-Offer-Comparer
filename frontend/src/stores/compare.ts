@@ -12,6 +12,7 @@ import { useApplicationContextStore } from "./applicationContext";
 import posthog from "posthog-js";
 import { STORAGE_KEYS, readStorage, removeStorage } from "@/lib/storageKeys";
 import { t } from "@/i18n";
+import type { ReportMeta } from "@/lib/report";
 
 
 export interface ComparisonItem {
@@ -47,6 +48,8 @@ export const useCompareStore = defineStore("compare", () => {
   const context = useApplicationContextStore();
   const historyContext = ref<HistoryContext | null>(null);
   const comparisonResult = ref<ComparisonResult | null>(null);
+  // Offre et date du résultat affiché, pour l'export PDF
+  const reportMeta = ref<ReportMeta | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
   // Code API de la dernière erreur (quota plateforme, clé personnelle…)
@@ -111,6 +114,7 @@ export const useCompareStore = defineStore("compare", () => {
       });
 
       comparisonResult.value = response.data;
+      reportMeta.value = { offerText: offer, offerUrl: context.offerUrl, date: new Date().toISOString() };
 
       const { isAuthenticated } = useAuthStore();
       if (!isAuthenticated) {
@@ -138,6 +142,7 @@ export const useCompareStore = defineStore("compare", () => {
     error.value = null;
     errorCode.value = null;
     comparisonResult.value = null;
+    reportMeta.value = { offerText: offer, offerUrl: context.offerUrl, date: new Date().toISOString() };
     historyContext.value = null;
     progress.value = 0;
     status.value = t("comparison.statusStart");
@@ -210,6 +215,7 @@ export const useCompareStore = defineStore("compare", () => {
 
   function clearResult() {
     comparisonResult.value = null;
+    reportMeta.value = null;
     historyContext.value = null;
     error.value = null;
     errorCode.value = null;
@@ -253,6 +259,11 @@ export const useCompareStore = defineStore("compare", () => {
           ),
         },
       };
+      reportMeta.value = {
+        offerText: fromHistory.offerText,
+        offerUrl: fromHistory.offerUrl,
+        date: detail.created_at || new Date().toISOString(),
+      };
       status.value = t("comparison.historyLoaded");
     } catch (err: any) {
       error.value =
@@ -266,6 +277,7 @@ export const useCompareStore = defineStore("compare", () => {
   return {
     historyContext,
     comparisonResult,
+    reportMeta,
     loading,
     error,
     errorCode,

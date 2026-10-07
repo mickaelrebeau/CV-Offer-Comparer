@@ -370,6 +370,8 @@ const finishInterview = async () => {
           duration: interviewTimer.value,
           cv_text: sessionCvText.value,
           job_text: sessionJobText.value,
+          offer_url: sessionOfferUrl.value,
+          created_at: new Date().toISOString(),
         }))
         posthog.capture('interview_completed', {
           answered_question_count: answers.value.length,
