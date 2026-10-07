@@ -143,6 +143,26 @@ MESSAGES: dict[str, dict[str, str]] = {
     },
     "interview.invalid_payload": {"fr": "Format JSON invalide", "en": "Invalid JSON format"},
     # Lettre de motivation
+    "cv_optimizer.start": {"fr": "Lecture du CV et de l'offre…", "en": "Reading the resume and the job offer…"},
+    "cv_optimizer.gemini": {
+        "fr": "Recherche des reformulations utiles (sans rien inventer)…",
+        "en": "Looking for useful rewrites (without inventing anything)…",
+    },
+    "cv_optimizer.streaming": {
+        "fr": "{total} proposition(s) de reformulation",
+        "en": "{total} rewrite suggestion(s)",
+    },
+    "cv_optimizer.failed": {
+        "fr": "L'optimisation du CV a échoué. Réessayez dans un instant.",
+        "en": "The resume optimization failed. Please try again in a moment.",
+    },
+    "cv_optimizer.no_suggestions": {
+        "fr": "Aucune reformulation fiable n'a pu être proposée à partir de votre CV pour cette offre. "
+        "Complétez votre CV ou relancez l'optimisation.",
+        "en": "No reliable rewrite could be suggested from your resume for this job offer. "
+        "Expand your resume or run the optimization again.",
+    },
+    "history.cv_optimization_not_found": {"fr": "Optimisation introuvable", "en": "Optimization not found"},
     "cover_letter.start": {"fr": "Lecture du CV et de l'offre…", "en": "Reading the resume and the job offer…"},
     "cover_letter.gemini": {
         "fr": "Rédaction de la lettre par Gemini…",

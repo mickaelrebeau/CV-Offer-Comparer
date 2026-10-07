@@ -4,6 +4,7 @@
 from app.models.auth_token import AuthToken
 from app.models.comparison_record import ComparisonRecord
 from app.models.cover_letter_record import CoverLetterRecord
+from app.models.cv_optimization_record import CvOptimizationRecord
 from app.models.interview_record import InterviewRecord
 from app.models.llm_credential import UserLLMCredential
 from app.models.saved_cv import SavedCV
@@ -13,6 +14,7 @@ __all__ = [
     "AuthToken",
     "ComparisonRecord",
     "CoverLetterRecord",
+    "CvOptimizationRecord",
     "InterviewRecord",
     "SavedCV",
     "User",

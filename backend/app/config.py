@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     DAILY_QUOTA_INTERVIEW_GENERATE: int = 30
     DAILY_QUOTA_INTERVIEW_ANALYZE: int = 30
     DAILY_QUOTA_COVER_LETTER: int = 30
+    DAILY_QUOTA_CV_OPTIMIZER: int = 20
     # Enregistrements de clé LLM (chaque test de clé appelle le provider)
     DAILY_QUOTA_LLM_CREDENTIALS: int = 50
     DAILY_QUOTA_UPLOAD: int = 100

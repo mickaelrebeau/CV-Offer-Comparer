@@ -57,6 +57,12 @@ const baseRoutes: BaseRoute[] = [
     meta: { requiresAuth: true, seo: 'coverLetter' },
   },
   {
+    path: '/cv-optimizer',
+    name: 'cv-optimizer',
+    component: () => import('@/views/CvOptimizerView.vue'),
+    meta: { requiresAuth: true, seo: 'cvOptimizer' },
+  },
+  {
     // Bookmarklet « Envoyer vers Talento » : installation et réception des offres (Indeed, LinkedIn…)
     path: '/import',
     name: 'import-offer',

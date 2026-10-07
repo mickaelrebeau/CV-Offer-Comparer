@@ -357,6 +357,50 @@ CV:
             raise RuntimeError("Lettre Gemini incomplète (accroche, corps ou conclusion manquant)")
         return letter
 
+    def optimize_cv(self, cv_text: str, job_text: str, gaps: list[dict[str, str]]) -> Any:
+        """
+        Une seule requête LLM : reformulations ciblées d'extraits du CV pour l'offre.
+        Retourne le JSON brut { summary, suggestions: [...] } ; la validation (extraits présents
+        dans le CV, aucun chiffre inventé) est faite par `cv_optimizer_service.validate_optimization`.
+        """
+        gap_lines = "\n".join(
+            f"- [{gap.get('status')}] {gap.get('category')} : {gap.get('offerText')}" for gap in gaps[:30]
+        ) or "- (aucune analyse préalable : repère toi-même les exigences de l'offre mal couvertes par le CV)"
+
+        prompt = f"""Tu es un expert en recrutement et en CV optimisés pour les ATS.
+Propose des reformulations ciblées d'extraits du CV pour mieux répondre à l'offre.
+
+RÈGLES ABSOLUES
+- N'invente JAMAIS d'expérience, d'employeur, de diplôme, de certification, de compétence, d'outil ou de chiffre
+  absent du CV. Tu ne fais que reformuler, préciser ou mettre en avant ce que le CV contient déjà.
+- Si une exigence de l'offre n'a aucun appui dans le CV, ne propose rien pour elle.
+- "original" : extrait COPIÉ MOT POUR MOT du CV (une puce, une phrase ou une ligne), sans le modifier.
+- "proposed" : version réécrite de cet extrait, dans la langue du CV, de longueur comparable, texte brut sans Markdown.
+- "requirement" : l'exigence de l'offre ciblée, formulée brièvement.
+- "rationale" : en une phrase, pourquoi la reformulation sert l'offre (mots-clés ATS, impact, précision).
+- "section" : section du CV concernée (ex. Expérience, Compétences, Profil).
+- 3 à 10 propositions, chacune sur un extrait différent, les plus utiles d'abord.
+- "summary" : une phrase sur l'axe général des modifications.
+
+EXIGENCES MANQUANTES OU FLOUES (analyse précédente)
+{gap_lines}
+
+SCHÉMA JSON
+{{
+  "summary": "…",
+  "suggestions": [
+    {{"section": "Expérience", "original": "…", "proposed": "…", "requirement": "…", "rationale": "…"}}
+  ]
+}}
+
+OFFRE:
+\"\"\"{self._clip(job_text, 10000)}\"\"\"
+
+CV (respecte ses retours à la ligne pour copier les extraits):
+\"\"\"{(cv_text or "").strip()[:12000]}\"\"\"
+"""
+        return self._generate_json(prompt, temperature=0.3)
+
     @staticmethod
     def _fallback_questions(num_questions: int) -> list[dict[str, str]]:
         base = [

@@ -9,7 +9,7 @@ import { STORAGE_KEYS } from '@/lib/storageKeys'
  * il survit au rechargement et à la navigation PWA, pas à la fermeture de l'onglet.
  */
 
-export type ContextModule = 'compare' | 'interview' | 'coverLetter'
+export type ContextModule = 'compare' | 'interview' | 'coverLetter' | 'cvOptimizer'
 
 export interface ApplicationContext {
   cvText: string
@@ -29,7 +29,7 @@ interface StoredContext extends ApplicationContext {
   version: typeof CONTEXT_VERSION
 }
 
-const MODULES: readonly ContextModule[] = ['compare', 'interview', 'coverLetter']
+const MODULES: readonly ContextModule[] = ['compare', 'interview', 'coverLetter', 'cvOptimizer']
 
 const text = (value: unknown) => (typeof value === 'string' ? value : '')
 const optionalText = (value: unknown) => (typeof value === 'string' && value.trim() ? value : null)

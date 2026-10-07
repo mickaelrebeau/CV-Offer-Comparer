@@ -6,7 +6,7 @@
       :description="t('dashboard.description')"
     />
 
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
       <article
         v-for="module in modules"
         :key="module.path"
@@ -320,6 +320,83 @@
         </li>
       </ul>
     </section>
+    <section class="mt-12">
+      <div class="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p class="font-mono text-micro uppercase text-ink-soft">{{ t('dashboard.history') }}</p>
+          <h2 class="mt-1 font-medium text-title">{{ t('dashboard.optimizations.title') }}</h2>
+        </div>
+        <button
+          v-if="optimizationHistory.length"
+          type="button"
+          class="btn-secondary h-9 px-4 text-micro"
+          :disabled="optimizationLoading"
+          @click="loadOptimizationHistory"
+        >
+          {{ t('common.refresh') }}
+        </button>
+      </div>
+
+      <AppStatus v-if="optimizationLoading" kind="loading" :message="t('dashboard.optimizations.loading')" />
+      <AppStatus
+        v-else-if="optimizationError"
+        kind="error"
+        :message="optimizationError"
+        :action-label="t('common.retry')"
+        @action="loadOptimizationHistory"
+      />
+      <AppStatus
+        v-else-if="!optimizationHistory.length"
+        kind="empty"
+        :message="t('dashboard.optimizations.empty')"
+        :action-label="t('dashboard.optimizations.cta')"
+        @action="push('/cv-optimizer')"
+      />
+
+      <ul v-else class="space-y-3">
+        <li
+          v-for="item in optimizationHistory"
+          :key="item.id"
+          class="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="min-w-0 flex-1">
+            <div class="mb-2 flex flex-wrap items-center gap-3 font-mono text-micro uppercase text-ink-soft">
+              <span>{{ formatDate(item.created_at) }}</span>
+              <span>{{ t('dashboard.optimizations.suggestions', { count: item.suggestion_count }) }}</span>
+              <a
+                v-if="safeHttpUrl(item.offer_url)"
+                :href="safeHttpUrl(item.offer_url) || undefined"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="normal-case text-ink underline underline-offset-4"
+                :aria-label="t('dashboard.offerLinkAria', { domain: offerDomain(item.offer_url) })"
+              >{{ offerDomain(item.offer_url) }}</a>
+            </div>
+            <p class="truncate text-sm text-ink">{{ item.job_excerpt || t('dashboard.noOfferExcerpt') }}</p>
+            <p class="mt-1 truncate text-sm text-ink-soft">{{ item.summary || item.cv_excerpt || t('dashboard.noCvExcerpt') }}</p>
+          </div>
+          <div class="flex shrink-0 gap-2">
+            <button
+              type="button"
+              class="btn-secondary h-9 px-4 text-micro"
+              :aria-label="t('dashboard.optimizations.view', { date: formatDate(item.created_at) })"
+              @click="push({ path: '/cv-optimizer', query: { history: item.id } })"
+            >
+              {{ t('dashboard.view') }}
+            </button>
+            <button
+              type="button"
+              class="h-9 rounded-lg px-3 font-mono text-micro uppercase text-rose-700 transition-colors hover:bg-rose-500/10"
+              :disabled="deletingOptimizationId === item.id"
+              :aria-label="t('dashboard.optimizations.delete', { date: formatDate(item.created_at) })"
+              @click="removeOptimizationHistory(item.id)"
+            >
+              {{ t('dashboard.delete') }}
+            </button>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
@@ -336,12 +413,15 @@ import { isOnline } from '@/lib/pwa'
 import {
   deleteComparison,
   deleteCoverLetter,
+  deleteCvOptimization,
   deleteInterview,
   listComparisons,
   listCoverLetters,
+  listCvOptimizations,
   listInterviews,
   type ComparisonHistoryItem,
   type CoverLetterHistoryItem,
+  type CvOptimizationHistoryItem,
   type InterviewHistoryItem,
 } from '@/lib/api'
 
@@ -364,10 +444,16 @@ const letterLoading = ref(true)
 const letterError = ref('')
 const deletingLetterId = ref<string | null>(null)
 
+const optimizationHistory = ref<CvOptimizationHistoryItem[]>([])
+const optimizationLoading = ref(true)
+const optimizationError = ref('')
+const deletingOptimizationId = ref<string | null>(null)
+
 const MODULE_PATHS = {
   compare: '/compare',
   interview: '/interview-simulator',
   coverLetter: '/cover-letter',
+  cvOptimizer: '/cv-optimizer',
 } as const
 
 const modules = computed(() =>
@@ -417,6 +503,19 @@ async function loadLetterHistory() {
     letterError.value = err.response?.data?.detail || t('dashboard.coverLetters.loadError')
   } finally {
     letterLoading.value = false
+  }
+}
+
+async function loadOptimizationHistory() {
+  optimizationLoading.value = true
+  optimizationError.value = ''
+  try {
+    const data = await listCvOptimizations(10)
+    optimizationHistory.value = data.items
+  } catch (err: any) {
+    optimizationError.value = err.response?.data?.detail || t('dashboard.optimizations.loadError')
+  } finally {
+    optimizationLoading.value = false
   }
 }
 
@@ -485,10 +584,23 @@ async function removeLetterHistory(id: string) {
   }
 }
 
+async function removeOptimizationHistory(id: string) {
+  deletingOptimizationId.value = id
+  try {
+    await deleteCvOptimization(id)
+    optimizationHistory.value = optimizationHistory.value.filter((item) => item.id !== id)
+  } catch (err: any) {
+    optimizationError.value = err.response?.data?.detail || t('dashboard.deleteError')
+  } finally {
+    deletingOptimizationId.value = null
+  }
+}
+
 onMounted(() => {
   loadHistory()
   loadInterviewHistory()
   loadLetterHistory()
+  loadOptimizationHistory()
 })
 
 // Retour du réseau : relancer les listes en erreur
@@ -497,5 +609,6 @@ watch(isOnline, (online) => {
   if (historyError.value) loadHistory()
   if (interviewError.value) loadInterviewHistory()
   if (letterError.value) loadLetterHistory()
+  if (optimizationError.value) loadOptimizationHistory()
 })
 </script>

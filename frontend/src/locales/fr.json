@@ -42,7 +42,8 @@
     "terms": "CGV",
     "privacy": "Confidentialité",
     "contact": "Contact",
-    "github": "GitHub"
+    "github": "GitHub",
+    "cvOptimizer": "Optimiseur"
   },
   "session": {
     "loading": "Chargement de la session"
@@ -115,6 +116,10 @@
     "importOffer": {
       "title": "Envoyer vers Talento",
       "description": "Importez une offre d'emploi depuis Indeed, LinkedIn ou Welcome to the Jungle en un clic."
+    },
+    "cvOptimizer": {
+      "title": "Optimiseur de CV",
+      "description": "Reformulez les extraits de votre CV pour une offre d'emploi, sans rien inventer : vous acceptez ou rejetez chaque proposition."
     }
   },
   "cookies": {
@@ -411,7 +416,8 @@
       "label": "Étape suivante",
       "text": "Votre CV et cette offre sont déjà chargés dans les autres modules.",
       "interview": "Préparer l'entretien",
-      "coverLetter": "Générer la lettre"
+      "coverLetter": "Générer la lettre",
+      "optimize": "Optimiser mon CV pour cette offre"
     },
     "rescore": {
       "label": "Réanalyse de la même offre",
@@ -496,6 +502,17 @@
           "Copie et export .txt / .md"
         ],
         "cta": "Rédiger une lettre"
+      },
+      "cvOptimizer": {
+        "id": "Module 04",
+        "title": "Optimiseur de CV",
+        "description": "Reformulez les extraits de votre CV pour l'offre visée, proposition par proposition, sans rien inventer.",
+        "features": [
+          "Exigences manquantes ou floues ciblées",
+          "Accepter, rejeter ou modifier",
+          "Export .txt / .md et réanalyse"
+        ],
+        "cta": "Optimiser mon CV"
       }
     },
     "history": "Historique",
@@ -540,7 +557,17 @@
     "noOfferExcerpt": "Offre sans extrait",
     "noCvExcerpt": "CV sans extrait",
     "deleteError": "Suppression impossible",
-    "offerLinkAria": "Ouvrir l'annonce sur {domain}"
+    "offerLinkAria": "Ouvrir l'annonce sur {domain}",
+    "optimizations": {
+      "title": "Optimisations de CV récentes",
+      "loading": "Chargement des optimisations…",
+      "empty": "Aucune optimisation enregistrée pour le moment. Optimisez votre CV pour une offre — les propositions apparaîtront ici.",
+      "cta": "Optimiser mon CV",
+      "suggestions": "{count} proposition(s)",
+      "view": "Voir l'optimisation du {date}",
+      "delete": "Supprimer l'optimisation du {date}",
+      "loadError": "Impossible de charger les optimisations"
+    }
   },
   "interview": {
     "label": "Simulateur",
@@ -675,6 +702,69 @@
       "missingInput": "Veuillez renseigner l'offre d'emploi et votre CV",
       "loadHistory": "Impossible de charger cette lettre",
       "copy": "Copie impossible : sélectionnez le texte manuellement"
+    }
+  },
+  "cvOptimizer": {
+    "label": "Optimiseur de CV",
+    "title": "Un CV qui parle le langage de l'offre",
+    "description": "Des reformulations ciblées de vos puces et sections, à accepter, rejeter ou modifier une par une avant d'exporter votre CV.",
+    "historyLoading": "Chargement de l'optimisation…",
+    "guardrail": {
+      "title": "L'IA reformule, elle n'invente rien",
+      "text": "Chaque proposition réécrit un extrait qui figure déjà dans votre CV. Aucune expérience, aucun diplôme, aucune compétence ni aucun chiffre absent de votre CV n'est ajouté ; les propositions qui ne respectent pas cette règle sont écartées. Relisez chacune avant de l'accepter."
+    },
+    "fromAnalysis": {
+      "label": "À partir de votre analyse",
+      "text": "Le CV et l'offre de l'analyse sont repris, et les exigences manquantes ou floues sont ciblées en priorité.",
+      "useContext": "Utiliser un autre CV ou une autre offre"
+    },
+    "offerPlaceholder": "Collez l'offre d'emploi ici...",
+    "cvPlaceholder": "Collez le texte de votre CV ici...",
+    "progressAria": "Progression de l'optimisation",
+    "run": "Optimiser mon CV",
+    "rerun": "Relancer l’optimisation",
+    "statusStart": "Préparation de l'optimisation...",
+    "statusDone": "Propositions prêtes",
+    "statusReady": "{count} proposition(s) de reformulation",
+    "historyLoaded": "Optimisation chargée depuis l'historique",
+    "suggestions": {
+      "title": "Propositions de reformulation",
+      "counts": "{accepted} acceptée(s) · {rejected} rejetée(s) · {pending} à traiter",
+      "acceptAll": "Tout accepter",
+      "noSection": "CV",
+      "targets": "cible : {requirement}",
+      "original": "Texte actuel",
+      "proposed": "Proposition"
+    },
+    "status": {
+      "pending": "À traiter",
+      "accepted": "Acceptée",
+      "rejected": "Rejetée"
+    },
+    "actions": {
+      "accept": "Accepter",
+      "edit": "Modifier",
+      "reject": "Rejeter",
+      "undo": "Annuler mon choix",
+      "saveAndAccept": "Accepter cette version"
+    },
+    "result": {
+      "title": "CV optimisé ({count} modification(s))",
+      "downloadAria": "Télécharger le CV optimisé au format .{format}",
+      "save": "Enregistrer comme nouveau CV",
+      "saved": "CV enregistré",
+      "savedLabel": "CV optimisé – {date}",
+      "rescore": "Réanalyser avec ce CV",
+      "limitReached": "Vous avez atteint la limite de {max} CV enregistrés : supprimez-en un depuis votre profil pour enregistrer celui-ci.",
+      "skipped": "{count} proposition(s) acceptée(s) n'ont pas pu être appliquées : leur extrait a déjà été réécrit par une autre proposition.",
+      "reviewHint": "Relisez le CV optimisé avant de l’envoyer : vérifiez chaque formulation.",
+      "filename": "cv-optimise"
+    },
+    "errors": {
+      "generic": "Erreur lors de l'optimisation du CV",
+      "missingInput": "Ajoutez votre CV et l'offre d'emploi pour lancer l'optimisation.",
+      "loadHistory": "Impossible de charger cette optimisation",
+      "save": "Impossible d'enregistrer ce CV"
     }
   },
   "profile": {
@@ -944,6 +1034,7 @@
         "Écarts classés et reformulations",
         "Simulateur d'entretien et retours",
         "Lettre de motivation ciblée",
+        "Optimiseur de CV (sans invention)",
         "Import PDF et extraction automatique",
         "Votre propre clé API (Gemini, OpenAI, Claude…)",
         "Code source ouvert, auto-hébergeable"
@@ -969,7 +1060,7 @@
         {
           "id": "Q.003",
           "question": "Mes documents sont-ils conservés ?",
-          "answer": "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique (analyses, simulations d'entretien, lettres de motivation) peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité."
+          "answer": "Le CV et l'offre sont envoyés à Google Gemini pour l'analyse, puis traités en mémoire côté serveur. Pour les comptes connectés, l'historique (analyses, simulations d'entretien, lettres de motivation, optimisations de CV) peut être enregistré. Seul votre compte (et cet historique) est stocké durablement ; vous pouvez tout supprimer depuis votre profil. Détails : page Confidentialité."
         },
         {
           "id": "Q.007",
@@ -980,6 +1071,11 @@
           "id": "Q.008",
           "question": "Talento rédige-t-il aussi la lettre de motivation ?",
           "answer": "Oui, pour les comptes connectés. Le module lettre de motivation rédige une lettre ciblée (accroche, corps, conclusion) à partir de votre CV et de l'offre, avec le ton, la longueur et la langue de votre choix. Elle s'appuie uniquement sur votre CV : relisez-la avant l'envoi. Copie ou export .txt / .md, et historique dans votre tableau de bord."
+        },
+        {
+          "id": "Q.010",
+          "question": "Talento peut-il réécrire mon CV ?",
+          "answer": "Oui, pour les comptes connectés. L'optimiseur de CV propose des reformulations ciblées de vos puces et sections pour une offre, en priorité sur les exigences manquantes ou floues de votre analyse. Il ne fait que reformuler ce qui figure déjà dans votre CV : aucune expérience, compétence ou chiffre n'est inventé. Vous acceptez, rejetez ou modifiez chaque proposition, puis exportez le CV (.txt / .md), l'enregistrez ou le réanalysez."
         },
         {
           "id": "Q.009",

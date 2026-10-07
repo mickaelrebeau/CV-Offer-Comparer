@@ -199,6 +199,7 @@ const appLinks = [
   { path: '/compare', label: 'nav.compare' },
   { path: '/interview-simulator', label: 'nav.simulator' },
   { path: '/cover-letter', label: 'nav.coverLetter' },
+  { path: '/cv-optimizer', label: 'nav.cvOptimizer' },
 ]
 
 const handleSignOut = async () => {
