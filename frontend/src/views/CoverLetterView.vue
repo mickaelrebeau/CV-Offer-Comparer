@@ -50,7 +50,6 @@
               v-if="cvTab === 'upload'"
               :model-value="context.cvText"
               :file-name="context.cvFileName"
-              allow-txt
               @update:model-value="(value) => context.setCv(value, { from: 'coverLetter' })"
               @update:file-name="(name) => (context.cvFileName = name)"
             />

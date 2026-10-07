@@ -10,7 +10,7 @@
     "refresh": "Refresh",
     "retry": "Try again",
     "cancel": "Cancel",
-    "pdf": "PDF",
+    "file": "File",
     "text": "Text"
   },
   "language": {
@@ -216,10 +216,10 @@
     }
   },
   "upload": {
-    "dropAria": "Upload your resume as a PDF (10 MB max)",
-    "dropTitle": "Drop your resume (PDF) here",
+    "dropAria": "Upload your resume as a PDF, DOCX or TXT file (10 MB max)",
+    "dropTitle": "Drop your resume (PDF, DOCX or TXT) here",
     "dropHint": "or click · 10 MB max",
-    "extracting": "Extracting the PDF...",
+    "extracting": "Extracting the resume...",
     "extractingHint": "Analysis in progress",
     "success": "Resume extracted successfully!",
     "fileInfo": "{name} ({count} characters)",
@@ -228,19 +228,15 @@
     "preview": "Extracted preview",
     "show": "Show",
     "hide": "Hide",
-    "onlyPdf": "Only PDF files are accepted",
+    "unsupportedFormat": "Accepted formats: PDF, DOCX or TXT",
     "tooLarge": "The file exceeds the 10 MB limit",
-    "extractError": "Error while extracting the PDF",
+    "extractError": "Error while extracting the resume",
     "uploadError": "Upload error",
     "live": {
-      "extracting": "Extracting the PDF",
+      "extracting": "Extracting the resume",
       "error": "Extraction error: {message}",
       "success": "Resume extracted successfully: {name}"
-    },
-    "dropAriaTxt": "Upload your resume as a PDF or TXT file (10 MB max)",
-    "dropTitleTxt": "Drop your resume (PDF or TXT) here",
-    "onlyPdfTxt": "Only PDF and TXT files are accepted",
-    "emptyTxt": "The text file is empty"
+    }
   },
   "cvInput": {
     "offerHeader": "01 · Job offer",

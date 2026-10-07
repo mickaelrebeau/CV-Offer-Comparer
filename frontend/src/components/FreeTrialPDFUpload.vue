@@ -21,7 +21,7 @@
       <input
         ref="fileInput"
         type="file"
-        accept=".pdf"
+        :accept="CV_ACCEPT"
         @change="handleFileSelect"
         class="hidden"
         tabindex="-1"
@@ -100,6 +100,7 @@ import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Upload, CheckCircle, XCircle, Loader2 } from 'lucide-vue-next'
 import { uploadFreeCV } from '@/lib/api'
+import { CV_ACCEPT, MAX_CV_FILE_SIZE, cvExtension } from '@/lib/cvFile'
 import posthog from 'posthog-js'
 
 interface Props {
@@ -164,12 +165,13 @@ const handleFileSelect = (e: Event) => {
 }
 
 const handleFile = async (file: File) => {
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
-    uploadError.value = t('upload.onlyPdf')
+  const extension = cvExtension(file.name)
+  if (!extension) {
+    uploadError.value = t('upload.unsupportedFormat')
     return
   }
 
-  if (file.size > 10 * 1024 * 1024) {
+  if (file.size > MAX_CV_FILE_SIZE) {
     uploadError.value = t('upload.tooLarge')
     return
   }
@@ -184,7 +186,7 @@ const handleFile = async (file: File) => {
     if (result.success) {
       extractedText.value = result.text
       emit('update:modelValue', result.text)
-      posthog.capture('free_trial_cv_uploaded', { upload_source: 'pdf' })
+      posthog.capture('free_trial_cv_uploaded', { upload_source: extension })
       showPreview.value = true
     } else {
       uploadError.value = result.message

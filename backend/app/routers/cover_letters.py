@@ -16,7 +16,7 @@ from app.services.cover_letter_service import LANGUAGES, LENGTHS, TONES, stream_
 from app.services.job_offers.service import safe_offer_url
 from app.services.llm_credentials_service import ai_for_user
 from app.services.rate_limit_service import rate_limit
-from app.services.upload_service import PDFExtractionError, UploadService, read_upload
+from app.services.upload_service import UploadService
 
 router = APIRouter(tags=["cover-letters"])
 upload_service = UploadService()
@@ -26,19 +26,9 @@ MAX_TEXT_CHARS = 50_000
 
 
 async def _cv_text_from(cv_file: UploadFile | None, cv_text: str | None) -> str:
-    """Texte du CV : fichier PDF/TXT importé (prioritaire) ou texte collé."""
+    """Texte du CV : fichier PDF/DOCX/TXT importé (prioritaire) ou texte collé."""
     if cv_file is not None and cv_file.filename:
-        if not cv_file.filename.lower().endswith((".pdf", ".txt")):
-            raise ApiError(400, "upload.cv_format")
-        content = await read_upload(cv_file)
-        try:
-            text = upload_service.extract_cv_text(cv_file.filename, content)
-        except PDFExtractionError as e:
-            raise ApiError(400, "upload.pdf_unreadable") from e
-        if not text:
-            is_pdf = cv_file.filename.lower().endswith(".pdf")
-            raise ApiError(400, "upload.pdf_no_text" if is_pdf else "upload.empty_file")
-        return text
+        return await upload_service.extract_upload_or_400(cv_file)
     return (cv_text or "").strip()
 
 

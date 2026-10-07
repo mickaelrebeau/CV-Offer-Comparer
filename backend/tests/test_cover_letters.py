@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.config import settings
 from app.models.cover_letter_record import CoverLetterRecord
+from tests.docx_factory import make_docx
 from tests.pdf_factory import make_pdf
 
 GENERATE = "app.services.cover_letter_service.ai_service.generate_cover_letter"
@@ -119,6 +120,15 @@ def test_generate_from_pdf_file(client, auth_headers, db_session, registered_use
     assert "Jeanne Martin" in generate.call_args.args[0]
 
 
+def test_generate_from_docx_file(client, auth_headers):
+    files = {"cv_file": ("cv.docx", make_docx(paragraphs=["Jeanne Martin"], bullets=["FastAPI"]))}
+    with patch(GENERATE, return_value=FAKE_LETTER) as generate:
+        response, _ = _generate(client, auth_headers, {"cv_text": ""}, files=files)
+
+    assert response.status_code == 200
+    assert generate.call_args.args[0] == "Jeanne Martin\n- FastAPI"
+
+
 def test_gemini_failure_sends_error_event_without_history(client, auth_headers, db_session, registered_user):
     with patch(GENERATE, side_effect=RuntimeError("Lettre Gemini incomplète")):
         response, body = _generate(client, {**auth_headers, "Accept-Language": "en"})
@@ -144,7 +154,9 @@ def test_gemini_failure_sends_error_event_without_history(client, auth_headers, 
         ({"language": "de"}, None, 400, "cover_letter.invalid_option"),
         ({"job_text": "x" * 50_001}, None, 413, "cover_letter.text_too_long"),
         ({"cv_text": "x" * 50_001}, None, 413, "cover_letter.text_too_long"),
-        ({}, {"cv_file": ("cv.docx", b"PK", "application/octet-stream")}, 400, "upload.cv_format"),
+        ({}, {"cv_file": ("cv.doc", b"PK", "application/octet-stream")}, 400, "upload.cv_format"),
+        ({}, {"cv_file": ("cv.docx", b"%PDF-1.4", "application/octet-stream")}, 400, "upload.signature_mismatch"),
+        ({}, {"cv_file": ("cv.docx", b"PK\x03\x04", "application/octet-stream")}, 400, "upload.docx_unreadable"),
         ({}, {"cv_file": ("cv.pdf", b"%PDF-1.4 broken", "application/pdf")}, 400, "upload.pdf_unreadable"),
         ({}, {"cv_file": ("cv.txt", b"   ", "text/plain")}, 400, "upload.empty_file"),
     ],
