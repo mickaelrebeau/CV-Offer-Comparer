@@ -50,6 +50,13 @@ class ComparisonRecord(Base):
         index=True,
         nullable=True,
     )
+    # Candidature suivie à laquelle l'élément est rattaché (suivi de candidatures)
+    application_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("applications.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -65,6 +72,7 @@ class ComparisonRecord(Base):
         offer_text: str,
         cv_text: str,
         offer_url: str | None = None,
+        application_id: uuid.UUID | None = None,
         parent_comparison_id: uuid.UUID | None = None,
         items: list[Any],
         summary: dict[str, Any],
@@ -83,6 +91,7 @@ class ComparisonRecord(Base):
             offer_text=offer_text,
             cv_text=cv_text,
             offer_url=offer_url,
+            application_id=application_id,
             parent_comparison_id=parent_comparison_id,
         )
 
@@ -97,6 +106,7 @@ class ComparisonRecord(Base):
             "missing": self.missing,
             "unclear": self.unclear,
             "offer_url": self.offer_url,
+            "application_id": str(self.application_id) if self.application_id else None,
             "parent_comparison_id": str(self.parent_comparison_id) if self.parent_comparison_id else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

@@ -13,6 +13,7 @@ from app.models.comparison import ComparisonRequest
 from app.models.comparison_record import ComparisonRecord
 from app.services.job_offers.service import safe_offer_url
 from app.models.user import User
+from app.routers.applications import linked_application_id
 from app.routers.comparisons import owned_comparison
 from app.services.auth_service import AuthService, require_verified_user
 from app.services.comparison_service import stream_comparison
@@ -67,10 +68,12 @@ async def compare_cv_offer_stream(
     """Compare CV ↔ offre via un seul appel LLM (provider BYOK actif, sinon Gemini plateforme)."""
     offer_text, offer_url = request.offer_text, safe_offer_url(request.offer_url)
     parent_id = None
+    application_id = linked_application_id(db, user, request.application_id)
     if request.parent_comparison_id is not None:
         # Réanalyse : même offre que la version précédente, quel que soit le texte envoyé
         parent = owned_comparison(db, user, request.parent_comparison_id)
         offer_text, offer_url, parent_id = parent.offer_text, parent.offer_url, parent.id
+        application_id = application_id or parent.application_id
 
     ai = ai_for_user(db, user)
 
@@ -81,6 +84,7 @@ async def compare_cv_offer_stream(
             cv_text=request.cv_text,
             offer_url=offer_url,
             parent_comparison_id=parent_id,
+            application_id=application_id,
             items=items,
             summary=summary,
         )

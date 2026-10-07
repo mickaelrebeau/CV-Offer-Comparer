@@ -117,6 +117,25 @@
         <div>
           <p class="font-mono text-micro uppercase text-ink-soft">{{ t('comparison.next.label') }}</p>
           <p class="mt-1 text-sm text-ink">{{ t('comparison.next.text') }}</p>
+          <!-- Suivi de candidature : analyse rattachée, ou proposition de suivre cette offre -->
+          <p v-if="context.applicationId" class="mt-2 text-sm text-ink-soft">
+            {{ t('comparison.follow.linked') }}
+            <RouterLink :to="localePath(`/applications?id=${context.applicationId}`)" class="text-ink underline underline-offset-4">
+              {{ context.applicationTitle || t('comparison.follow.open') }}
+            </RouterLink>
+          </p>
+          <button
+            v-else-if="compareStore.currentComparisonId"
+            type="button"
+            class="mt-2 inline-flex items-center gap-1.5 font-mono text-micro uppercase text-ink underline underline-offset-4 hover:opacity-70 disabled:opacity-50"
+            :disabled="following"
+            @click="followApplication"
+          >
+            <Loader2 v-if="following" class="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+            <BookmarkPlus v-else class="h-3.5 w-3.5" aria-hidden="true" />
+            {{ t('comparison.follow.action') }}
+          </button>
+          <p v-if="followError" class="mt-1 text-xs text-rose-700" role="alert">{{ followError }}</p>
         </div>
         <div class="flex shrink-0 flex-wrap gap-2">
           <ExportPdfButton
@@ -210,14 +229,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowRightLeft, Loader2, MessageSquare, PenLine, RefreshCw, Sparkles } from 'lucide-vue-next'
+import { ArrowRightLeft, BookmarkPlus, Loader2, MessageSquare, PenLine, RefreshCw, Sparkles } from 'lucide-vue-next'
 import { useCvInputTab } from '@/composables/useCvInputTab'
 import { useLocale } from '@/i18n/useLocale'
 import { useApplicationContextStore } from '@/stores/applicationContext'
+import { useApplicationsStore } from '@/stores/applications'
 import { useCompareStore } from '@/stores/compare'
 import OfferInput from './OfferInput.vue'
 import PDFUpload from './PDFUpload.vue'
@@ -229,7 +249,7 @@ import { reportFileTitle } from '@/lib/report'
 import ComparisonDiffPanel from './ComparisonDiffPanel.vue'
 
 const { t } = useI18n()
-const { formatPercent, push } = useLocale()
+const { formatPercent, push, localePath } = useLocale()
 const compareStore = useCompareStore()
 const context = useApplicationContextStore()
 const activeTab = useCvInputTab()
@@ -244,6 +264,25 @@ const summaryStats = computed(() => {
     { label: t('comparison.stats.score'), value: formatPercent(s.matchPercentage), color: 'text-ink' },
   ]
 })
+
+// « Suivre cette candidature » : l'offre de l'analyse devient une candidature, l'analyse y est rattachée
+const applications = useApplicationsStore()
+const following = ref(false)
+const followError = ref('')
+
+async function followApplication() {
+  if (!compareStore.currentComparisonId) return
+  following.value = true
+  followError.value = ''
+  try {
+    const created = await applications.create({ comparison_id: compareStore.currentComparisonId }, 'analysis')
+    context.setApplication({ id: created.id, title: created.title })
+  } catch (err: any) {
+    followError.value = err?.response?.data?.detail || t('applications.errors.create')
+  } finally {
+    following.value = false
+  }
+}
 
 // Réanalyse : l'offre est conservée, l'utilisateur choisit ou importe son CV mis à jour
 const startRescore = () => {

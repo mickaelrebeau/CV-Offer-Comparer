@@ -172,8 +172,9 @@ export const useCompareStore = defineStore("compare", () => {
 
       // La réanalyse (comptes connectés) passe la version précédente au flux
       const offerUrl = context.offerUrl;
+      const applicationId = context.applicationId;
       const streamFunction: typeof streamFreeCompare = isAuthenticated
-        ? (...args) => streamCompare(...args, offerUrl, parent?.id)
+        ? (...args) => streamCompare(...args, offerUrl, parent?.id, applicationId)
         : streamFreeCompare;
 
       await streamFunction(

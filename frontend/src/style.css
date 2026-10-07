@@ -106,6 +106,10 @@
     @apply inline-flex h-11 items-center justify-center rounded-lg border border-ink/20 px-6 font-mono text-caption uppercase text-ink transition-colors hover:border-ink/50 disabled:cursor-not-allowed disabled:opacity-40;
   }
 
+  .status-select {
+    @apply h-9 min-w-0 rounded-lg border border-ink/20 bg-paper px-2 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/60 disabled:opacity-50;
+  }
+
   .status-match {
     @apply border-emerald-500/25 bg-emerald-500/5;
   }

@@ -47,6 +47,11 @@
         <li>Rewrite suggestions (original excerpt, proposed text, targeted requirement, rationale); your accept / reject choices stay in your browser</li>
         <li>Generation date</li>
       </ul>
+      <h3>Tracked applications (signed-in accounts, optional)</h3>
+      <ul>
+        <li>Job title, company, job posting link and text, status (to apply, applied, interview, offer, rejected) and your notes</li>
+        <li>Creation, update and application dates; link to the related analyses, cover letters and interview simulations</li>
+      </ul>
       <h3>Saved resumes (signed-in accounts, optional)</h3>
       <ul>
         <li>Name you give each resume (e.g. “Front-end dev resume”), text extracted from the resume and, if any, the original file name (the imported PDF / TXT file itself is never stored)</li>
@@ -81,6 +86,7 @@
       <h2>3. Purposes</h2>
       <ul>
         <li>Provide the analysis service, the interview simulator, the cover letter generator and the resume optimizer</li>
+        <li>Track your job applications and group the related analyses, letters and simulations</li>
         <li>Authenticate users and keep the requested history</li>
         <li>Let you reuse your saved resumes in every module without importing them again, and pre-load the default one when you sign in</li>
         <li>Verify email addresses and allow password resets</li>
@@ -121,6 +127,7 @@
         <li>Personal API keys (encrypted): until deleted from the profile or until the account is deleted</li>
         <li>Saved resumes: until deleted (or replaced) from the profile, or until the account is deleted</li>
         <li>Comparison, interview simulation, cover letter and resume optimizer history: until manually deleted (from the dashboard) or until the account is deleted</li>
+        <li>Tracked applications: until deleted from "My applications" or until the account is deleted (deleting an application keeps its analyses, letters and simulations in your history)</li>
         <li>Email verification and password reset tokens: valid for 48 h and 60 min respectively; deleted once used, when a new link is sent or when the account is deleted</li>
         <li>Free trial (Redis): short duration (around 24 h depending on configuration)</li>
         <li>Rate-limiting counters (Redis): one minute, or until midnight UTC for daily quotas</li>
@@ -235,6 +242,11 @@
         <li>Propositions de reformulation (extrait d’origine, texte proposé, exigence ciblée, justification) ; vos choix accepter / rejeter restent dans votre navigateur</li>
         <li>Date de génération</li>
       </ul>
+      <h3>Candidatures suivies (comptes connectés, facultatif)</h3>
+      <ul>
+        <li>Intitulé du poste, entreprise, lien et texte de l’annonce, statut (à postuler, postulé, entretien, offre, refus) et vos notes</li>
+        <li>Dates de création, de mise à jour et de candidature ; rattachement des analyses, lettres et simulations d’entretien correspondantes</li>
+      </ul>
       <h3>CV enregistrés (comptes connectés, facultatif)</h3>
       <ul>
         <li>Nom donné à chaque CV (ex. « CV Dev Front »), texte extrait du CV et, le cas échéant, nom du fichier d’origine (le fichier PDF / TXT importé n’est jamais conservé)</li>
@@ -269,6 +281,7 @@
       <h2>3. Finalités</h2>
       <ul>
         <li>Fournir le service d’analyse, le simulateur d’entretien, le générateur de lettre de motivation et l’optimiseur de CV</li>
+        <li>Suivre vos candidatures et regrouper les analyses, lettres et simulations qui s’y rapportent</li>
         <li>Authentifier les utilisateurs et conserver l’historique demandé</li>
         <li>Permettre de réutiliser vos CV enregistrés dans chaque module sans les réimporter, et pré-charger le CV par défaut à la connexion</li>
         <li>Vérifier les adresses e-mail et permettre la réinitialisation du mot de passe</li>
@@ -309,6 +322,7 @@
         <li>Clés API personnelles (chiffrées) : jusqu’à suppression depuis le profil ou suppression du compte</li>
         <li>CV enregistrés : jusqu’à leur suppression (ou remplacement) depuis le profil, ou suppression du compte</li>
         <li>Historique des comparaisons, des simulations d’entretien, des lettres de motivation et de l’optimiseur de CV : jusqu’à suppression manuelle (depuis le tableau de bord) ou suppression du compte</li>
+        <li>Candidatures suivies : jusqu’à leur suppression depuis « Mes candidatures » ou suppression du compte (supprimer une candidature conserve ses analyses, lettres et simulations dans l’historique)</li>
         <li>Jetons de vérification d’e-mail et de réinitialisation : valables respectivement 48 h et 60 min ; supprimés à l’utilisation, à l’envoi d’un nouveau lien ou à la suppression du compte</li>
         <li>Essai gratuit (Redis) : durée courte (ordre de 24 h selon configuration)</li>
         <li>Compteurs de limitation de débit (Redis) : une minute, ou jusqu’à minuit UTC pour les quotas journaliers</li>

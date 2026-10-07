@@ -21,6 +21,9 @@ export interface ApplicationContext {
   updatedAt: string | null
   /** Module qui a saisi le contexte en dernier (analytics `context_reused`) */
   source: ContextModule | null
+  /** Candidature suivie dont provient l'offre (« Mes candidatures »), tant que l'offre n'est pas modifiée */
+  applicationId: string | null
+  applicationTitle: string | null
 }
 
 export const CONTEXT_VERSION = 1
@@ -43,6 +46,8 @@ export function emptyContext(): ApplicationContext {
     offerUrl: null,
     updatedAt: null,
     source: null,
+    applicationId: null,
+    applicationTitle: null,
   }
 }
 
@@ -65,6 +70,8 @@ export function migrateContext(raw: unknown): ApplicationContext | null {
     offerUrl: optionalText(data.offerUrl ?? data.offer_url),
     updatedAt: optionalText(data.updatedAt ?? data.updated_at),
     source: MODULES.includes(data.source as ContextModule) ? (data.source as ContextModule) : null,
+    applicationId: optionalText(data.applicationId),
+    applicationTitle: optionalText(data.applicationTitle),
   }
   return context.cvText.trim() || context.offerText.trim() ? context : null
 }
@@ -127,6 +134,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
   const offerUrl = ref<string | null>(initial.offerUrl)
   const updatedAt = ref<string | null>(initial.updatedAt)
   const source = ref<ContextModule | null>(initial.source)
+  const applicationId = ref<string | null>(initial.applicationId)
+  const applicationTitle = ref<string | null>(initial.applicationTitle)
 
   const hasCv = computed(() => Boolean(cvText.value.trim()))
   const hasOffer = computed(() => Boolean(offerText.value.trim()))
@@ -141,6 +150,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     offerUrl: offerUrl.value,
     updatedAt: updatedAt.value,
     source: source.value,
+    applicationId: applicationId.value,
+    applicationTitle: applicationTitle.value,
   }))
 
   watch(snapshot, writeContext)
@@ -167,6 +178,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
 
   /** Offre saisie ou importée ; `url` omis = lien conservé, effacé avec le texte. */
   function setOffer(value: string, options: { url?: string | null; from?: ContextModule } = {}) {
+    // Une autre offre n'est plus celle de la candidature suivie
+    if (String(value || '').trim() !== offerText.value.trim()) setApplication(null)
     offerText.value = String(value || '')
     if (!offerText.value.trim()) offerUrl.value = null
     else if (options.url !== undefined) offerUrl.value = optionalText(options.url)
@@ -180,7 +193,23 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     savedCvId.value = optionalText(next.savedCvId)
     offerText.value = text(next.offerText)
     offerUrl.value = optionalText(next.offerUrl)
+    applicationId.value = optionalText(next.applicationId)
+    applicationTitle.value = applicationId.value ? optionalText(next.applicationTitle) : null
     touch(from)
+  }
+
+  /** Candidature suivie à laquelle les analyses, lettres et simulations sont rattachées. */
+  function setApplication(application: { id: string; title: string } | null) {
+    applicationId.value = application?.id ?? null
+    applicationTitle.value = application?.title ?? null
+  }
+
+  /** Sélection d'une candidature : son offre devient l'offre du contexte (le CV est conservé). */
+  function useApplication(application: { id: string; title: string; offerText: string; offerUrl: string | null }) {
+    offerText.value = application.offerText
+    offerUrl.value = optionalText(application.offerUrl)
+    setApplication(application)
+    touch()
   }
 
   /** Vrai si le CV et l'offre donnés sont déjà ceux du contexte courant. */
@@ -197,6 +226,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     offerUrl.value = empty.offerUrl
     updatedAt.value = empty.updatedAt
     source.value = empty.source
+    applicationId.value = empty.applicationId
+    applicationTitle.value = empty.applicationTitle
     clearStoredApplicationContext()
   }
 
@@ -219,6 +250,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     offerUrl,
     updatedAt,
     source,
+    applicationId,
+    applicationTitle,
     hasCv,
     hasOffer,
     hasContext,
@@ -226,6 +259,8 @@ export const useApplicationContextStore = defineStore('applicationContext', () =
     setCv,
     setOffer,
     setContext,
+    setApplication,
+    useApplication,
     matches,
     clear,
     trackReuse,

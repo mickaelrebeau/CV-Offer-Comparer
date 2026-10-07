@@ -162,6 +162,12 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "No reliable rewrite could be suggested from your resume for this job offer. "
         "Expand your resume or run the optimization again.",
     },
+    "application.not_found": {"fr": "Candidature introuvable", "en": "Application not found"},
+    "application.title_missing": {
+        "fr": "Indiquez l'intitulé du poste (ou l'offre d'emploi)",
+        "en": "Enter the job title (or the job offer)",
+    },
+    "application.invalid_status": {"fr": "Statut de candidature invalide", "en": "Invalid application status"},
     "history.cv_optimization_not_found": {"fr": "Optimisation introuvable", "en": "Optimization not found"},
     "cover_letter.start": {"fr": "Lecture du CV et de l'offre…", "en": "Reading the resume and the job offer…"},
     "cover_letter.gemini": {

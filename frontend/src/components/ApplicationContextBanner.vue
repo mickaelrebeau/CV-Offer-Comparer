@@ -35,6 +35,13 @@
               {{ offerDomain(offerLink) }}
             </a>
           </dd>
+          <!-- Candidature suivie : analyses, lettres et simulations y sont rattachées -->
+          <dd v-if="context.applicationId" class="mt-1 font-mono text-micro uppercase text-ink-soft">
+            {{ t('context.application') }}
+            <RouterLink :to="localePath(`/applications?id=${context.applicationId}`)" class="normal-case text-ink underline underline-offset-4">
+              {{ context.applicationTitle || t('context.applicationOpen') }}
+            </RouterLink>
+          </dd>
         </div>
       </div>
     </dl>
@@ -58,6 +65,7 @@ import { computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Briefcase, FileText } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
+import { useLocale } from '@/i18n/useLocale'
 import { offerDomain, safeHttpUrl } from '@/lib/jobOffer'
 import { useApplicationContextStore } from '@/stores/applicationContext'
 
@@ -75,6 +83,7 @@ const emit = defineEmits<{ edit: []; adopt: []; dismiss: [] }>()
 
 const { t } = useI18n()
 const context = useApplicationContextStore()
+const { localePath } = useLocale()
 
 const EXCERPT_LENGTH = 160
 const offerLink = computed(() => safeHttpUrl(context.offerUrl))

@@ -10,6 +10,7 @@ from app.db import get_db
 from app.i18n import ApiError, request_locale
 from app.models.cover_letter_record import CoverLetterRecord
 from app.models.user import User
+from app.routers.applications import linked_application_id
 from app.routers.compare import _sse_headers
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.cover_letter_service import LANGUAGES, LENGTHS, TONES, stream_cover_letter
@@ -47,6 +48,7 @@ async def generate_cover_letter(
     length: str = Form(default="standard"),
     language: str = Form(default="auto"),
     offer_url: Optional[str] = Form(default=None),
+    application_id: Optional[str] = Form(default=None),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     locale: str = Depends(request_locale),
@@ -64,6 +66,7 @@ async def generate_cover_letter(
     if len(job) > MAX_TEXT_CHARS or len(cv) > MAX_TEXT_CHARS:
         raise ApiError(413, "cover_letter.text_too_long", max_chars=MAX_TEXT_CHARS)
 
+    linked_application = linked_application_id(db, user, application_id)
     ai = ai_for_user(db, user)
 
     def persist(letter) -> str:
@@ -72,6 +75,7 @@ async def generate_cover_letter(
             job_text=job,
             cv_text=cv,
             offer_url=safe_offer_url(offer_url),
+            application_id=linked_application,
             tone=tone,
             length=length,
             letter=letter,

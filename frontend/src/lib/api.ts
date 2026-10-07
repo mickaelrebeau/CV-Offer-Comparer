@@ -349,6 +349,7 @@ export async function streamCoverLetter(
     length: CoverLetterLength
     language: CoverLetterLanguage
     offerUrl?: string | null
+    applicationId?: string | null
   },
   handlers: {
     onStatus: (message: string) => void
@@ -366,6 +367,7 @@ export async function streamCoverLetter(
     form.append('length', params.length)
     form.append('language', params.language)
     if (params.offerUrl) form.append('offer_url', params.offerUrl)
+    if (params.applicationId) form.append('application_id', params.applicationId)
 
     const response = await fetch(`${getApiBaseURL()}/cover-letter`, {
       method: 'POST',
@@ -439,6 +441,7 @@ export async function streamCompare(
   onError: (error: string, code?: string) => void,
   offerUrl?: string | null,
   parentComparisonId?: string | null,
+  applicationId?: string | null,
 ) {
   try {
     const token = getAccessToken();
@@ -456,6 +459,7 @@ export async function streamCompare(
         cv_text: cvText,
         offer_url: offerUrl || null,
         parent_comparison_id: parentComparisonId || null,
+        application_id: applicationId || null,
       }),
     });
 
@@ -511,6 +515,69 @@ export async function streamCompare(
   } catch (error: any) {
     onError(error.message || t("comparison.errors.generic"), errorCode(error));
   }
+}
+
+export const APPLICATION_STATUSES = ['to_apply', 'applied', 'interview', 'offer', 'rejected'] as const
+
+export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]
+
+export type Application = {
+  id: string
+  title: string
+  company: string
+  offer_url: string | null
+  status: ApplicationStatus
+  notes: string
+  applied_at: string | null
+  created_at: string | null
+  updated_at: string | null
+  comparison_count: number
+  interview_count: number
+  cover_letter_count: number
+  /** Score de la dernière analyse rattachée (0 à 1) */
+  last_score: number | null
+}
+
+export type ApplicationDetail = Application & {
+  offer_text: string
+  comparisons: { id: string; created_at: string | null; match_percentage: number; matches: number; total_items: number }[]
+  interviews: { id: string; created_at: string | null; score_global: number; num_questions: number }[]
+  cover_letters: { id: string; created_at: string | null; subject: string; word_count: number }[]
+}
+
+export type ApplicationInput = {
+  title?: string
+  company?: string
+  offer_url?: string | null
+  offer_text?: string
+  status?: ApplicationStatus
+  notes?: string
+}
+
+export async function listApplications() {
+  const { data } = await api.get<{ items: Application[]; total: number }>('/applications')
+  return data
+}
+
+export async function getApplication(id: string) {
+  const { data } = await api.get<ApplicationDetail>(`/applications/${id}`)
+  return data
+}
+
+/** Crée une candidature ; `comparison_id` : suivie après une analyse (offre reprise, analyse rattachée). */
+export async function createApplication(body: ApplicationInput & { comparison_id?: string | null }) {
+  const { data } = await api.post<ApplicationDetail>('/applications', body)
+  return data
+}
+
+export async function updateApplication(id: string, body: ApplicationInput) {
+  const { data } = await api.patch<ApplicationDetail>(`/applications/${id}`, body)
+  return data
+}
+
+export async function deleteApplication(id: string) {
+  const { data } = await api.delete<{ success: boolean }>(`/applications/${id}`)
+  return data
 }
 
 export type CvSuggestion = {
@@ -810,6 +877,7 @@ export async function analyzeInterviewResponses(
   jobText: string,
   durationSeconds: number = 0,
   offerUrl: string | null = null,
+  applicationId: string | null = null,
 ): Promise<{ success: boolean; analysis?: any; interview_id?: string; message: string; code?: string }> {
   try {
     const formData = new FormData();
@@ -819,6 +887,7 @@ export async function analyzeInterviewResponses(
     formData.append('job_text', jobText);
     formData.append('duration_seconds', String(Math.max(0, Math.round(durationSeconds || 0))));
     if (offerUrl) formData.append('offer_url', offerUrl);
+    if (applicationId) formData.append('application_id', applicationId);
 
     const response = await api.post('/interview/analyze-responses', formData, {
       headers: {

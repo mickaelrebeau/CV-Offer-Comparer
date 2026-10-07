@@ -43,7 +43,8 @@
     "privacy": "Confidentialité",
     "contact": "Contact",
     "github": "GitHub",
-    "cvOptimizer": "Optimiseur"
+    "cvOptimizer": "Optimiseur",
+    "applications": "Candidatures"
   },
   "session": {
     "loading": "Chargement de la session"
@@ -120,6 +121,10 @@
     "cvOptimizer": {
       "title": "Optimiseur de CV",
       "description": "Reformulez les extraits de votre CV pour une offre d'emploi, sans rien inventer : vous acceptez ou rejetez chaque proposition."
+    },
+    "applications": {
+      "title": "Mes candidatures",
+      "description": "Suivez vos candidatures : statut, notes, et les analyses, lettres et simulations de chaque offre."
     }
   },
   "cookies": {
@@ -331,7 +336,9 @@
     "clearConfirm": "Effacer le CV et l'offre du contexte ? Ils ne seront plus pré-remplis dans le comparateur, le simulateur d'entretien et la lettre de motivation.",
     "historyPrompt": "Cet élément de l'historique porte sur un autre CV ou une autre offre que votre contexte actuel.",
     "historyAdopt": "Définir comme contexte courant",
-    "historyDismiss": "Garder le contexte actuel"
+    "historyDismiss": "Garder le contexte actuel",
+    "application": "Candidature :",
+    "applicationOpen": "voir la candidature"
   },
   "savedCvs": {
     "title": "Mes CV",
@@ -435,6 +442,11 @@
       "regressed": "En recul ({count})",
       "improvedNone": "Aucun critère amélioré.",
       "regressedNone": "Aucune régression."
+    },
+    "follow": {
+      "linked": "Analyse rattachée à la candidature",
+      "open": "voir la candidature",
+      "action": "Suivre cette candidature"
     }
   },
   "compare": {
@@ -767,6 +779,82 @@
       "save": "Impossible d'enregistrer ce CV"
     }
   },
+  "applications": {
+    "label": "Suivi",
+    "title": "Mes candidatures",
+    "detailHeading": "Fiche candidature",
+    "description": "Une candidature par offre : son avancement, vos notes, et les analyses, lettres et simulations qui s'y rapportent.",
+    "viewMode": "Mode d'affichage",
+    "views": {
+      "list": "Liste",
+      "kanban": "Kanban"
+    },
+    "new": "Nouvelle candidature",
+    "create": "Créer la candidature",
+    "fields": {
+      "title": "Poste",
+      "titlePlaceholder": "Ex. Développeur Python senior (sinon : 1re ligne de l'offre)",
+      "company": "Entreprise",
+      "url": "Lien de l'annonce",
+      "status": "Statut",
+      "notes": "Notes",
+      "notesPlaceholder": "Contact, relances, impressions…",
+      "offer": "Texte de l'offre",
+      "offerPlaceholder": "Collez l'offre d'emploi : elle sera chargée dans les modules quand vous ouvrirez cette candidature."
+    },
+    "withContextOffer": "Joindre l'offre du contexte actuel (analyses, lettres et simulations suivantes rattachées)",
+    "loading": "Chargement des candidatures…",
+    "empty": "Aucune candidature suivie pour le moment. Après une analyse, choisissez « Suivre cette candidature », ou créez-en une ici.",
+    "emptyCta": "Analyser une offre",
+    "noCompany": "Entreprise non renseignée",
+    "lastScore": "Dernier score {value}",
+    "counts": "{analyses} analyse(s) · {letters} lettre(s) · {interviews} entretien(s)",
+    "updatedAt": "Mise à jour le {date}",
+    "statusOf": "Statut de la candidature « {title} »",
+    "statusChanged": "« {title} » déplacée dans « {status} »",
+    "status": {
+      "to_apply": "À postuler",
+      "applied": "Postulé",
+      "interview": "Entretien",
+      "offer": "Offre",
+      "rejected": "Refus"
+    },
+    "back": "Toutes les candidatures",
+    "detailLoading": "Chargement de la candidature…",
+    "current": "Candidature en cours",
+    "useLabel": "Travailler sur cette candidature",
+    "useText": "Son offre est chargée dans le module choisi (votre CV est conservé) ; les analyses, lettres et simulations y seront rattachées.",
+    "detailTitle": "Informations",
+    "appliedOn": "Postulé le {date}",
+    "openOffer": "Ouvrir l'annonce ({domain})",
+    "delete": "Supprimer la candidature",
+    "deleteConfirm": "Supprimer la candidature « {title} » ? Ses analyses, lettres et simulations restent dans votre historique.",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "linked": "Éléments rattachés",
+    "linkedAnalyses": "Analyses",
+    "linkedLetters": "Lettres de motivation",
+    "linkedInterviews": "Simulations d'entretien",
+    "noAnalyses": "Aucune analyse rattachée.",
+    "noLetters": "Aucune lettre rattachée.",
+    "noInterviews": "Aucune simulation rattachée.",
+    "analysisLabel": "{value} · {matches}/{total} critères",
+    "letterLabel": "Lettre de {count} mots",
+    "interviewLabel": "Score {score}/10 · {count} questions",
+    "actions": {
+      "analyze": "Analyser",
+      "optimize": "Optimiser le CV",
+      "letter": "Lettre",
+      "interview": "Entretien"
+    },
+    "errors": {
+      "load": "Impossible de charger les candidatures",
+      "loadOne": "Impossible de charger cette candidature",
+      "create": "Impossible de créer la candidature",
+      "update": "Impossible d'enregistrer la candidature",
+      "delete": "Impossible de supprimer la candidature"
+    }
+  },
   "profile": {
     "label": "Compte",
     "title": "Mon profil",
@@ -1035,6 +1123,7 @@
         "Simulateur d'entretien et retours",
         "Lettre de motivation ciblée",
         "Optimiseur de CV (sans invention)",
+        "Suivi de candidatures (liste et Kanban)",
         "Import PDF et extraction automatique",
         "Votre propre clé API (Gemini, OpenAI, Claude…)",
         "Code source ouvert, auto-hébergeable"
@@ -1076,6 +1165,11 @@
           "id": "Q.010",
           "question": "Talento peut-il réécrire mon CV ?",
           "answer": "Oui, pour les comptes connectés. L'optimiseur de CV propose des reformulations ciblées de vos puces et sections pour une offre, en priorité sur les exigences manquantes ou floues de votre analyse. Il ne fait que reformuler ce qui figure déjà dans votre CV : aucune expérience, compétence ou chiffre n'est inventé. Vous acceptez, rejetez ou modifiez chaque proposition, puis exportez le CV (.txt / .md), l'enregistrez ou le réanalysez."
+        },
+        {
+          "id": "Q.011",
+          "question": "Puis-je suivre mes candidatures dans Talento ?",
+          "answer": "Oui, pour les comptes connectés. « Mes candidatures » regroupe chaque offre avec son statut (À postuler, Postulé, Entretien, Offre, Refus), vos notes et ses analyses, lettres et simulations d'entretien, en liste ou en Kanban. Après une analyse, « Suivre cette candidature » crée la fiche en un clic ; ouvrir une candidature recharge son offre dans tous les modules."
         },
         {
           "id": "Q.009",

@@ -6,6 +6,7 @@ import posthog from 'posthog-js'
 import type { AuthResponse, AuthUser } from '@/types/auth'
 import { t } from '@/i18n'
 import { useApplicationContextStore } from './applicationContext'
+import { useApplicationsStore } from './applications'
 import { useSavedCvsStore } from './savedCvs'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -44,6 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (typeof window === 'undefined') return
     useApplicationContextStore().clear()
     useSavedCvsStore().reset()
+    useApplicationsStore().reset()
   }
 
   async function fetchMe(): Promise<AuthUser | null> {

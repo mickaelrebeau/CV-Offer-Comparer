@@ -208,6 +208,8 @@ const currentStep = ref(1)
 const sessionCvText = ref('')
 const sessionJobText = ref('')
 const sessionOfferUrl = ref<string | null>(null)
+// Candidature suivie au lancement de la session (rattachement de la simulation)
+const sessionApplicationId = ref<string | null>(null)
 const cvActiveTab = useCvInputTab()
 const isLoading = ref(false)
 const error = ref('')
@@ -270,6 +272,7 @@ const generateQuestions = async () => {
       sessionCvText.value = cvText
       sessionJobText.value = jobText
       sessionOfferUrl.value = context.offerUrl
+      sessionApplicationId.value = context.applicationId
       questions.value = result.interview_session.questions
       interviewSession.value = result.interview_session
       currentStep.value = 2
@@ -359,6 +362,7 @@ const finishInterview = async () => {
         sessionJobText.value,
         interviewTimer.value,
         sessionOfferUrl.value,
+        sessionApplicationId.value,
       )
 
       if (result.success && result.analysis) {
@@ -421,6 +425,7 @@ const resetSimulator = () => {
   sessionCvText.value = ''
   sessionJobText.value = ''
   sessionOfferUrl.value = null
+  sessionApplicationId.value = null
   questions.value = []
   isInterviewStarted.value = false
   currentQuestionIndex.value = 0

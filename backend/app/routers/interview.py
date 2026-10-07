@@ -10,6 +10,7 @@ from app.dependencies import require_debug_endpoints
 from app.i18n import ApiError, request_locale, t
 from app.models.interview_record import InterviewRecord
 from app.models.user import User
+from app.routers.applications import linked_application_id
 from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
 from app.services.job_offers.service import safe_offer_url
@@ -81,6 +82,7 @@ async def analyze_interview_responses(
     job_text: str = Form(...),
     duration_seconds: int = Form(default=0),
     offer_url: Optional[str] = Form(default=None),
+    application_id: Optional[str] = Form(default=None),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -88,6 +90,7 @@ async def analyze_interview_responses(
     try:
         questions_list = json.loads(questions)
         answers_list = json.loads(answers)
+        linked_application = linked_application_id(db, user, application_id)
 
         interview_service = InterviewService(ai_for_user(db, user))
         result = await interview_service.analyze_responses(
@@ -106,6 +109,7 @@ async def analyze_interview_responses(
             job_text=job_text,
             cv_text=cv_text,
             offer_url=safe_offer_url(offer_url),
+            application_id=linked_application,
             questions=questions_list,
             answers=answers_list,
             analysis=analysis,
