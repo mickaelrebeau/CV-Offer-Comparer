@@ -19,5 +19,5 @@ async def upload_cv_pdf(
     user=Depends(auth_service.verify_token),
     locale: str = Depends(request_locale),
 ):
-    """Upload et extraction de texte d'un CV PDF"""
+    """Upload et extraction de texte d'un CV (PDF, DOCX ou TXT)"""
     return await upload_service.pdf_upload_response(file, locale)

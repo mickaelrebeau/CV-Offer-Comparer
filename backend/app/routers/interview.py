@@ -14,7 +14,7 @@ from app.services.auth_service import get_current_user, require_verified_user
 from app.services.interview_service import InterviewService
 from app.services.job_offers.service import safe_offer_url
 from app.services.llm_credentials_service import ai_for_user
-from app.services.upload_service import PDFExtractionError, UploadService, read_upload
+from app.services.upload_service import UploadService
 from app.services.rate_limit_service import rate_limit
 
 router = APIRouter(prefix="/interview", tags=["interview"])
@@ -44,17 +44,7 @@ async def generate_interview_questions(
 ):
     """Génère des questions d'entretien basées sur le CV et l'offre d'emploi."""
     try:
-        if not cv_file.filename or not cv_file.filename.lower().endswith((".pdf", ".txt")):
-            raise ApiError(400, "upload.cv_format")
-
-        cv_content = await read_upload(cv_file)
-        try:
-            cv_text = upload_service.extract_cv_text(cv_file.filename, cv_content)
-        except PDFExtractionError as e:
-            raise ApiError(400, "upload.pdf_unreadable") from e
-        if not cv_text:
-            is_pdf = cv_file.filename.lower().endswith(".pdf")
-            raise ApiError(400, "upload.pdf_no_text" if is_pdf else "upload.empty_file")
+        cv_text = await upload_service.extract_upload_or_400(cv_file)
 
         interview_service = InterviewService(ai_for_user(db, user))
         result = await interview_service.generate_interview_questions(

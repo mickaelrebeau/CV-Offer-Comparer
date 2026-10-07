@@ -35,7 +35,7 @@
               class="rounded px-2 py-0.5 transition-colors"
               :class="activeTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
             >
-              {{ t('common.pdf') }}
+              {{ t('common.file') }}
             </button>
             <button
               type="button"
@@ -119,6 +119,11 @@
           <p class="mt-1 text-sm text-ink">{{ t('comparison.next.text') }}</p>
         </div>
         <div class="flex shrink-0 flex-wrap gap-2">
+          <ExportPdfButton
+            v-if="compareStore.reportMeta"
+            type="comparison"
+            :file-title="reportFileTitle(t('report.comparison.title'), compareStore.reportMeta.date)"
+          />
           <Button
             v-if="compareStore.currentComparisonId && !compareStore.rescoreParent"
             size="sm"
@@ -185,6 +190,12 @@
           </div>
         </div>
       </div>
+
+      <ComparisonReport
+        v-if="!compareStore.loading && compareStore.reportMeta"
+        :result="compareStore.comparisonResult"
+        :meta="compareStore.reportMeta"
+      />
     </div>
   </div>
 </template>
@@ -203,6 +214,9 @@ import OfferInput from './OfferInput.vue'
 import PDFUpload from './PDFUpload.vue'
 import SavedCvPicker from './SavedCvPicker.vue'
 import LlmErrorNotice from '@/components/LlmErrorNotice.vue'
+import ComparisonReport from '@/components/report/ComparisonReport.vue'
+import ExportPdfButton from '@/components/report/ExportPdfButton.vue'
+import { reportFileTitle } from '@/lib/report'
 import ComparisonDiffPanel from './ComparisonDiffPanel.vue'
 
 const { t } = useI18n()

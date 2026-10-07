@@ -67,8 +67,16 @@ MESSAGES: dict[str, dict[str, str]] = {
     "history.interview_not_found": {"fr": "Entretien introuvable", "en": "Interview not found"},
     "history.cover_letter_not_found": {"fr": "Lettre de motivation introuvable", "en": "Cover letter not found"},
     # Upload / extraction
-    "upload.only_pdf": {"fr": "Seuls les fichiers PDF sont acceptés", "en": "Only PDF files are accepted"},
-    "upload.cv_format": {"fr": "Le CV doit être au format PDF ou TXT", "en": "The resume must be a PDF or TXT file"},
+    "upload.cv_format": {
+        "fr": "Le CV doit être au format PDF, DOCX ou TXT",
+        "en": "The resume must be a PDF, DOCX or TXT file",
+    },
+    "upload.signature_mismatch": {
+        "fr": "Le contenu du fichier ne correspond pas à son extension (PDF, DOCX ou TXT attendu). "
+        "Réenregistrez votre CV dans l'un de ces formats, ou collez son texte directement.",
+        "en": "The file content does not match its extension (PDF, DOCX or TXT expected). "
+        "Save your resume again in one of these formats, or paste its text directly.",
+    },
     "upload.too_large": {
         "fr": "Le fichier est trop volumineux (max {max_mb} Mo)",
         "en": "The file is too large ({max_mb} MB max)",
@@ -77,6 +85,12 @@ MESSAGES: dict[str, dict[str, str]] = {
     "upload.pdf_unreadable": {
         "fr": "PDF illisible ou corrompu. Réexportez votre CV en PDF, ou collez son texte directement.",
         "en": "Unreadable or corrupted PDF. Export your resume to PDF again, or paste its text directly.",
+    },
+    "upload.docx_unreadable": {
+        "fr": "Document Word illisible ou corrompu. Réenregistrez votre CV en .docx ou en PDF, "
+        "ou collez son texte directement.",
+        "en": "Unreadable or corrupted Word document. Save your resume again as .docx or PDF, "
+        "or paste its text directly.",
     },
     "upload.pdf_no_text": {
         "fr": "Ce PDF ne contient pas de texte lisible (PDF scanné ou image ?). "

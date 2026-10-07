@@ -90,6 +90,11 @@
       </div>
 
       <div class="flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <ExportPdfButton
+          v-if="reportMeta"
+          type="interview"
+          :file-title="reportFileTitle(t('report.interview.title'), reportMeta.date)"
+        />
         <Button variant="outline" @click="goToDashboard">
           <ArrowLeft class="mr-2 h-4 w-4" aria-hidden="true" />
           {{ t('results.backToDashboard') }}
@@ -99,6 +104,16 @@
           {{ t('results.newSimulation') }}
         </Button>
       </div>
+
+      <InterviewReport
+        v-if="reportMeta"
+        :analysis="analysisResult"
+        :answers="interviewData.answers"
+        :num-questions="interviewData.num_questions"
+        :duration="formatTime(interviewData.duration)"
+        :score-message="getScoreMessage(analysisResult?.score_global)"
+        :meta="reportMeta"
+      />
     </div>
   </div>
 </template>
@@ -110,10 +125,13 @@ import { useRoute } from 'vue-router'
 import AppPageHeader from '@/components/AppPageHeader.vue'
 import AppStatus from '@/components/AppStatus.vue'
 import ApplicationContextBanner from '@/components/ApplicationContextBanner.vue'
+import ExportPdfButton from '@/components/report/ExportPdfButton.vue'
+import InterviewReport from '@/components/report/InterviewReport.vue'
 import { Button } from '@/components/ui/button'
 import { useLocale } from '@/i18n/useLocale'
 import { getInterview } from '@/lib/api'
 import { isOnline } from '@/lib/pwa'
+import { reportFileTitle, type ReportMeta } from '@/lib/report'
 import { useApplicationContextStore } from '@/stores/applicationContext'
 import type { HistoryContext } from '@/stores/compare'
 import { ArrowLeft, RotateCcw, CheckCircle, MessageSquare } from 'lucide-vue-next'
@@ -142,6 +160,8 @@ const isLoading = ref(true)
 const error = ref('')
 const interviewData = ref<any>(null)
 const analysisResult = ref<any>(null)
+// Offre et date de la session, pour l'export PDF
+const reportMeta = ref<ReportMeta | null>(null)
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60)
@@ -161,6 +181,9 @@ function applySession(payload: {
   answers: any[]
   analysis: any
   duration: number
+  offerText: string
+  offerUrl: string | null
+  date: string
 }) {
   interviewData.value = {
     id: 'session',
@@ -174,6 +197,7 @@ function applySession(payload: {
     })),
   }
   analysisResult.value = payload.analysis
+  reportMeta.value = { offerText: payload.offerText, offerUrl: payload.offerUrl, date: payload.date }
 }
 
 const loadInterviewData = async () => {
@@ -189,6 +213,9 @@ const loadInterviewData = async () => {
         answers: detail.answers as any[],
         analysis: detail.analysis,
         duration: detail.duration_seconds,
+        offerText: detail.job_text || '',
+        offerUrl: detail.offer_url || null,
+        date: detail.created_at || new Date().toISOString(),
       })
       proposeHistoryContext(detail.cv_text || '', detail.job_text || '', detail.offer_url || null)
       localStorage.removeItem('interviewAnalysis')
@@ -203,6 +230,9 @@ const loadInterviewData = async () => {
         answers: analysisData.answers,
         analysis: analysisData.analysis,
         duration: analysisData.duration,
+        offerText: analysisData.job_text || '',
+        offerUrl: analysisData.offer_url || null,
+        date: analysisData.created_at || new Date().toISOString(),
       })
       localStorage.removeItem('interviewAnalysis')
       return

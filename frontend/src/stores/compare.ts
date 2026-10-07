@@ -14,6 +14,7 @@ import { useApplicationContextStore } from "./applicationContext";
 import posthog from "posthog-js";
 import { STORAGE_KEYS, readStorage, removeStorage } from "@/lib/storageKeys";
 import { t } from "@/i18n";
+import type { ReportMeta } from "@/lib/report";
 
 
 export interface ComparisonItem {
@@ -55,9 +56,10 @@ export const useCompareStore = defineStore("compare", () => {
   const context = useApplicationContextStore();
   const historyContext = ref<HistoryContext | null>(null);
   const comparisonResult = ref<ComparisonResult | null>(null);
-  // Identifiant (historique) et offre du résultat affiché, renvoyés par le flux ou l'historique
+  // Offre et date du résultat affiché, pour l'export PDF
+  const reportMeta = ref<ReportMeta | null>(null);
+  // Identifiant (historique) du résultat affiché, renvoyé par le flux ou l'historique
   const currentComparisonId = ref<string | null>(null);
-  const analyzedOffer = ref<{ text: string; url: string | null } | null>(null);
   // Réanalyse en préparation : la prochaine analyse est rattachée à ce résultat
   const rescoreParent = ref<RescoreParent | null>(null);
   // Évolution par rapport à la version précédente (réanalyse)
@@ -126,6 +128,7 @@ export const useCompareStore = defineStore("compare", () => {
       });
 
       comparisonResult.value = response.data;
+      reportMeta.value = { offerText: offer, offerUrl: context.offerUrl, date: new Date().toISOString() };
 
       const { isAuthenticated } = useAuthStore();
       if (!isAuthenticated) {
@@ -153,8 +156,8 @@ export const useCompareStore = defineStore("compare", () => {
     error.value = null;
     errorCode.value = null;
     comparisonResult.value = null;
+    reportMeta.value = { offerText: offer, offerUrl: context.offerUrl, date: new Date().toISOString() };
     currentComparisonId.value = null;
-    analyzedOffer.value = { text: offer, url: context.offerUrl };
     diff.value = null;
     historyContext.value = null;
     progress.value = 0;
@@ -262,8 +265,8 @@ export const useCompareStore = defineStore("compare", () => {
       matchPercentage: result.summary.matchPercentage,
     };
     // L'offre affichée est celle de l'analyse (le backend la reprend de toute façon)
-    if (analyzedOffer.value) {
-      context.setOffer(analyzedOffer.value.text, { url: analyzedOffer.value.url, from: "compare" });
+    if (reportMeta.value) {
+      context.setOffer(reportMeta.value.offerText, { url: reportMeta.value.offerUrl, from: "compare" });
     }
     historyContext.value = null;
   }
@@ -274,8 +277,8 @@ export const useCompareStore = defineStore("compare", () => {
 
   function clearResult() {
     comparisonResult.value = null;
+    reportMeta.value = null;
     currentComparisonId.value = null;
-    analyzedOffer.value = null;
     rescoreParent.value = null;
     diff.value = null;
     historyContext.value = null;
@@ -323,8 +326,12 @@ export const useCompareStore = defineStore("compare", () => {
           ),
         },
       };
+      reportMeta.value = {
+        offerText: fromHistory.offerText,
+        offerUrl: fromHistory.offerUrl,
+        date: detail.created_at || new Date().toISOString(),
+      };
       currentComparisonId.value = String(detail.id);
-      analyzedOffer.value = { text: fromHistory.offerText, url: fromHistory.offerUrl };
       if (detail.parent_comparison_id) void loadDiff(detail.parent_comparison_id, String(detail.id));
       status.value = t("comparison.historyLoaded");
     } catch (err: any) {
@@ -339,6 +346,7 @@ export const useCompareStore = defineStore("compare", () => {
   return {
     historyContext,
     comparisonResult,
+    reportMeta,
     currentComparisonId,
     rescoreParent,
     diff,

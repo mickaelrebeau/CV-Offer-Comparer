@@ -32,7 +32,7 @@
                 class="rounded px-2 py-0.5 transition-colors"
                 :class="cvActiveTab === 'upload' ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'"
               >
-                {{ t('common.pdf') }}
+                {{ t('common.file') }}
               </button>
               <button
                 type="button"
@@ -370,6 +370,8 @@ const finishInterview = async () => {
           duration: interviewTimer.value,
           cv_text: sessionCvText.value,
           job_text: sessionJobText.value,
+          offer_url: sessionOfferUrl.value,
+          created_at: new Date().toISOString(),
         }))
         posthog.capture('interview_completed', {
           answered_question_count: answers.value.length,
