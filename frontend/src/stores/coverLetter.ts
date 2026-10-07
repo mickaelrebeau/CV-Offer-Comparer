@@ -80,6 +80,7 @@ export const useCoverLetterStore = defineStore('coverLetter', () => {
           length: length.value,
           language: language.value,
           offerUrl: context.offerUrl,
+          applicationId: context.applicationId,
         },
         {
           onStatus: (message) => (status.value = message),

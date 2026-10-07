@@ -9,6 +9,8 @@ class ComparisonRequest(BaseModel):
     offer_url: Optional[str] = None
     # Réanalyse avec un CV mis à jour : l'offre de cette comparaison est reprise telle quelle
     parent_comparison_id: Optional[UUID] = None
+    # Candidature suivie à laquelle rattacher l'analyse (réanalyse : celle de la version précédente)
+    application_id: Optional[UUID] = None
 
 class ComparisonItem(BaseModel):
     id: str

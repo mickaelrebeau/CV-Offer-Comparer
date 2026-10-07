@@ -22,6 +22,7 @@ Application web open source (**Talento**) qui compare un CV avec une offre d’e
 - Simulateur d’entretien personnalisé
 - Générateur de lettre de motivation (ton, longueur, langue ; copie et export `.txt` / `.md`)
 - Optimiseur de CV : reformulations ciblées par offre, à accepter / rejeter / modifier, sans rien inventer (export `.txt` / `.md`, enregistrement, réanalyse)
+- Suivi de candidatures (liste et Kanban) : statut, notes, et analyses / lettres / simulations rattachées à chaque offre
 - Upload PDF, DOCX ou TXT + saisie texte
 - Historique des comparaisons, simulations, lettres et optimisations (utilisateurs connectés, Postgres)
 - **Clés API personnelles (BYOK)** : Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi ou endpoint compatible OpenAI, pour continuer quand le quota Gemini de la plateforme est épuisé
@@ -137,6 +138,7 @@ Les routes coûteuses (Gemini, upload) sont limitées par utilisateur **et** par
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
 | `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
 | `POST /api/cv-optimizer` | user + IP | `DAILY_QUOTA_CV_OPTIMIZER` (20) |
+| `POST /api/applications` | user + IP | `DAILY_QUOTA_APPLICATIONS` (100) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `PUT /api/profile/llm-credentials` | user + IP | `DAILY_QUOTA_LLM_CREDENTIALS` (50) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 analyse gratuite par client |

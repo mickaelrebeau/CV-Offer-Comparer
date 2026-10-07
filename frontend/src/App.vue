@@ -200,6 +200,7 @@ const appLinks = [
   { path: '/interview-simulator', label: 'nav.simulator' },
   { path: '/cover-letter', label: 'nav.coverLetter' },
   { path: '/cv-optimizer', label: 'nav.cvOptimizer' },
+  { path: '/applications', label: 'nav.applications' },
 ]
 
 const handleSignOut = async () => {

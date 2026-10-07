@@ -43,7 +43,8 @@
     "privacy": "Privacy",
     "contact": "Contact",
     "github": "GitHub",
-    "cvOptimizer": "Optimizer"
+    "cvOptimizer": "Optimizer",
+    "applications": "Applications"
   },
   "session": {
     "loading": "Loading your session"
@@ -120,6 +121,10 @@
     "cvOptimizer": {
       "title": "Resume optimizer",
       "description": "Rewrite excerpts of your resume for a job offer, without inventing anything: accept or reject each suggestion."
+    },
+    "applications": {
+      "title": "My applications",
+      "description": "Track your job applications: status, notes, and the analyses, letters and simulations for each job offer."
     }
   },
   "cookies": {
@@ -331,7 +336,9 @@
     "clearConfirm": "Clear the CV and job offer from the context? They will no longer be pre-filled in the comparer, the interview simulator and the cover letter.",
     "historyPrompt": "This history item uses a different CV or job offer than your current context.",
     "historyAdopt": "Set as current context",
-    "historyDismiss": "Keep current context"
+    "historyDismiss": "Keep current context",
+    "application": "Application:",
+    "applicationOpen": "view the application"
   },
   "savedCvs": {
     "title": "My resumes",
@@ -435,6 +442,11 @@
       "regressed": "Regressed ({count})",
       "improvedNone": "No criteria improved.",
       "regressedNone": "No regressions."
+    },
+    "follow": {
+      "linked": "Analysis linked to the application",
+      "open": "view the application",
+      "action": "Track this application"
     }
   },
   "compare": {
@@ -767,6 +779,82 @@
       "save": "Unable to save this resume"
     }
   },
+  "applications": {
+    "label": "Tracking",
+    "title": "My applications",
+    "detailHeading": "Application",
+    "description": "One application per job offer: its progress, your notes, and the related analyses, letters and simulations.",
+    "viewMode": "Display mode",
+    "views": {
+      "list": "List",
+      "kanban": "Kanban"
+    },
+    "new": "New application",
+    "create": "Create the application",
+    "fields": {
+      "title": "Job title",
+      "titlePlaceholder": "E.g. Senior Python developer (otherwise: the offer's first line)",
+      "company": "Company",
+      "url": "Job posting link",
+      "status": "Status",
+      "notes": "Notes",
+      "notesPlaceholder": "Contact, follow-ups, impressions…",
+      "offer": "Job offer text",
+      "offerPlaceholder": "Paste the job offer: it will be loaded into the modules when you open this application."
+    },
+    "withContextOffer": "Attach the current job offer (next analyses, letters and simulations will be linked)",
+    "loading": "Loading applications…",
+    "empty": "No tracked application yet. After an analysis, choose \"Track this application\", or create one here.",
+    "emptyCta": "Analyze a job offer",
+    "noCompany": "Company not specified",
+    "lastScore": "Last score {value}",
+    "counts": "{analyses} analysis(es) · {letters} letter(s) · {interviews} interview(s)",
+    "updatedAt": "Updated on {date}",
+    "statusOf": "Status of the application \"{title}\"",
+    "statusChanged": "\"{title}\" moved to \"{status}\"",
+    "status": {
+      "to_apply": "To apply",
+      "applied": "Applied",
+      "interview": "Interview",
+      "offer": "Offer",
+      "rejected": "Rejected"
+    },
+    "back": "All applications",
+    "detailLoading": "Loading the application…",
+    "current": "Current application",
+    "useLabel": "Work on this application",
+    "useText": "Its job offer is loaded into the chosen module (your resume is kept); analyses, letters and simulations will be linked to it.",
+    "detailTitle": "Details",
+    "appliedOn": "Applied on {date}",
+    "openOffer": "Open the job posting ({domain})",
+    "delete": "Delete the application",
+    "deleteConfirm": "Delete the application \"{title}\"? Its analyses, letters and simulations stay in your history.",
+    "save": "Save",
+    "saved": "Saved",
+    "linked": "Linked items",
+    "linkedAnalyses": "Analyses",
+    "linkedLetters": "Cover letters",
+    "linkedInterviews": "Interview simulations",
+    "noAnalyses": "No linked analysis.",
+    "noLetters": "No linked letter.",
+    "noInterviews": "No linked simulation.",
+    "analysisLabel": "{value} · {matches}/{total} criteria",
+    "letterLabel": "{count}-word letter",
+    "interviewLabel": "Score {score}/10 · {count} questions",
+    "actions": {
+      "analyze": "Analyze",
+      "optimize": "Optimize resume",
+      "letter": "Letter",
+      "interview": "Interview"
+    },
+    "errors": {
+      "load": "Unable to load applications",
+      "loadOne": "Unable to load this application",
+      "create": "Unable to create the application",
+      "update": "Unable to save the application",
+      "delete": "Unable to delete the application"
+    }
+  },
   "profile": {
     "label": "Account",
     "title": "My profile",
@@ -1035,6 +1123,7 @@
         "Interview simulator with feedback",
         "Targeted cover letter",
         "Resume optimizer (no invention)",
+        "Application tracking (list and Kanban)",
         "PDF import and automatic extraction",
         "Your own API key (Gemini, OpenAI, Claude…)",
         "Open source, self-hostable"
@@ -1076,6 +1165,11 @@
           "id": "Q.010",
           "question": "Can Talento rewrite my resume?",
           "answer": "Yes, for signed-in accounts. The resume optimizer suggests targeted rewrites of your bullet points and sections for a job offer, focusing first on the missing or unclear requirements from your analysis. It only rewrites what is already in your resume: no experience, skill or figure is invented. You accept, reject or edit each suggestion, then export the resume (.txt / .md), save it or re-analyze it."
+        },
+        {
+          "id": "Q.011",
+          "question": "Can I track my job applications in Talento?",
+          "answer": "Yes, for signed-in accounts. \"My applications\" groups each job offer with its status (To apply, Applied, Interview, Offer, Rejected), your notes and its analyses, letters and interview simulations, as a list or a Kanban board. After an analysis, \"Track this application\" creates it in one click; opening an application loads its job offer into every module."
         },
         {
           "id": "Q.009",

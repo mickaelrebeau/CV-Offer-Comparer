@@ -103,6 +103,9 @@ def _create_legacy_schema(engine) -> None:
         for table in ("comparisons", "interviews", "cover_letters"):
             conn.execute(text(f"ALTER TABLE {table} DROP COLUMN offer_url"))
         conn.execute(text("DROP TABLE cv_optimizations"))
+        for table in ("comparisons", "interviews", "cover_letters"):
+            conn.execute(text(f"ALTER TABLE {table} DROP COLUMN application_id"))
+        conn.execute(text("DROP TABLE applications"))
         conn.execute(text("ALTER TABLE comparisons DROP COLUMN parent_comparison_id"))
 
 

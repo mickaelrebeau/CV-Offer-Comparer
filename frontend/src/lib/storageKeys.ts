@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   accessToken: 'talento_access_token',
   freeAnalysisUsed: 'talento_free_analysis_used',
   locale: 'talento_locale',
+  // Affichage « Mes candidatures » (liste ou Kanban)
+  applicationsView: 'talento_applications_view',
   // sessionStorage : CV + offre partagés entre les modules (jamais en localStorage, poste partagé possible)
   applicationContext: 'talento_application_context',
 } as const

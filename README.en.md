@@ -24,6 +24,7 @@ Open-source web app (**Talento**) that compares a résumé (CV) with a job offer
 - Personalized interview simulator
 - Cover letter generator (tone, length, language; copy and `.txt` / `.md` export)
 - Resume optimizer: targeted rewrites per job offer, to accept / reject / edit, without inventing anything (`.txt` / `.md` export, save, re-analysis)
+- Application tracking (list and Kanban): status, notes, and the analyses / letters / simulations linked to each job offer
 - PDF, DOCX or TXT upload and plain-text input
 - Comparison, interview, cover letter and resume optimization history for signed-in users (Postgres)
 - **Bring your own API key (BYOK)**: Gemini, OpenAI, Claude, DeepSeek, Qwen, Kimi or any OpenAI-compatible endpoint, to keep going when the platform Gemini quota is exhausted
@@ -142,6 +143,7 @@ Costly routes (Gemini, upload) are limited per user **and** per IP. Beyond the l
 | `POST /api/interview/analyze-responses` | user + IP | `DAILY_QUOTA_INTERVIEW_ANALYZE` (30) |
 | `POST /api/cover-letter` | user + IP | `DAILY_QUOTA_COVER_LETTER` (30) |
 | `POST /api/cv-optimizer` | user + IP | `DAILY_QUOTA_CV_OPTIMIZER` (20) |
+| `POST /api/applications` | user + IP | `DAILY_QUOTA_APPLICATIONS` (100) |
 | `PUT /api/profile/llm-credentials` | user + IP | `DAILY_QUOTA_LLM_CREDENTIALS` (50) |
 | `POST /api/upload-cv` | user + IP | `DAILY_QUOTA_UPLOAD` (100) |
 | `POST /api/free-compare-stream`, `POST /api/free-upload-cv` | IP | 1 free analysis per client |

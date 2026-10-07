@@ -57,6 +57,12 @@ const baseRoutes: BaseRoute[] = [
     meta: { requiresAuth: true, seo: 'coverLetter' },
   },
   {
+    path: '/applications',
+    name: 'applications',
+    component: () => import('@/views/ApplicationsView.vue'),
+    meta: { requiresAuth: true, seo: 'applications' },
+  },
+  {
     path: '/cv-optimizer',
     name: 'cv-optimizer',
     component: () => import('@/views/CvOptimizerView.vue'),

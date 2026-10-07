@@ -9,6 +9,7 @@ from app.config import settings
 from app.db import init_db
 from app.i18n import ApiError, negotiate_locale, t
 from app.routers import (
+    applications,
     auth,
     compare,
     comparisons,
@@ -73,6 +74,7 @@ app.include_router(interview.router, prefix="/api", tags=["interview"])
 app.include_router(interviews.router, prefix="/api", tags=["interviews"])
 app.include_router(cover_letters.router, prefix="/api", tags=["cover-letters"])
 app.include_router(cv_optimizer.router, prefix="/api", tags=["cv-optimizer"])
+app.include_router(applications.router, prefix="/api", tags=["applications"])
 app.include_router(llm_credentials.router, prefix="/api", tags=["llm-credentials"])
 app.include_router(saved_cvs.router, prefix="/api", tags=["saved-cvs"])
 app.include_router(job_offers.router, prefix="/api", tags=["job-offers"])

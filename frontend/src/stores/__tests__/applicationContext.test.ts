@@ -85,6 +85,46 @@ describe('lien de l’offre', () => {
   })
 })
 
+describe('candidature suivie', () => {
+  const APPLICATION = { id: 'app-1', title: 'Dev Vue', offerText: OFFER, offerUrl: 'https://jobs.example.com/1' }
+
+  it("charge l'offre de la candidature en gardant le CV, et persiste le rattachement", async () => {
+    const store = freshStore()
+    store.setCv(CV, { from: 'compare' })
+    store.useApplication(APPLICATION)
+    await nextTick()
+
+    expect(store.cvText).toBe(CV)
+    expect(store.offerText).toBe(OFFER)
+    expect(store.offerUrl).toBe(APPLICATION.offerUrl)
+    expect(stored()).toMatchObject({ applicationId: 'app-1', applicationTitle: 'Dev Vue' })
+    expect(freshStore().applicationId).toBe('app-1')
+  })
+
+  it("se détache quand l'offre change, pas quand elle est réécrite à l'identique", () => {
+    const store = freshStore()
+    store.useApplication(APPLICATION)
+
+    store.setOffer(`  ${OFFER}  `)
+    expect(store.applicationId).toBe('app-1')
+
+    store.setOffer('Une autre offre')
+    expect(store.applicationId).toBeNull()
+    expect(store.applicationTitle).toBeNull()
+  })
+
+  it("setContext et clear() oublient la candidature", () => {
+    const store = freshStore()
+    store.useApplication(APPLICATION)
+    store.setContext({ cvText: CV, offerText: OFFER })
+    expect(store.applicationId).toBeNull()
+
+    store.useApplication(APPLICATION)
+    store.clear()
+    expect(store.applicationId).toBeNull()
+  })
+})
+
 describe('hydratation', () => {
   it('restaure le contexte après un rechargement', () => {
     sessionStorage.setItem(
